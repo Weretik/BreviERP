@@ -46,7 +46,7 @@ public sealed class GetFabricConsumptionHandler(IWarehouseDbContext db, IWarehou
                 decimal? value = query.Actor.SeesStockValue && prices.TryGetValue(line.FabricCode, out var price)
                     ? decimal.Round(issued * price, 2)
                     : null;
-                return new FabricConsumptionRowResponse(line.Id, line.FabricCode, line.FabricName, line.Color,
+                return new FabricConsumptionRowResponse(line.Id.Value, line.FabricCode, line.FabricName, line.Color,
                     g.Where(x => Effective(x) == FabricMovementKind.Receipt).Sum(x => x.Delta), issued,
                     g.Where(x => Effective(x) is FabricMovementKind.Adjustment or FabricMovementKind.Opening
                         or FabricMovementKind.Reversal).Sum(x => x.Delta),

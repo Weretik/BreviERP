@@ -37,7 +37,7 @@ public sealed class ItemFabricCards(IWarehouseDbContext db, StockReservations re
             var issued = active.Where(l => l.Plan == x.Part.Key).Sum(l => l.Meters);
             var stock = pair.Meters;
             return new FabricPlanPartResponse(x.Part.FabricCode, x.Part.Color, x.Part.ColorKey, x.Part.Layer.ToString(),
-                x.Part.Meters, x.Covered, issued, mine, pair.Lines.FirstOrDefault()?.Id, stock,
+                x.Part.Meters, x.Covered, issued, mine, pair.Lines.FirstOrDefault()?.Id.Value, stock,
                 stock - held.GetValueOrDefault((pair.Code, pair.ColorKey)), Math.Max(0m, x.Part.Meters - x.Covered));
         }).ToList();
         return new ProductionItemFabricResponse(item.OrderId, item.ItemId, item.OrderNumber, item.ClientName,
@@ -46,10 +46,10 @@ public sealed class ItemFabricCards(IWarehouseDbContext db, StockReservations re
             issues.Select(Map).ToList(), actor.CanIssueFabric(item));
     }
 
-    private static FabricIssueResponse Map(FabricIssue x) => new(x.Id, x.IssuedOn, x.Note, x.CreatedByName,
+    private static FabricIssueResponse Map(FabricIssue x) => new(x.Id.Value, x.IssuedOn, x.Note, x.CreatedByName,
         x.CreatedAt, x.IsReversed, x.ReversedAt, x.ReversedByName, x.ReverseReason, x.IssuedQuantity, Comparison(x),
         x.Lines.OrderBy(l => l.Id).Select(l => new FabricIssueLineResponse(l.Id, l.Purpose.ToString(), l.PlanFabricCode,
-            l.PlanColorKey, l.PlannedMeters, l.StockId, l.FabricCode, l.FabricName, l.Color, l.Meters, l.CoveredMeters,
+            l.PlanColorKey, l.PlannedMeters, l.StockId.Value, l.FabricCode, l.FabricName, l.Color, l.Meters, l.CoveredMeters,
             l.Layer?.ToString(), l.Note, l.IsVoided)).ToList());
 
     /// <summary>Plan and fact by planned part: the plan once, the metres of every line of the part summed.</summary>

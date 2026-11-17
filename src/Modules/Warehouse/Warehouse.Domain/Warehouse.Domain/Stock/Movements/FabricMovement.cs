@@ -1,3 +1,5 @@
+using Warehouse.Domain.Stock;
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 namespace Warehouse.Domain.Stock.Movements;
@@ -30,7 +32,7 @@ public sealed record FabricMovementDetails(
     string? Document = null,
     FabricMovementTarget? Target = null,
     string? Destination = null,
-    Guid? OperationId = null);
+    StockOperationId? OperationId = null);
 
 /// <summary>The order item a movement went to.</summary>
 public sealed record FabricMovementTarget(int OrderId, int ItemId, int OrderNumber, string ModelName);
@@ -59,7 +61,7 @@ public sealed class FabricMovement : DomainEventSource, IAggregateRoot
     private FabricMovement() { }
 
     internal FabricMovement(FabricStock stock, FabricMovementKind kind, decimal before, decimal delta,
-        FabricMovementDetails details, string actorName, DateTimeOffset now, int? reversesMovementId, string? legacyId)
+        FabricMovementDetails details, string actorName, DateTimeOffset now, FabricMovementId? reversesMovementId, string? legacyId)
     {
         Stock = stock;
         Kind = kind;
@@ -84,8 +86,8 @@ public sealed class FabricMovement : DomainEventSource, IAggregateRoot
         if (LegacyId is null) Raise(new FabricMovementRecorded(this));
     }
 
-    public int Id { get; private set; }
-    public int StockId { get; private set; }
+    public FabricMovementId Id { get; private set; }
+    public FabricStockId StockId { get; private set; }
     public FabricStock Stock { get; private set; } = null!;
     public FabricMovementKind Kind { get; private set; }
     public decimal MetersBefore { get; private set; }
@@ -114,10 +116,10 @@ public sealed class FabricMovement : DomainEventSource, IAggregateRoot
     public string? Destination { get; private set; }
 
     /// <summary>The form submission that made this movement; one submission may move several lines of a pair.</summary>
-    public Guid? OperationId { get; private set; }
+    public StockOperationId? OperationId { get; private set; }
 
     /// <summary>The movement a «Сторно» takes back.</summary>
-    public int? ReversesMovementId { get; private set; }
+    public FabricMovementId? ReversesMovementId { get; private set; }
 
     /// <summary>Taken back by a «Сторно»; it cannot be taken back twice.</summary>
     public bool IsReversed { get; private set; }
@@ -149,7 +151,7 @@ public sealed class FabricMovement : DomainEventSource, IAggregateRoot
 
     /// <summary>Applies a new state with a revision; the chains of the lines it left and joined are restated after.</summary>
     internal FabricMovementRevision Revise(FabricStock line, FabricMovementState state,
-        FabricMovementRevisionAction action, string? reason, string actorName, DateTimeOffset now, Guid operationId,
+        FabricMovementRevisionAction action, string? reason, string actorName, DateTimeOffset now, StockOperationId operationId,
         FabricMovementRevision? restores)
     {
         var before = State;

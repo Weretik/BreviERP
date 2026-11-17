@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
@@ -15,7 +16,7 @@ public sealed class ReverseFabricMovementHandler(IWarehouseDbContext db, StockCh
         if (!command.Actor.CanMoveStock) return Result<FabricStockOperationResponse>.Forbidden(StockMessages.CannotMove);
         var actorName = await changes.ActorNameAsync(command.Actor, cancellationToken);
         if (actorName is null) return Result<FabricStockOperationResponse>.Forbidden(StockMessages.CannotMove);
-        var movement = await db.FabricMovements.SingleOrDefaultAsync(x => x.Id == command.MovementId, cancellationToken);
+        var movement = await db.FabricMovements.SingleOrDefaultAsync(x => x.Id == new FabricMovementId(command.MovementId), cancellationToken);
         if (movement is null) return Result<FabricStockOperationResponse>.NotFound(StockMessages.MovementNotFound);
         if (movement.IsReversed) return Result<FabricStockOperationResponse>.Conflict(StockMessages.AlreadyReversed);
         if (movement.IsVoided) return Result<FabricStockOperationResponse>.Conflict(StockMessages.Voided);

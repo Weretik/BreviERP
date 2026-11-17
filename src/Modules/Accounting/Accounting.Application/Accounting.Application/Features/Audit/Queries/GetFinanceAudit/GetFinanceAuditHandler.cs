@@ -21,7 +21,7 @@ public sealed class GetFinanceAuditHandler(IAccountingDbContext db)
             .Skip((query.Page - 1) * FinanceJournal.PageSize).Take(FinanceJournal.PageSize)
             .ToListAsync(cancellationToken);
         return Result.Success(new FinanceAuditPageResponse(
-            page.Select(x => new FinanceAuditEntryResponse(x.Id, x.Entity, x.EntityId, x.Action, x.By, x.At,
+            page.Select(x => new FinanceAuditEntryResponse(x.Id.Value, x.Entity, x.EntityId, x.Action, x.By, x.At,
                 AuditTitle.Of(x.AfterJson ?? x.BeforeJson), x.BeforeJson, x.AfterJson)).ToList(),
             total, query.Page, FinanceJournal.PageSize));
     }

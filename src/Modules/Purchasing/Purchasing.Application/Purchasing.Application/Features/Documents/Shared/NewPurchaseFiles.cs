@@ -1,3 +1,4 @@
+using Purchasing.Domain.Files;
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Ingestion.Normalization;
 
@@ -10,7 +11,7 @@ namespace Purchasing.Application.Features.Documents.Shared;
 public static class NewPurchaseFiles
 {
     /// <summary>Safe links are checked in memory: the rule is code, not SQL.</summary>
-    public static async Task<List<string>> IdsAsync(IPurchasingDbContext db, CancellationToken cancellationToken)
+    public static async Task<List<PurchaseMessageFileId>> IdsAsync(IPurchasingDbContext db, CancellationToken cancellationToken)
     {
         var files = await (
                 from file in db.Files

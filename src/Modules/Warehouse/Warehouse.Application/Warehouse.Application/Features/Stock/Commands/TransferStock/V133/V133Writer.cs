@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using System.Text.Json;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
@@ -113,7 +114,7 @@ internal sealed class V133Writer(
             Cut(after.Supplier, FabricMovement.SupplierMaxLength), Cut(after.Reference, FabricMovement.DocumentMaxLength),
             saved.Destination, after.IsVoided);
         var change = line.Revise(saved, state, action, null,
-            await nameOf(revision.ActorEmail, cancellationToken), revision.At, revision.OperationId, restores);
+            await nameOf(revision.ActorEmail, cancellationToken), revision.At, new StockOperationId(revision.OperationId), restores);
         if (change.IsFailure)
         {
             source.Error("fabric_movement_revisions", revision.Id, "Правку не можна застосувати за правилами складу.");

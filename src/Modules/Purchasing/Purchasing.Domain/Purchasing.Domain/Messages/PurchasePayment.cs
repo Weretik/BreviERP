@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages.Identifiers;
 namespace Purchasing.Domain.Messages;
 
 /// <summary>
@@ -8,7 +9,7 @@ public sealed class PurchasePayment
 {
     private PurchasePayment() { }
 
-    internal PurchasePayment(string messageId, Guid transactionId, string by, DateTimeOffset at)
+    internal PurchasePayment(PurchaseMessageId messageId, Guid transactionId, string by, DateTimeOffset at)
     {
         MessageId = messageId;
         TransactionId = transactionId;
@@ -17,7 +18,7 @@ public sealed class PurchasePayment
     }
 
     public long Id { get; private set; }
-    public string MessageId { get; private set; } = null!;
+    public PurchaseMessageId MessageId { get; private set; }
 
     /// <summary>The expense in «Бухгалтерія».</summary>
     public Guid TransactionId { get; private set; }

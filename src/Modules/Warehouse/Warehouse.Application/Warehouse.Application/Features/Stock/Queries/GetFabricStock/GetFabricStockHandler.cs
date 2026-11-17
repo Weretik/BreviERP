@@ -54,7 +54,7 @@ public sealed class GetFabricStockHandler(
                 x.First().ModelName, x.First().DueDate, x.Sum(i => i.Remaining), x.Sum(i => i.ToOrder)))
             .Where(x => x.Need > 0).ToList();
         return new FabricStockColorResponse(pair.Lines[0].Color, pair.ColorKey, pair.Meters, pair.Version,
-            pair.Lines.Select(l => new FabricStockSourceResponse(l.Id, l.FabricCode, l.Meters)).ToList(), need,
+            pair.Lines.Select(l => new FabricStockSourceResponse(l.Id.Value, l.FabricCode, l.Meters)).ToList(), need,
             pair.Meters - need, booking?.ToOrder ?? 0m, last, bookings);
     }
 
@@ -75,7 +75,7 @@ public sealed class GetFabricStockHandler(
             {
                 var x = g.OrderByDescending(m => m.OperationDate).ThenByDescending(m => m.CreatedAt)
                     .ThenByDescending(m => m.Id).First();
-                return new FabricStockLastMovementResponse(x.Id, x.Kind.ToString(), x.OperationDate, x.Delta,
+                return new FabricStockLastMovementResponse(x.Id.Value, x.Kind.ToString(), x.OperationDate, x.Delta,
                     x.OrderNumber, x.Document, x.SupplierName, x.Destination);
             });
     }

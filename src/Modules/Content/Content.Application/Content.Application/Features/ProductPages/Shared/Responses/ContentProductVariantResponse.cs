@@ -1,3 +1,4 @@
+using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 
 namespace Content.Application.Features.ProductPages.Shared.Responses;

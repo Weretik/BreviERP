@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Scheduling.Application.Abstractions;
 using Scheduling.Domain.Runs;
@@ -46,6 +47,9 @@ public sealed class SchedulingDbContext(DbContextOptions<SchedulingDbContext> op
             }
         }
     }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(ScheduledTaskRun).Assembly);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

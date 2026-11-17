@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
 using Warehouse.Application.Features.Activity.EventHandlers;
@@ -33,7 +34,7 @@ public sealed class WarehouseActivityTests
         var movement = line.Move(FabricMovementKind.Receipt, 10m, new FabricMovementDetails(Today, null), "Комірник", Now);
 
         var revision = line.Revise(movement, movement.State with { Delta = 0, IsVoided = true },
-            FabricMovementRevisionAction.Void, "Помилковий прихід", "Комірник", Now, Guid.NewGuid()).Value;
+            FabricMovementRevisionAction.Void, "Помилковий прихід", "Комірник", Now, new StockOperationId(Guid.NewGuid())).Value;
 
         var entry = new FabricRevisionActivity().Describe(((IHasDomainEvents)revision).DomainEvents.Single());
         Assert.That(entry!.Action, Is.EqualTo(ActivityActions.Voided));

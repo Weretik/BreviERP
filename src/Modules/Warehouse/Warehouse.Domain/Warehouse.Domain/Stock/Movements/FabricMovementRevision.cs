@@ -1,3 +1,5 @@
+using Warehouse.Domain.Stock;
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 namespace Warehouse.Domain.Stock.Movements;
@@ -16,7 +18,7 @@ public enum FabricMovementRevisionAction
 }
 
 /// <summary>The parts of a movement an edit, a void or a restore may change.</summary>
-public sealed record FabricMovementState(int StockId, DateOnly OperationDate, decimal Delta, string? SupplierName,
+public sealed record FabricMovementState(FabricStockId StockId, DateOnly OperationDate, decimal Delta, string? SupplierName,
     string? Document, string? Destination, bool IsVoided);
 
 /// <summary>
@@ -31,12 +33,12 @@ public sealed class FabricMovementRevision : DomainEventSource, IAggregateRoot
 
     internal FabricMovementRevision(FabricMovement movement, int number, FabricMovementRevisionAction action,
         FabricMovementState before, FabricStock afterStock, FabricMovementState after, string? reason, string actorName, DateTimeOffset now,
-        Guid operationId, int? restoresRevisionId)
+        StockOperationId operationId, FabricMovementRevisionId? restoresRevisionId)
     {
         Movement = movement;
         Number = number;
         Action = action;
-        BeforeStockId = before.StockId;
+        BeforeStockId = new FabricStockId(before.StockId.Value);
         BeforeOperationDate = before.OperationDate;
         BeforeDelta = before.Delta;
         BeforeSupplierName = before.SupplierName;
@@ -59,8 +61,8 @@ public sealed class FabricMovementRevision : DomainEventSource, IAggregateRoot
         Raise(new FabricMovementRevised(this));
     }
 
-    public int Id { get; private set; }
-    public int MovementId { get; private set; }
+    public FabricMovementRevisionId Id { get; private set; }
+    public FabricMovementId MovementId { get; private set; }
     public FabricMovement Movement { get; private set; } = null!;
 
     /// <summary>The movement's revision number after this change, from 1.</summary>
@@ -68,7 +70,7 @@ public sealed class FabricMovementRevision : DomainEventSource, IAggregateRoot
 
     public FabricMovementRevisionAction Action { get; private set; }
 
-    public int BeforeStockId { get; private set; }
+    public FabricStockId BeforeStockId { get; private set; }
     public DateOnly BeforeOperationDate { get; private set; }
     public decimal BeforeDelta { get; private set; }
     public string? BeforeSupplierName { get; private set; }
@@ -76,7 +78,7 @@ public sealed class FabricMovementRevision : DomainEventSource, IAggregateRoot
     public string? BeforeDestination { get; private set; }
     public bool BeforeIsVoided { get; private set; }
 
-    public int AfterStockId { get; private set; }
+    public FabricStockId AfterStockId { get; private set; }
 
     /// <summary>The line the movement is on after the change; may be a line this change created.</summary>
     public FabricStock AfterStock { get; private set; } = null!;
@@ -90,10 +92,10 @@ public sealed class FabricMovementRevision : DomainEventSource, IAggregateRoot
     public string? Reason { get; private set; }
     public string CreatedByName { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; private set; }
-    public Guid OperationId { get; private set; }
+    public StockOperationId OperationId { get; private set; }
 
     /// <summary>The edit or void a restore took back.</summary>
-    public int? RestoresRevisionId { get; private set; }
+    public FabricMovementRevisionId? RestoresRevisionId { get; private set; }
 
     /// <summary>Taken back by a later restore.</summary>
     public bool IsUndone { get; private set; }

@@ -7,7 +7,8 @@ namespace ArchitectureTests.Layers;
 /// factory, never by a public constructor; a module's persistence port in Application exposes a writable <c>DbSet</c>
 /// only for roots (children are read through an <c>IQueryable</c>), so a handler cannot write a child past its root;
 /// domain properties have no public setter; and a change history is never loaded with its root (the root's
-/// <c>New*</c> navigation holds only the lines a command adds; the saved history is read by a query).
+/// <c>New*</c> navigation holds only the lines a command adds; the saved history is read by a query); and a root with
+/// an <c>Id</c> has its own id type, never a bare number, text or GUID.
 /// </summary>
 public sealed partial class AggregateRootTests
 {
@@ -82,6 +83,29 @@ public sealed partial class AggregateRootTests
         Assert.That(offending, Is.Empty, "read the saved history through the module's IQueryable, not the root's New* list");
     }
 
+    [Test]
+    public void Roots_have_a_typed_id()
+    {
+        var offending = DomainFiles
+            .SelectMany(file => ClassBodies(File.ReadAllText(file))
+                .Where(body => Roots.Contains(body.Name) && BareId().IsMatch(body.Text))
+                .Select(body => $"{Path.GetRelativePath(Root, file)}: {body.Name}"))
+            .ToArray();
+
+        Assert.That(offending, Is.Empty, "give the root a readonly record struct <Root>Id mapped by AddTypedIds");
+    }
+
+    /// <summary>Each top-level class of a file with the text up to the next one.</summary>
+    private static IEnumerable<(string Name, string Text)> ClassBodies(string text)
+    {
+        var headers = ClassHeader().Matches(text);
+        for (var i = 0; i < headers.Count; i++)
+        {
+            var end = i + 1 < headers.Count ? headers[i + 1].Index : text.Length;
+            yield return (headers[i].Groups["name"].Value, text[headers[i].Index..end]);
+        }
+    }
+
     private static IReadOnlyList<string> SourceFiles(string projectPattern) =>
         Directory.GetDirectories(Path.Combine(Root, "src", "Modules"), projectPattern, SearchOption.AllDirectories)
             .Where(dir => File.Exists(Path.Combine(dir, Path.GetFileName(dir) + ".csproj")))
@@ -102,6 +126,9 @@ public sealed partial class AggregateRootTests
 
     [GeneratedRegex(@"(?:Include|Collection)\(\s*\w+\s*=>\s*\w+\.New[A-Z]\w*")]
     private static partial Regex HistoryLoad();
+
+    [GeneratedRegex(@"^\s+public (?:int|long|string|Guid) Id \{", RegexOptions.Multiline)]
+    private static partial Regex BareId();
 
     [GeneratedRegex(@"DbSet<(?<type>\w+)>")]
     private static partial Regex DbSetType();

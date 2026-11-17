@@ -24,7 +24,7 @@ public sealed class SentReminderMessage : IAggregateRoot
         long telegramMessageId, DateOnly sentOn, DateTimeOffset sentAt) =>
         new(occurrenceId, chatId, telegramChatId, telegramMessageId, sentOn, sentAt);
 
-    public long Id { get; private set; }
+    public SentReminderMessageId Id { get; private set; }
     public ReminderOccurrenceId OccurrenceId { get; private set; }
     public ReminderChatId ChatId { get; private set; }
     public long TelegramChatId { get; private set; }

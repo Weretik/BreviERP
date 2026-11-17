@@ -1,3 +1,6 @@
+using Purchasing.Domain.Messages.Identifiers;
+using Purchasing.Domain.Files;
+using Purchasing.Domain.Documents.Identifiers;
 using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Documents;
 
@@ -13,7 +16,7 @@ public sealed class PurchaseRecognitionAttempt : IAggregateRoot
 
     private PurchaseRecognitionAttempt() { }
 
-    private PurchaseRecognitionAttempt(string fileId, string messageId, PurchaseRecognitionOutcome outcome,
+    private PurchaseRecognitionAttempt(PurchaseMessageFileId fileId, PurchaseMessageId messageId, PurchaseRecognitionOutcome outcome,
         IEnumerable<string> problems, string? model, decimal costUsd, string? outputJson, string by, DateTimeOffset at)
     {
         FileId = fileId;
@@ -27,13 +30,13 @@ public sealed class PurchaseRecognitionAttempt : IAggregateRoot
         At = at;
     }
 
-    public static PurchaseRecognitionAttempt Create(string fileId, string messageId, PurchaseRecognitionOutcome outcome,
+    public static PurchaseRecognitionAttempt Create(PurchaseMessageFileId fileId, PurchaseMessageId messageId, PurchaseRecognitionOutcome outcome,
         IEnumerable<string> problems, string? model, decimal costUsd, string? outputJson, string by, DateTimeOffset at) =>
         new(fileId, messageId, outcome, problems, model, costUsd, outputJson, by, at);
 
-    public long Id { get; private set; }
-    public string FileId { get; private set; } = null!;
-    public string MessageId { get; private set; } = null!;
+    public PurchaseRecognitionAttemptId Id { get; private set; }
+    public PurchaseMessageFileId FileId { get; private set; }
+    public PurchaseMessageId MessageId { get; private set; }
     public PurchaseRecognitionOutcome Outcome { get; private set; }
     public string[] Problems { get; private set; } = [];
 

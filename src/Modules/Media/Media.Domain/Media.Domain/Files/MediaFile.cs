@@ -1,3 +1,4 @@
+using Media.Domain.Folders;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
@@ -19,7 +20,7 @@ public sealed class MediaFile : DomainEventSource, IAggregateRoot
     /// </summary>
     public static DomainResult<MediaFile> Create(
         string fileName,
-        int? folderId,
+        MediaFolderId? folderId,
         string contentType,
         long sizeInBytes,
         string storageProvider,
@@ -35,7 +36,7 @@ public sealed class MediaFile : DomainEventSource, IAggregateRoot
 
     private MediaFile(
         string fileName,
-        int? folderId,
+        MediaFolderId? folderId,
         string contentType,
         long sizeInBytes,
         string storageProvider,
@@ -58,7 +59,7 @@ public sealed class MediaFile : DomainEventSource, IAggregateRoot
         if (SourceKey is null) Raise(new MediaFileRecorded(this, MediaFileAction.Uploaded));
     }
 
-    public int Id { get; private set; }
+    public MediaFileId Id { get; private set; }
 
     /// <summary>The name staff see and search by; the original file name until renamed.</summary>
     public string FileName { get; private set; } = null!;
@@ -67,7 +68,7 @@ public sealed class MediaFile : DomainEventSource, IAggregateRoot
     public string? Alt { get; private set; }
 
     /// <summary>Null when the photo lies in the library root.</summary>
-    public int? FolderId { get; private set; }
+    public MediaFolderId? FolderId { get; private set; }
 
     public string ContentType { get; private set; } = null!;
     public long SizeInBytes { get; private set; }
@@ -90,7 +91,7 @@ public sealed class MediaFile : DomainEventSource, IAggregateRoot
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
-    public DomainResult Update(string fileName, string? alt, int? folderId, DateTimeOffset now)
+    public DomainResult Update(string fileName, string? alt, MediaFolderId? folderId, DateTimeOffset now)
     {
         var name = MediaNames.Normalize(fileName, FileNameMaxLength, "fileName");
         if (name.IsFailure) return name.Error!;
@@ -105,7 +106,7 @@ public sealed class MediaFile : DomainEventSource, IAggregateRoot
         return DomainResult.Success();
     }
 
-    public void MoveTo(int? folderId, DateTimeOffset now)
+    public void MoveTo(MediaFolderId? folderId, DateTimeOffset now)
     {
         if (folderId != FolderId) Raise(new MediaFileRecorded(this, MediaFileAction.Moved));
         FolderId = folderId;

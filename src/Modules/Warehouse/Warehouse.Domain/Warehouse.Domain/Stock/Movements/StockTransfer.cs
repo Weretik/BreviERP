@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using BuildingBlocks.Domain.Entity;
 namespace Warehouse.Domain.Stock.Movements;
 
@@ -30,7 +31,7 @@ public sealed class StockTransfer : IAggregateRoot
         string actorName, DateTimeOffset now) =>
         new(hash, snapshot, lines, movements, issues, meters, actorName, now);
 
-    public int Id { get; private set; }
+    public StockTransferId Id { get; private set; }
     public string Hash { get; private set; } = null!;
     public string? Snapshot { get; private set; }
     public int Lines { get; private set; }

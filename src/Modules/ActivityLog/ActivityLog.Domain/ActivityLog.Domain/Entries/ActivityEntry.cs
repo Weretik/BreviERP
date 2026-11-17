@@ -1,3 +1,4 @@
+using ActivityLog.Domain.Filters;
 using BuildingBlocks.Domain.Entity;
 namespace ActivityLog.Domain.Entries;
 
@@ -23,9 +24,9 @@ public sealed class ActivityEntry : IAggregateRoot
 
     private ActivityEntry() { }
 
-    public Guid Id { get; private set; }
+    public ActivityEntryId Id { get; private set; }
     public DateTimeOffset OccurredAt { get; private set; }
-    public int ActorId { get; private set; }
+    public ActivityActorId ActorId { get; private set; }
     public string ActorName { get; private set; } = null!;
     public string ActorRoles { get; private set; } = null!;
     public string Action { get; private set; } = null!;
@@ -48,9 +49,9 @@ public sealed class ActivityEntry : IAggregateRoot
         if (id == Guid.Empty) throw new ArgumentException("An entry needs the event id.", nameof(id));
         return new ActivityEntry
         {
-            Id = id,
+            Id = new ActivityEntryId(id),
             OccurredAt = occurredAt,
-            ActorId = actorId,
+            ActorId = new ActivityActorId(actorId),
             ActorName = ActivityText.Cut(actorName, ActorNameMaxLength),
             ActorRoles = JoinRoles(roles),
             Action = ActivityText.Cut(action, ActionMaxLength),

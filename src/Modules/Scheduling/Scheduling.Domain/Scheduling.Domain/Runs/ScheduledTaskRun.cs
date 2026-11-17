@@ -13,7 +13,7 @@ public sealed class ScheduledTaskRun : IAggregateRoot
 
     internal ScheduledTaskRun(Guid id, string taskKey, RunTrigger trigger, string? requestedBy, DateTimeOffset claimedAt)
     {
-        Id = id;
+        Id = new ScheduledTaskRunId(id);
         TaskKey = taskKey;
         Trigger = trigger;
         RequestedBy = requestedBy;
@@ -21,7 +21,7 @@ public sealed class ScheduledTaskRun : IAggregateRoot
         Outcome = RunOutcome.Running;
     }
 
-    public Guid Id { get; private set; }
+    public ScheduledTaskRunId Id { get; private set; }
     public string TaskKey { get; private set; }
     public RunTrigger Trigger { get; private set; }
     public string? RequestedBy { get; private set; }

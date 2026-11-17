@@ -27,7 +27,7 @@ public sealed class AuditEntry : IAggregateRoot
         string? beforeJson, string? afterJson) =>
         new(entity, entityId, action, by, at, beforeJson, afterJson);
 
-    public long Id { get; private set; }
+    public AuditEntryId Id { get; private set; }
     public AuditEntity Entity { get; private set; }
     public Guid EntityId { get; private set; }
     public AuditAction Action { get; private set; }

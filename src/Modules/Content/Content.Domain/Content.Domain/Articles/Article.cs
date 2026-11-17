@@ -27,7 +27,7 @@ public sealed class Article : IAggregateRoot
         return new Article(slug, publishedOn, updatedBy, now);
     }
 
-    public int Id { get; private set; }
+    public ArticleId Id { get; private set; }
 
     public bool ShowOnSite { get; private set; }
 

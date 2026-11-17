@@ -8,7 +8,7 @@ using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
 namespace Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
 
 /// <summary>A shelf line as the filters and the pair balance need it.</summary>
-internal sealed record FabricShelfLine(int Id, string FabricCode, string FabricName, string Color, string ColorKey)
+internal sealed record FabricShelfLine(FabricStockId Id, string FabricCode, string FabricName, string Color, string ColorKey)
 {
     public string Pair => $"{FabricAliases.Canonical(FabricCode)}|{ColorKey}";
 
@@ -133,7 +133,7 @@ internal static class FabricMovementLedger
             foreach (var movement in pair.OrderBy(x => x.OperationDate).ThenBy(x => x.CreatedAt).ThenBy(x => x.Id))
             {
                 if (!movement.IsVoided) balance += movement.Delta;
-                if (ids.Contains(movement.Id)) result[movement.Id] = balance;
+                if (ids.Contains(movement.Id)) result[movement.Id.Value] = balance;
             }
         }
 

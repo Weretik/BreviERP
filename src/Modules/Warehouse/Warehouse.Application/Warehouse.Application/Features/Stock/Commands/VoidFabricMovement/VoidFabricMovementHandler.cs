@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Domain.Stock.Movements;
@@ -28,7 +29,7 @@ public sealed class VoidFabricMovementHandler(StockChanges changes, StockPairs p
         var line = movement.Stock;
 
         var revision = line.Revise(movement, movement.State with { Delta = 0, IsVoided = true },
-            FabricMovementRevisionAction.Void, input.Reason, actorName, pairs.Now, input.OperationId);
+            FabricMovementRevisionAction.Void, input.Reason, actorName, pairs.Now, new StockOperationId(input.OperationId));
         if (revision.IsFailure) return revision.Error!.ToResult<FabricStockOperationResponse>();
         return await revisions.SaveAsync(command.Actor, input.OperationId, Kind, hash, revision.Value, line, line,
             cancellationToken);

@@ -26,6 +26,9 @@ public sealed class WarehouseDbContext(DbContextOptions<WarehouseDbContext> opti
     public async Task<IWarehouseTransaction> BeginTransactionAsync(CancellationToken cancellationToken) =>
         new Transaction(await Database.BeginTransactionAsync(cancellationToken));
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(FabricStock).Assembly);
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);

@@ -1,3 +1,4 @@
+using Content.Domain.Redirects;
 using Content.Application.Abstractions;
 using Content.Application.Features.Redirects.Shared;
 
@@ -8,7 +9,7 @@ public sealed class DeleteSiteRedirectHandler(IContentDbContext db)
 {
     public async ValueTask<Result> Handle(DeleteSiteRedirectCommand command, CancellationToken cancellationToken)
     {
-        var redirect = await db.SiteRedirects.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var redirect = await db.SiteRedirects.FirstOrDefaultAsync(x => x.Id == new SiteRedirectId(command.Id), cancellationToken);
         if (redirect is null) return Result.NotFound(RedirectMessages.NotFound);
         db.SiteRedirects.Remove(redirect);
         await db.SaveChangesAsync(cancellationToken);

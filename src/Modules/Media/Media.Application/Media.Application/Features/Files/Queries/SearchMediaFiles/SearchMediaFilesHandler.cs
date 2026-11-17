@@ -1,3 +1,4 @@
+using Media.Domain.Folders;
 using Media.Application.Abstractions;
 using Media.Application.Features.Files.Shared;
 using Media.Application.Features.Folders.Shared;
@@ -10,8 +11,9 @@ public sealed class SearchMediaFilesHandler(IMediaDbContext db)
     public async ValueTask<Result<MediaFilePage>> Handle(SearchMediaFilesQuery query, CancellationToken cancellationToken)
     {
         var files = db.Files.AsNoTracking();
-        if (query.FolderId is { } folderId)
+        if (query.FolderId is { } folderValue)
         {
+            var folderId = new MediaFolderId(folderValue);
             if (!query.IncludeSubfolders)
             {
                 files = files.Where(x => x.FolderId == folderId);

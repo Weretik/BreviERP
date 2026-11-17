@@ -1,3 +1,4 @@
+using Content.Domain.Articles;
 using Content.Application.Abstractions;
 using Content.Application.Features.Articles.Shared;
 
@@ -8,7 +9,7 @@ public sealed class DeleteContentArticleHandler(IContentDbContext db)
 {
     public async ValueTask<Result> Handle(DeleteContentArticleCommand command, CancellationToken cancellationToken)
     {
-        var article = await db.Articles.Include(x => x.Texts).FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var article = await db.Articles.Include(x => x.Texts).FirstOrDefaultAsync(x => x.Id == new ArticleId(command.Id), cancellationToken);
         if (article is null) return Result.NotFound(ArticleMessages.NotFound);
         db.Articles.Remove(article);
         await db.SaveChangesAsync(cancellationToken);

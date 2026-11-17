@@ -16,7 +16,7 @@ public sealed class SaveSiteRedirectHandler(IContentDbContext db, TimeProvider c
         SiteRedirect? redirect = null;
         if (command.Id is { } id)
         {
-            redirect = await db.SiteRedirects.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            redirect = await db.SiteRedirects.FirstOrDefaultAsync(x => x.Id == new SiteRedirectId(id), cancellationToken);
             if (redirect is null) return Result.NotFound(RedirectMessages.NotFound);
         }
         else if (await db.SiteRedirects.CountAsync(cancellationToken) >= SiteRedirectRules.MaxRedirects)

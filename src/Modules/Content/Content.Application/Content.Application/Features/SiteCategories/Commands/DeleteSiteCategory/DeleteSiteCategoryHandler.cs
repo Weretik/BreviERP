@@ -1,3 +1,4 @@
+using Content.Domain.SiteCategories;
 using Content.Application.Abstractions;
 using Content.Application.Features.SiteCategories.Shared;
 
@@ -9,7 +10,7 @@ public sealed class DeleteSiteCategoryHandler(IContentDbContext db)
     public async ValueTask<Result> Handle(DeleteSiteCategoryCommand command, CancellationToken cancellationToken)
     {
         var category = await db.SiteCategories.Include(x => x.Texts)
-            .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == new SiteCategoryId(command.Id), cancellationToken);
         if (category is null) return Result.NotFound(SiteCategoryMessages.NotFound);
         if (await db.SiteCategories.AnyAsync(x => x.ParentId == category.Id, cancellationToken))
             return Result.Conflict(SiteCategoryMessages.HasSubcategories);

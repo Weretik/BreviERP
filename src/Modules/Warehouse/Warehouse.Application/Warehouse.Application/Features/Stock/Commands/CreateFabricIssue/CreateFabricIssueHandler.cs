@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
@@ -70,7 +71,7 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
 
         var target = item.Target;
         var issue = FabricIssue.Create(target, input.IssuedOn, input.Note, actorName, now, issuedQuantity: input.IssuedQuantity,
-            operationId: input.OperationId, planVersion: plan.Version);
+            operationId: new StockOperationId(input.OperationId), planVersion: plan.Version);
         var left = forms.Where(x => x.Part is not null).Select(x => x.Part!).Distinct().ToDictionary(x => x,
             x => Math.Min(FabricItemPlan.ComparisonPlan(x.Meters, input.IssuedQuantity, plan.Quantity),
                 Math.Max(0m, x.Meters - covered.GetValueOrDefault(x.Key))));
@@ -79,7 +80,7 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
         {
             var (row, pair, part) = forms[i];
             var details = new FabricMovementDetails(input.IssuedOn, row.Note ?? input.Note, Target: target,
-                OperationId: input.OperationId);
+                OperationId: new StockOperationId(input.OperationId));
             var spent = pair.Issue(row.Meters, details, actorName, now);
             if (!spent.IsDone) return Invalid($"Lines[{i}]", StockMessages.TooMuch);
             touched.AddRange(spent.Lines);

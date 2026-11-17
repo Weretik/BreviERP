@@ -31,7 +31,7 @@ public sealed class ScheduledTask : IAggregateRoot
     public TaskSchedule Schedule { get; private set; }
     public DateTimeOffset? NextRunAt { get; private set; }
     public TaskState State { get; private set; }
-    public Guid? CurrentRunId { get; private set; }
+    public ScheduledTaskRunId? CurrentRunId { get; private set; }
     public DateTimeOffset? RunningSince { get; private set; }
     public DateTimeOffset? RunRequestedAt { get; private set; }
     public string? RunRequestedBy { get; private set; }

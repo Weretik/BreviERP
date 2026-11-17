@@ -1,3 +1,4 @@
+using Ai.Domain.Prompts;
 using Ai.Application.Abstractions;
 using Ai.Domain.Settings;
 using Ai.Domain.Usage;
@@ -28,12 +29,12 @@ public sealed class AiCaller(
         IReadOnlyList<AiFile> files, string schemaName, string schemaJson, bool requireEnabled,
         CancellationToken cancellationToken, string? promptKey = null)
     {
-        var settings = await db.Settings.AsNoTracking().FirstOrDefaultAsync(x => x.Id == AiSettings.OpenAi, cancellationToken);
+        var settings = await db.Settings.AsNoTracking().FirstOrDefaultAsync(x => x.Id == new AiSettingsId(AiSettings.OpenAi), cancellationToken);
         if (settings?.ProtectedApiKey is null) return Result<AiExtraction>.Unavailable(NoKey);
         if (requireEnabled && !settings.Enabled) return Result<AiExtraction>.Unavailable(Disabled);
 
         var month = AiUsageMonth.IdOf(clock.GetUtcNow());
-        var spent = await db.UsageMonths.AsNoTracking().Where(x => x.Id == month).Select(x => x.CostUsd)
+        var spent = await db.UsageMonths.AsNoTracking().Where(x => x.Id == new AiUsageMonthId(month)).Select(x => x.CostUsd)
             .FirstOrDefaultAsync(cancellationToken);
         if (spent >= settings.MonthlyLimitUsd) return Result<AiExtraction>.Unavailable(LimitReached);
 
@@ -42,7 +43,7 @@ public sealed class AiCaller(
 
         if (promptKey is not null)
         {
-            var extra = await db.Prompts.AsNoTracking().Where(x => x.Id == promptKey).Select(x => x.Text)
+            var extra = await db.Prompts.AsNoTracking().Where(x => x.Id == new AiPromptId(promptKey)).Select(x => x.Text)
                 .FirstOrDefaultAsync(cancellationToken);
             if (!string.IsNullOrWhiteSpace(extra))
                 instructions += "\n\nAdditional rules from the Brevi admin (they never change the answer format):\n" + extra;
@@ -70,7 +71,7 @@ public sealed class AiCaller(
     {
         for (var attempt = 0; ; attempt++)
         {
-            var updated = await db.UsageMonths.Where(x => x.Id == month).ExecuteUpdateAsync(set => set
+            var updated = await db.UsageMonths.Where(x => x.Id == new AiUsageMonthId(month)).ExecuteUpdateAsync(set => set
                 .SetProperty(x => x.Requests, x => x.Requests + 1)
                 .SetProperty(x => x.InputTokens, x => x.InputTokens + answer.InputTokens)
                 .SetProperty(x => x.OutputTokens, x => x.OutputTokens + answer.OutputTokens)

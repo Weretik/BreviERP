@@ -4,6 +4,7 @@ using ActivityLog.Domain.Entries;
 using ActivityLog.Domain.Filters;
 using ActivityLog.Infrastructure.Persistence.Configurations;
 using BuildingBlocks.Application.Outbox;
+using BuildingBlocks.Infrastructure.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -18,6 +19,9 @@ internal sealed class ActivityTestDb(DbContextOptions<ActivityTestDb> options) :
     public DbSet<ActivityEntry> Entries => Set<ActivityEntry>();
     public DbSet<ActivityActor> Actors => Set<ActivityActor>();
     public DbSet<ActivitySubjectType> SubjectTypes => Set<ActivitySubjectType>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(ActivityEntry).Assembly);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

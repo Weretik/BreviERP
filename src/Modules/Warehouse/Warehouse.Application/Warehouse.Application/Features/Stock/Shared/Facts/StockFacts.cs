@@ -18,7 +18,7 @@ public sealed class StockFacts(IWarehouseDbContext db) : IStockFacts
                         x.OperationDate >= from && x.OperationDate < to)
             .OrderBy(x => x.OperationDate).ThenBy(x => x.Id)
             .ToListAsync(cancellationToken))
-        .Select(x => new StockIssueFact(x.Id, x.OperationDate, x.Stock.FabricCode, x.Stock.FabricName, x.Stock.Color,
+        .Select(x => new StockIssueFact(x.Id.Value, x.OperationDate, x.Stock.FabricCode, x.Stock.FabricName, x.Stock.Color,
             x.OrderId, x.OrderNumber, x.ModelName, -x.Delta))
         .ToList();
 
@@ -29,7 +29,7 @@ public sealed class StockFacts(IWarehouseDbContext db) : IStockFacts
         var later = (await db.FabricMovements.AsNoTracking().Where(x => x.OperationDate >= before)
                 .Select(x => new { x.StockId, x.Delta }).ToListAsync(cancellationToken))
             .GroupBy(x => x.StockId).ToDictionary(x => x.Key, x => x.Sum(m => m.Delta));
-        return stocks.Select(x => new StockBalanceFact(x.Id, x.FabricCode, x.FabricName, x.Color,
+        return stocks.Select(x => new StockBalanceFact(x.Id.Value, x.FabricCode, x.FabricName, x.Color,
                 x.Meters - later.GetValueOrDefault(x.Id)))
             .ToList();
     }

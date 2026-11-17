@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Domain.Stock.Movements;
@@ -26,7 +27,7 @@ public sealed class IssueFabricHandler(StockChanges changes, StockPairs pairs, S
             return Result<FabricStockOperationResponse>.Conflict(StockMessages.Stale);
         var result = pair.Issue(input.Meters,
             new FabricMovementDetails(input.OperationDate, input.Note, Destination: input.Destination,
-                OperationId: input.OperationId), actorName, pairs.Now);
+                OperationId: new StockOperationId(input.OperationId)), actorName, pairs.Now);
         if (!result.IsDone) return StockPairs.Refused(result.Refusal!.Value);
         return await pairs.SaveAsync(command.Actor, input.OperationId, Kind, hash, pair, result, cancellationToken);
     }

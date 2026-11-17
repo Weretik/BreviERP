@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages.Identifiers;
 using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Files;
 
@@ -11,9 +12,9 @@ public sealed class PurchaseMessageFile : IAggregateRoot
 
     private PurchaseMessageFile() { }
 
-    private PurchaseMessageFile(string id, string messageId, string url, Guid run)
+    private PurchaseMessageFile(string id, PurchaseMessageId messageId, string url, Guid run)
     {
-        Id = id;
+        Id = new PurchaseMessageFileId(id);
         MessageId = messageId;
         Url = url;
         Active = true;
@@ -21,13 +22,13 @@ public sealed class PurchaseMessageFile : IAggregateRoot
         State = AwaitingRecognition;
     }
 
-    public static PurchaseMessageFile Create(string id, string messageId, string url, Guid run) =>
+    public static PurchaseMessageFile Create(string id, PurchaseMessageId messageId, string url, Guid run) =>
         new(id, messageId, url, run);
 
     /// <summary>SHA-256 of messageId:exactUrl, lower-case hex.</summary>
-    public string Id { get; private set; } = null!;
+    public PurchaseMessageFileId Id { get; private set; }
 
-    public string MessageId { get; private set; } = null!;
+    public PurchaseMessageId MessageId { get; private set; }
 
     /// <summary>The exact link from the sheet, never rewritten or canonicalised.</summary>
     public string Url { get; private set; } = null!;

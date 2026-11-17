@@ -16,7 +16,7 @@ public sealed class GetContentProductsHandler(IContentDbContext db, IContentCata
         var categories = (await db.SiteCategoryProducts.AsNoTracking()
                 .Select(x => new { x.ProductId, x.CategoryId }).ToListAsync(cancellationToken))
             .GroupBy(x => x.ProductId)
-            .ToDictionary(x => x.Key, x => (IReadOnlyList<int>)x.Select(y => y.CategoryId).Order().ToArray());
+            .ToDictionary(x => x.Key, x => (IReadOnlyList<int>)x.Select(y => y.CategoryId.Value).Order().ToArray());
         var wanted = await WantedCategoriesAsync(query.CategoryId, cancellationToken);
         var search = query.Search?.Trim();
 
@@ -41,8 +41,8 @@ public sealed class GetContentProductsHandler(IContentDbContext db, IContentCata
             .ToListAsync(cancellationToken);
         var wanted = new HashSet<int> { categoryId.Value };
         for (var added = true; added;)
-            added = parents.Where(x => x.ParentId is { } parent && wanted.Contains(parent))
-                .Aggregate(false, (any, x) => wanted.Add(x.Id) || any);
+            added = parents.Where(x => x.ParentId is { } parent && wanted.Contains(parent.Value))
+                .Aggregate(false, (any, x) => wanted.Add(x.Id.Value) || any);
         return wanted;
     }
 

@@ -10,7 +10,7 @@ public sealed class EnsureMediaFolderPathHandler(IMediaDbContext db, TimeProvide
 {
     public async ValueTask<Result<int>> Handle(EnsureMediaFolderPathCommand command, CancellationToken cancellationToken)
     {
-        int? parentId = null;
+        MediaFolderId? parentId = null;
         foreach (var raw in command.Names)
         {
             var normalized = MediaNames.Normalize(raw, MediaFolder.NameMaxLength);
@@ -29,6 +29,6 @@ public sealed class EnsureMediaFolderPathHandler(IMediaDbContext db, TimeProvide
             parentId = existing.Id;
         }
 
-        return Result.Success(parentId!.Value);
+        return Result.Success(parentId!.Value.Value);
     }
 }

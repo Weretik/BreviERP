@@ -11,13 +11,13 @@ public sealed class UpdateMediaFolderHandler(IMediaDbContext db, TimeProvider cl
 {
     public async ValueTask<Result<MediaFolderResponse>> Handle(UpdateMediaFolderCommand command, CancellationToken cancellationToken)
     {
-        var folder = await db.Folders.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var folder = await db.Folders.FirstOrDefaultAsync(x => x.Id == new MediaFolderId(command.Id), cancellationToken);
         if (folder is null) return Result<MediaFolderResponse>.NotFound(FolderMessages.NotFound);
 
         var normalized = MediaNames.Normalize(command.Input.Name, MediaFolder.NameMaxLength);
         if (normalized.IsFailure) return normalized.Error!.ToResult<MediaFolderResponse>();
         var name = normalized.Value;
-        var parentId = command.Input.ParentId;
+        var parentId = command.Input.ParentId is { } value ? new MediaFolderId(value) : (MediaFolderId?)null;
         var now = clock.GetUtcNow();
         if (parentId != folder.ParentId)
         {
@@ -39,6 +39,6 @@ public sealed class UpdateMediaFolderHandler(IMediaDbContext db, TimeProvider cl
         if (changed.IsFailure) return changed.Error!.ToResult<MediaFolderResponse>();
         await db.SaveChangesAsync(cancellationToken);
         var count = await db.Files.CountAsync(x => x.FolderId == folder.Id, cancellationToken);
-        return Result.Success(new MediaFolderResponse(folder.Id, folder.Name, folder.ParentId, count));
+        return Result.Success(new MediaFolderResponse(folder.Id.Value, folder.Name, folder.ParentId?.Value, count));
     }
 }

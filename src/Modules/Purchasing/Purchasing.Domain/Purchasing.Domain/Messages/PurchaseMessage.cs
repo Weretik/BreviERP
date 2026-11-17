@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 
@@ -18,7 +19,7 @@ public sealed class PurchaseMessage : IAggregateRoot
 
     private PurchaseMessage(string id, string telegramKey, MessageSource source, DateTimeOffset now)
     {
-        Id = id;
+        Id = new PurchaseMessageId(id);
         TelegramKey = telegramKey;
         ReviewVersion = 0;
         Apply(source, now);
@@ -28,7 +29,7 @@ public sealed class PurchaseMessage : IAggregateRoot
         new(id, telegramKey, source, now);
 
     /// <summary>SHA-256 of «telegram:» + <see cref="TelegramKey"/>, lower-case hex.</summary>
-    public string Id { get; private set; } = null!;
+    public PurchaseMessageId Id { get; private set; }
 
     /// <summary>trim(ChatId) + ':' + trim(MessageId).</summary>
     public string TelegramKey { get; private set; } = null!;

@@ -67,7 +67,7 @@ public sealed class SchedulerTickTests
 
         await using var check = harness.NewContext();
         var task = await check.Tasks.SingleAsync(x => x.Key == ScheduledTaskKeys.Leads);
-        var run = await check.Runs.SingleAsync(x => x.Id == launch.RunId);
+        var run = await check.Runs.SingleAsync(x => x.Id == new ScheduledTaskRunId(launch.RunId));
         Assert.That(task.State, Is.EqualTo(TaskState.Idle));
         Assert.That(task.LastSuccessSummary, Is.EqualTo("Рядків 10: додано 1."));
         Assert.That(task.NextRunAt, Is.EqualTo(KyivTime.ToInstant(new DateTime(2026, 11, 16, 13, 0, 0))));

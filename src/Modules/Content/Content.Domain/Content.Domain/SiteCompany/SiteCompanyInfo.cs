@@ -38,7 +38,7 @@ public sealed partial class SiteCompanyInfo : IAggregateRoot
 
     private SiteCompanyInfo(string updatedBy, DateTimeOffset now)
     {
-        Id = SingletonId;
+        Id = new SiteCompanyInfoId(SingletonId);
         UpdatedBy = updatedBy;
         UpdatedAtUtc = now;
     }
@@ -46,7 +46,7 @@ public sealed partial class SiteCompanyInfo : IAggregateRoot
     public static SiteCompanyInfo Create(string updatedBy, DateTimeOffset now) =>
         new(updatedBy, now);
 
-    public int Id { get; private set; }
+    public SiteCompanyInfoId Id { get; private set; }
 
     /// <summary>The one company phone of the header and the structured data, as people read it: <c>050 469 86 75</c>.</summary>
     public string Phone { get; private set; } = null!;

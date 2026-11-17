@@ -32,7 +32,7 @@ public sealed class PurchaseRecognitionTests
             SheetRow.Of("391813865", messageId: "3", dateTime: "03.11.2026 10:00:00", fileLinks: "http://example.com/a.pdf"),
         ];
         await harness.Sync().RunAsync(CancellationToken.None);
-        fileId = harness.Fresh().Files.Single(x => x.Url == SheetRow.Dropbox).Id;
+        fileId = harness.Fresh().Files.Single(x => x.Url == SheetRow.Dropbox).Id.Value;
     }
 
     [TearDown]
@@ -140,7 +140,7 @@ public sealed class PurchaseRecognitionTests
     [Test]
     public async Task Excel_is_skipped_with_a_reason_and_a_dropbox_failure_is_recorded()
     {
-        var excel = harness.Fresh().Files.Single(x => x.Url == Excel).Id;
+        var excel = harness.Fresh().Files.Single(x => x.Url == Excel).Id.Value;
         var skipped = await RecognizeAsync(excel);
         Assert.That(skipped.Value.Result, Is.EqualTo(PurchaseRecognitionResult.Skipped));
 
@@ -188,8 +188,8 @@ public sealed class PurchaseRecognitionTests
         var second = (await handler.Handle(new RecognizeNewPurchaseFilesCommand(By), CancellationToken.None)).Value;
         Assert.That((second.Skipped, second.Remaining), Is.EqualTo((1, 0)), "the Excel file is tried once and skipped");
 
-        var excel = harness.Fresh().Files.Single(x => x.Url == Excel).Id;
-        Assert.That(harness.Fresh().RecognitionAttempts.Select(x => x.FileId), Is.EquivalentTo(new[] { fileId, excel }));
+        var excel = harness.Fresh().Files.Single(x => x.Url == Excel).Id.Value;
+        Assert.That(harness.Fresh().RecognitionAttempts.Select(x => x.FileId).AsEnumerable().Select(x => x.Value), Is.EquivalentTo(new[] { fileId, excel }));
 
         harness.Sheet.Rows.Add(SheetRow.Of("391813866", messageId: "4", fileLinks: "https://www.dropbox.com/scl/fi/n/new.pdf?dl=0"));
         await harness.Sync().RunAsync(CancellationToken.None);

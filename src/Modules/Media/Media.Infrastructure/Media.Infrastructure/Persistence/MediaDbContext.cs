@@ -13,6 +13,9 @@ public sealed class MediaDbContext(DbContextOptions<MediaDbContext> options) : D
     public DbSet<MediaFolder> Folders => Set<MediaFolder>();
     public DbSet<MediaFile> Files => Set<MediaFile>();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(MediaFile).Assembly);
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);

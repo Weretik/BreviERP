@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages.Identifiers;
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Messages;
 using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
@@ -27,7 +28,7 @@ public sealed class ReviewPurchaseInvoiceHandler(
         await using var scope = await db.TryBeginWriteAsync(cancellationToken);
         if (scope is null) return Result<PurchaseInvoiceReviewResponse>.Conflict(PurchaseRegisterSync.AlreadyRunning);
 
-        var message = await db.Messages.FirstOrDefaultAsync(x => x.Id == command.MessageId, cancellationToken);
+        var message = await db.Messages.FirstOrDefaultAsync(x => x.Id == new PurchaseMessageId(command.MessageId), cancellationToken);
         if (message is null) return Result<PurchaseInvoiceReviewResponse>.NotFound(NotFound);
         if (message.ReviewVersion != command.Version) return Result<PurchaseInvoiceReviewResponse>.Conflict(Stale);
         // An inactive supplier may stay linked, but a new link needs an active one.
@@ -43,7 +44,7 @@ public sealed class ReviewPurchaseInvoiceHandler(
             await scope.CommitAsync(cancellationToken);
         }
 
-        return Result.Success(new PurchaseInvoiceReviewResponse(message.Id, message.SupplierId, supplier?.Name,
+        return Result.Success(new PurchaseInvoiceReviewResponse(message.Id.Value, message.SupplierId, supplier?.Name,
             message.ReviewNote, message.ReviewVersion, message.ReviewedBy, message.ReviewedAt));
     }
 }

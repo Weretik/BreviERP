@@ -16,7 +16,7 @@ public sealed class AiSettings : IAggregateRoot
 
     private AiSettings() { }
 
-    public string Id { get; private set; } = OpenAi;
+    public AiSettingsId Id { get; private set; } = new AiSettingsId(OpenAi);
     public string? ProtectedApiKey { get; private set; }
     public string? KeyHint { get; private set; }
 

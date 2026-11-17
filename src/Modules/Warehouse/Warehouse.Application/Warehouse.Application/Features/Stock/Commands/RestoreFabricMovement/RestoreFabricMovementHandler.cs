@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
@@ -26,18 +27,18 @@ public sealed class RestoreFabricMovementHandler(IWarehouseDbContext db, StockCh
         if (!loaded.IsSuccess) return loaded.Map(_ => default(FabricStockOperationResponse)!);
         var movement = loaded.Value;
 
-        var last = await Last(db, movement.Id, cancellationToken);
+        var last = await Last(db, movement.Id.Value, cancellationToken);
         if (last is null) return Result<FabricStockOperationResponse>.Conflict(StockMessages.NothingToRestore);
         if (last.After != movement.State) return Result<FabricStockOperationResponse>.Conflict(StockMessages.RestoreConflict);
         var from = movement.Stock;
         var to = last.Before.StockId == from.Id
             ? from
-            : await db.FabricStocks.SingleAsync(x => x.Id == last.Before.StockId, cancellationToken);
+            : await db.FabricStocks.SingleAsync(x => x.Id == new FabricStockId(last.Before.StockId.Value), cancellationToken);
         if (!FabricStock.IsValidMeters(to.Meters + last.Before.Delta - (ReferenceEquals(from, to) ? movement.Delta : 0)))
             return Result<FabricStockOperationResponse>.Invalid(new ValidationError("Meters", StockMessages.OutOfRange));
 
         var revision = to.Revise(movement, last.Before, FabricMovementRevisionAction.Restore, null, actorName, pairs.Now,
-            input.OperationId, last);
+            new StockOperationId(input.OperationId), last);
         if (revision.IsFailure) return revision.Error!.ToResult<FabricStockOperationResponse>();
         return await revisions.SaveAsync(command.Actor, input.OperationId, Kind, hash, revision.Value, from, to,
             cancellationToken);
@@ -47,6 +48,6 @@ public sealed class RestoreFabricMovementHandler(IWarehouseDbContext db, StockCh
     public static Task<FabricMovementRevision?> Last(IWarehouseDbContext db, int movementId,
         CancellationToken cancellationToken) =>
         db.FabricMovementRevisions
-            .Where(x => x.MovementId == movementId && !x.IsUndone && x.Action != FabricMovementRevisionAction.Restore)
+            .Where(x => x.MovementId == new FabricMovementId(movementId) && !x.IsUndone && x.Action != FabricMovementRevisionAction.Restore)
             .OrderByDescending(x => x.Number).FirstOrDefaultAsync(cancellationToken);
 }

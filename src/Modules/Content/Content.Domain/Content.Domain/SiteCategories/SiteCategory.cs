@@ -14,7 +14,7 @@ public sealed class SiteCategory : IAggregateRoot
 
     private SiteCategory() { }
 
-    private SiteCategory(int? parentId, string slug, int sortOrder, string updatedBy, DateTimeOffset now)
+    private SiteCategory(SiteCategoryId? parentId, string slug, int sortOrder, string updatedBy, DateTimeOffset now)
     {
         ParentId = parentId;
         Slug = slug;
@@ -23,17 +23,17 @@ public sealed class SiteCategory : IAggregateRoot
     }
 
     /// <summary>A new category, hidden from the site until someone switches it on.</summary>
-    public static DomainResult<SiteCategory> Create(int? parentId, string slug, int sortOrder, string updatedBy,
+    public static DomainResult<SiteCategory> Create(SiteCategoryId? parentId, string slug, int sortOrder, string updatedBy,
         DateTimeOffset now)
     {
         if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
         return new SiteCategory(parentId, slug, sortOrder, updatedBy, now);
     }
 
-    public int Id { get; private set; }
+    public SiteCategoryId Id { get; private set; }
 
     /// <summary>Null for a category; the category id for a subcategory. A subcategory has no children.</summary>
-    public int? ParentId { get; private set; }
+    public SiteCategoryId? ParentId { get; private set; }
 
     public bool ShowOnSite { get; private set; }
 
@@ -66,7 +66,7 @@ public sealed class SiteCategory : IAggregateRoot
     public void PlaceAt(int sortOrder) => SortOrder = sortOrder;
 
     /// <summary>Replaces the place in the tree, the address, the mark and all texts. A language without any text is not kept.</summary>
-    public DomainResult Replace(int? parentId, int sortOrder, string slug, bool showOnSite,
+    public DomainResult Replace(SiteCategoryId? parentId, int sortOrder, string slug, bool showOnSite,
         IReadOnlyDictionary<string, SiteCategoryTextValues> texts, string updatedBy, DateTimeOffset now)
     {
         if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();

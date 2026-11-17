@@ -1,3 +1,4 @@
+using Purchasing.Domain.Files;
 using System.Text.Json;
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Documents;
@@ -16,7 +17,7 @@ public sealed class SaveCheckedPurchaseDocumentHandler(IPurchasingDbContext db, 
     public async ValueTask<Result<PurchaseDocumentSaveResponse>> Handle(SaveCheckedPurchaseDocumentCommand command,
         CancellationToken cancellationToken)
     {
-        var file = await db.Files.AsNoTracking().FirstOrDefaultAsync(x => x.Id == command.FileId && x.Active, cancellationToken);
+        var file = await db.Files.AsNoTracking().FirstOrDefaultAsync(x => x.Id == new PurchaseMessageFileId(command.FileId) && x.Active, cancellationToken);
         if (file is null) return Result<PurchaseDocumentSaveResponse>.NotFound(PurchaseFileRecognition.FileNotFound);
 
         var uid = command.Document.ValueKind == JsonValueKind.Object
@@ -40,7 +41,7 @@ public sealed class SaveCheckedPurchaseDocumentHandler(IPurchasingDbContext db, 
             db.CheckedDocuments.Add(PurchaseCheckedDocument.Create(file.Id, file.MessageId, document, PurchaseDocumentOrigin.Manual,
                 null, null, command.By, now));
         else if (current.PayloadHash == PurchaseDocumentJson.Hash(PurchaseDocumentJson.Write(document)))
-            return Result.Success(new PurchaseDocumentSaveResponse(file.Id, Unchanged: true, Replaced: false));
+            return Result.Success(new PurchaseDocumentSaveResponse(file.Id.Value, Unchanged: true, Replaced: false));
         else if (!command.Replace)
             return Result<PurchaseDocumentSaveResponse>.Conflict(NeedsReplace);
         else
@@ -51,6 +52,6 @@ public sealed class SaveCheckedPurchaseDocumentHandler(IPurchasingDbContext db, 
 
         await db.SaveChangesAsync(cancellationToken);
         await scope.CommitAsync(cancellationToken);
-        return Result.Success(new PurchaseDocumentSaveResponse(file.Id, Unchanged: false, Replaced: replaced));
+        return Result.Success(new PurchaseDocumentSaveResponse(file.Id.Value, Unchanged: false, Replaced: replaced));
     }
 }

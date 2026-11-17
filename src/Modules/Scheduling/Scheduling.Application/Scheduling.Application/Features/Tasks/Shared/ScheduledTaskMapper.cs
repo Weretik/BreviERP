@@ -14,7 +14,7 @@ public static class ScheduledTaskMapper
         Overdue: task.Enabled && task.State == TaskState.Idle && task.NextRunAt is { } next && next + OverdueAfter < now);
 
     public static ScheduledTaskRunResponse ToResponse(ScheduledTaskRun run) => new(
-        run.Id, run.Trigger == RunTrigger.Manual ? "manual" : "schedule", run.RequestedBy, run.ClaimedAt, run.StartedAt,
+        run.Id.Value, run.Trigger == RunTrigger.Manual ? "manual" : "schedule", run.RequestedBy, run.ClaimedAt, run.StartedAt,
         run.FinishedAt, run.Outcome switch { RunOutcome.Succeeded => "succeeded", RunOutcome.Failed => "failed", _ => "running" },
         run.Message);
 }

@@ -1,3 +1,6 @@
+using Purchasing.Domain.Messages.Identifiers;
+using Purchasing.Domain.Files;
+using Purchasing.Domain.Documents.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using System.Globalization;
 
@@ -13,7 +16,7 @@ public sealed class PurchaseCheckedDocument : IAggregateRoot
 
     private PurchaseCheckedDocument() { }
 
-    private PurchaseCheckedDocument(string fileId, string messageId, PurchaseDocument document, PurchaseDocumentOrigin origin,
+    private PurchaseCheckedDocument(PurchaseMessageFileId fileId, PurchaseMessageId messageId, PurchaseDocument document, PurchaseDocumentOrigin origin,
         string? model, decimal? costUsd, string checkedBy, DateTimeOffset checkedAt)
     {
         Id = fileId;
@@ -21,14 +24,14 @@ public sealed class PurchaseCheckedDocument : IAggregateRoot
         Set(document, origin, model, costUsd, checkedBy, checkedAt);
     }
 
-    public static PurchaseCheckedDocument Create(string fileId, string messageId, PurchaseDocument document, PurchaseDocumentOrigin origin,
+    public static PurchaseCheckedDocument Create(PurchaseMessageFileId fileId, PurchaseMessageId messageId, PurchaseDocument document, PurchaseDocumentOrigin origin,
         string? model, decimal? costUsd, string checkedBy, DateTimeOffset checkedAt) =>
         new(fileId, messageId, document, origin, model, costUsd, checkedBy, checkedAt);
 
     /// <summary>The file id (SHA-256 of messageId:url).</summary>
-    public string Id { get; private set; } = null!;
+    public PurchaseMessageFileId Id { get; private set; }
 
-    public string MessageId { get; private set; } = null!;
+    public PurchaseMessageId MessageId { get; private set; }
     public string SourceUid { get; private set; } = null!;
     public string OriginalUrl { get; private set; } = null!;
 
@@ -94,7 +97,7 @@ public sealed class PurchaseCheckedDocumentHistory : IAggregateRoot
 {
     private PurchaseCheckedDocumentHistory() { }
 
-    internal PurchaseCheckedDocumentHistory(string fileId, string payloadJson, string payloadHash, PurchaseDocumentOrigin origin,
+    internal PurchaseCheckedDocumentHistory(PurchaseMessageFileId fileId, string payloadJson, string payloadHash, PurchaseDocumentOrigin origin,
         string checkedBy, DateTimeOffset checkedAt, string replacedBy, DateTimeOffset replacedAt)
     {
         FileId = fileId;
@@ -107,8 +110,8 @@ public sealed class PurchaseCheckedDocumentHistory : IAggregateRoot
         ReplacedAt = replacedAt;
     }
 
-    public long Id { get; private set; }
-    public string FileId { get; private set; } = null!;
+    public PurchaseCheckedDocumentHistoryId Id { get; private set; }
+    public PurchaseMessageFileId FileId { get; private set; }
     public string PayloadJson { get; private set; } = null!;
     public string PayloadHash { get; private set; } = null!;
     public PurchaseDocumentOrigin Origin { get; private set; }

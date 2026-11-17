@@ -29,7 +29,7 @@ public sealed class PurchasePaymentTests
         harness = new PurchasingTestHarness();
         harness.Sheet.Rows = [SheetRow.Of("100", messageId: "1")];
         await harness.Sync().RunAsync(CancellationToken.None);
-        messageId = harness.Fresh().Messages.Single().Id;
+        messageId = harness.Fresh().Messages.Single().Id.Value;
         harness.Payments.Operations.AddRange(
         [
             Operation(Paid, 156_000, new DateOnly(2026, 11, 6), "Оплата рахунку 15"),
@@ -69,7 +69,7 @@ public sealed class PurchasePaymentTests
             """);
         using var parsed = JsonDocument.Parse(json);
         var saved = await new SaveCheckedPurchaseDocumentHandler(harness.Db, harness.Time)
-            .Handle(new SaveCheckedPurchaseDocumentCommand(fileId, parsed.RootElement.Clone(), false, By),
+            .Handle(new SaveCheckedPurchaseDocumentCommand(fileId.Value, parsed.RootElement.Clone(), false, By),
                 CancellationToken.None);
         Assert.That(saved.IsSuccess, Is.True, string.Join("; ", saved.ValidationErrors.Select(x => x.ErrorMessage)));
     }

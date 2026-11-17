@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages.Identifiers;
 using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Messages;
 
@@ -12,7 +13,7 @@ public sealed class PurchaseReviewChange : IAggregateRoot
 {
     private PurchaseReviewChange() { }
 
-    internal PurchaseReviewChange(string messageId, string reviewer, DateTimeOffset at, PurchaseReview before,
+    internal PurchaseReviewChange(PurchaseMessageId messageId, string reviewer, DateTimeOffset at, PurchaseReview before,
         PurchaseReview after)
     {
         MessageId = messageId;
@@ -22,8 +23,8 @@ public sealed class PurchaseReviewChange : IAggregateRoot
         After = after;
     }
 
-    public long Id { get; private set; }
-    public string MessageId { get; private set; } = null!;
+    public PurchaseReviewChangeId Id { get; private set; }
+    public PurchaseMessageId MessageId { get; private set; }
 
     /// <summary>E-mail of the staff account that saved the change.</summary>
     public string Reviewer { get; private set; } = null!;

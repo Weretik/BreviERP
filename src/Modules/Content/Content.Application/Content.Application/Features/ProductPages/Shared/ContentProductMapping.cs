@@ -1,3 +1,4 @@
+using Content.Domain.Articles;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.ProductPages.Shared.Responses;

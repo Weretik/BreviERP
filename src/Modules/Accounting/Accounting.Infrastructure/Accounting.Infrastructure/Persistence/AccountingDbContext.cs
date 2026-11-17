@@ -31,6 +31,9 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
 
     public void ClearTracked() => ChangeTracker.Clear();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(AuditEntry).Assembly);
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);

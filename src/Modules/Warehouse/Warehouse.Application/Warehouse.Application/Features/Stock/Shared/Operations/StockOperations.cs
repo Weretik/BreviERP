@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -23,10 +24,10 @@ public sealed class StockOperations(IWarehouseDbContext db)
     public async Task<Result<FabricStockOperationResponse>?> ReplayAsync(Guid id, string hash,
         CancellationToken cancellationToken)
     {
-        var saved = await db.StockOperations.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+        var saved = await db.StockOperations.AsNoTracking().SingleOrDefaultAsync(x => x.Id == new StockOperationId(id), cancellationToken);
         if (saved is null) return null;
         if (saved.RequestHash != hash) return Result<FabricStockOperationResponse>.Conflict(StockMessages.OperationReused);
-        return Result.Success(new FabricStockOperationResponse(saved.Id, saved.FabricCode, saved.Color,
+        return Result.Success(new FabricStockOperationResponse(saved.Id.Value, saved.FabricCode, saved.Color,
             saved.MetersAfter, true));
     }
 }

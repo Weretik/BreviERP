@@ -16,7 +16,7 @@ public sealed class SaveSiteCategoryHandler(IContentDbContext db, TimeProvider c
         SiteCategory? category = null;
         if (command.Id is { } id)
         {
-            category = await db.SiteCategories.Include(x => x.Texts).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            category = await db.SiteCategories.Include(x => x.Texts).FirstOrDefaultAsync(x => x.Id == new SiteCategoryId(id), cancellationToken);
             if (category is null) return Result.NotFound(SiteCategoryMessages.NotFound);
             if (category.Revision != command.Revision) return Result.Conflict(SiteCategoryMessages.Stale);
         }
@@ -25,9 +25,10 @@ public sealed class SaveSiteCategoryHandler(IContentDbContext db, TimeProvider c
             return Result.Conflict(SiteCategoryMessages.TooMany);
         }
 
-        if (command.ParentId is { } parentId)
+        var parentId = command.ParentId is { } parentValue ? new SiteCategoryId(parentValue) : (SiteCategoryId?)null;
+        if (parentId is { } parentKey)
         {
-            var parent = await db.SiteCategories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == parentId, cancellationToken);
+            var parent = await db.SiteCategories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == parentKey, cancellationToken);
             if (parent is null) return Result.Conflict(SiteCategoryMessages.ParentNotFound);
             if (parent.ParentId is not null) return Result.Conflict(SiteCategoryMessages.ParentIsSubcategory);
             if (category is not null && await db.SiteCategories.AnyAsync(x => x.ParentId == category.Id, cancellationToken))
@@ -42,12 +43,12 @@ public sealed class SaveSiteCategoryHandler(IContentDbContext db, TimeProvider c
 
         var now = clock.GetUtcNow();
         var categoryOldSlug = category?.Slug;
-        var sortOrder = category is not null && category.ParentId == command.ParentId
+        var sortOrder = category is not null && category.ParentId == parentId
             ? category.SortOrder
-            : await SiteCategoryReads.NextSortOrderAsync(db, command.ParentId, cancellationToken);
+            : await SiteCategoryReads.NextSortOrderAsync(db, parentId, cancellationToken);
         if (category is null)
         {
-            var created = SiteCategory.Create(command.ParentId, slug, sortOrder, command.UpdatedBy, now);
+            var created = SiteCategory.Create(parentId, slug, sortOrder, command.UpdatedBy, now);
             if (created.IsFailure) return created.Error!.ToResult<SiteCategoryResponse>();
             category = created.Value;
             db.SiteCategories.Add(category);
@@ -56,7 +57,7 @@ public sealed class SaveSiteCategoryHandler(IContentDbContext db, TimeProvider c
         var texts = new Dictionary<string, SiteCategoryTextValues>();
         if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk.ToValues();
         if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru.ToValues();
-        var replaced = category.Replace(command.ParentId, sortOrder, slug, command.ShowOnSite, texts, command.UpdatedBy, now);
+        var replaced = category.Replace(parentId, sortOrder, slug, command.ShowOnSite, texts, command.UpdatedBy, now);
         if (replaced.IsFailure) return replaced.Error!.ToResult<SiteCategoryResponse>();
 
         // The old address keeps working: a 301 to the new one (CNT-005 R-05).

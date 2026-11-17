@@ -36,7 +36,7 @@ public sealed class PurchaseFileRecognition(
     public async Task<Result<PurchaseRecognitionResponse>> RecognizeAsync(string fileId, string by,
         CancellationToken cancellationToken, TimeSpan? timeLimit = null)
     {
-        var file = await db.Files.AsNoTracking().FirstOrDefaultAsync(x => x.Id == fileId && x.Active, cancellationToken);
+        var file = await db.Files.AsNoTracking().FirstOrDefaultAsync(x => x.Id == new PurchaseMessageFileId(fileId) && x.Active, cancellationToken);
         if (file is null) return Result<PurchaseRecognitionResponse>.NotFound(FileNotFound);
         if (!FileLinkRules.IsSafeDropbox(file.Url)) return Result<PurchaseRecognitionResponse>.Invalid(new ValidationError(UnsafeLink));
         var uid = await db.SourceRows.Where(x => x.Active && x.MessageId == file.MessageId)
@@ -149,6 +149,6 @@ public sealed class PurchaseFileRecognition(
         db.RecognitionAttempts.Add(PurchaseRecognitionAttempt.Create(file.Id, file.MessageId, outcome, problems, model, cost, output, by, now));
         await db.SaveChangesAsync(cancellationToken);
         await scope.CommitAsync(cancellationToken);
-        return Result.Success(new PurchaseRecognitionResponse(file.Id, PurchaseDocumentMapping.ToContract(outcome), problems, model, cost));
+        return Result.Success(new PurchaseRecognitionResponse(file.Id.Value, PurchaseDocumentMapping.ToContract(outcome), problems, model, cost));
     }
 }

@@ -18,7 +18,7 @@ public sealed partial class SiteSeoSettings : IAggregateRoot
 
     private SiteSeoSettings(string updatedBy, DateTimeOffset now)
     {
-        Id = SingletonId;
+        Id = new SiteSeoSettingsId(SingletonId);
         UpdatedBy = updatedBy;
         UpdatedAtUtc = now;
     }
@@ -26,7 +26,7 @@ public sealed partial class SiteSeoSettings : IAggregateRoot
     public static SiteSeoSettings Create(string updatedBy, DateTimeOffset now) =>
         new(updatedBy, now);
 
-    public int Id { get; private set; }
+    public SiteSeoSettingsId Id { get; private set; }
 
     /// <summary>Google Analytics 4 measurement id, <c>G-XXXXXXX</c>.</summary>
     public string? GoogleAnalyticsId { get; private set; }

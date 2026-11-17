@@ -1,3 +1,4 @@
+using Purchasing.Domain.Files;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Purchasing.Application.Abstractions;
@@ -16,7 +17,7 @@ public sealed class GetPurchaseDocumentTemplateHandler(IPurchasingDbContext db)
 
     public async ValueTask<Result<string>> Handle(GetPurchaseDocumentTemplateQuery query, CancellationToken cancellationToken)
     {
-        var file = await db.Files.AsNoTracking().FirstOrDefaultAsync(x => x.Id == query.FileId && x.Active, cancellationToken);
+        var file = await db.Files.AsNoTracking().FirstOrDefaultAsync(x => x.Id == new PurchaseMessageFileId(query.FileId) && x.Active, cancellationToken);
         if (file is null) return Result<string>.NotFound(PurchaseFileRecognition.FileNotFound);
         var uid = await db.SourceRows.Where(x => x.Active && x.MessageId == file.MessageId)
             .OrderBy(x => x.RowNumber).ThenBy(x => x.Id).Select(x => x.SourceUid).FirstOrDefaultAsync(cancellationToken);

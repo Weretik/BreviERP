@@ -1,3 +1,5 @@
+using Media.Domain.Files;
+using Media.Domain.Folders;
 using Media.Application.Abstractions;
 using Media.Application.Features.Files.Shared;
 
@@ -7,10 +9,10 @@ public sealed class MoveMediaFilesHandler(IMediaDbContext db, TimeProvider clock
 {
     public async ValueTask<Result> Handle(MoveMediaFilesCommand command, CancellationToken cancellationToken)
     {
-        var folderId = command.Input.FolderId;
+        var folderId = command.Input.FolderId is { } value ? new MediaFolderId(value) : (MediaFolderId?)null;
         if (folderId is { } id && !await db.Folders.AnyAsync(x => x.Id == id, cancellationToken))
             return Result.NotFound(FileMessages.FolderNotFound);
-        var ids = command.Input.FileIds.Distinct().ToList();
+        var ids = command.Input.FileIds.Distinct().Select(x => new MediaFileId(x)).ToList();
         var files = await db.Files.Where(x => ids.Contains(x.Id)).ToListAsync(cancellationToken);
         if (files.Count != ids.Count) return Result.NotFound(FileMessages.SomeNotFound);
 

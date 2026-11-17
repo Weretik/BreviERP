@@ -28,7 +28,7 @@ public sealed class GetFabricMovementsHandler(IWarehouseDbContext db)
         var pairs = await FabricMovementLedger.PairBalancesAsync(db, shelf, rows, cancellationToken);
         var page = rows
             .Select(x => Map(x, query.Actor, x.IssueLineId is { } line ? products.GetValueOrDefault(line) : null,
-                pairs.GetValueOrDefault(x.Id)))
+                pairs.GetValueOrDefault(x.Id.Value)))
             .ToList();
         return Result.Success(new FabricMovementPageResponse(page, query.Page, total > query.Page * PageSize,
             StockList.Permissions(query.Actor), total, FabricMovementLedger.Counts(groups)));
@@ -56,10 +56,10 @@ public sealed class GetFabricMovementsHandler(IWarehouseDbContext db)
         products is > 0 ? decimal.Round(Math.Abs(delta) / products.Value, 3, MidpointRounding.AwayFromZero) : null;
 
     public static FabricMovementRowResponse Map(FabricMovement x, WarehouseActor actor, int? products = null,
-        decimal? pairMetersAfter = null) => new(x.Id, x.StockId,
+        decimal? pairMetersAfter = null) => new(x.Id.Value, x.StockId.Value,
         x.Kind.ToString(), x.OperationDate, x.CreatedAt, x.Stock.FabricCode, FabricAliases.Canonical(x.Stock.FabricCode),
         x.Stock.FabricName, x.Stock.Color, x.SupplierName, x.Document, x.OrderId, x.ItemId, x.OrderNumber, x.ModelName,
-        x.Destination, x.Delta, x.MetersAfter, x.Note, x.CreatedByName, x.IsReversed, x.ReversesMovementId,
+        x.Destination, x.Delta, x.MetersAfter, x.Note, x.CreatedByName, x.IsReversed, x.ReversesMovementId?.Value,
         actor.CanMoveStock && ReverseFabricMovementHandler.CanReverse(x), x.IsVoided, x.Revision,
         actor.CanMoveStock && x.CanRevise, PerProduct(x.Delta, products), pairMetersAfter);
 }

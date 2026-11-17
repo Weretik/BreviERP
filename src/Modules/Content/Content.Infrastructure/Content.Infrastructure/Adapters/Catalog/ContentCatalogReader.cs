@@ -1,3 +1,4 @@
+using Content.Domain.Articles;
 using Catalog.Contracts.Products;
 using Content.Application.Abstractions;
 using Reference.Contracts.Fabrics;

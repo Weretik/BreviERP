@@ -9,7 +9,7 @@ public sealed class GetAiSettingsHandler(IAiDbContext db, AiSettingsStore store)
 {
     public async ValueTask<Result<AiSettingsResponse>> Handle(GetAiSettingsQuery query, CancellationToken cancellationToken)
     {
-        var settings = await db.Settings.AsNoTracking().FirstOrDefaultAsync(x => x.Id == AiSettings.OpenAi, cancellationToken)
+        var settings = await db.Settings.AsNoTracking().FirstOrDefaultAsync(x => x.Id == new AiSettingsId(AiSettings.OpenAi), cancellationToken)
             ?? AiSettings.CreateDefault();
         return Result.Success(await store.ResponseAsync(settings, cancellationToken));
     }

@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Domain.Stock.Movements;
@@ -27,7 +28,7 @@ public sealed class ReceiveFabricHandler(StockChanges changes, StockPairs pairs,
         var pair = await pairs.LoadAsync(fabric.Value.Code, input.Color, cancellationToken);
         var result = pair.Receive(fabric.Value, input.Color, input.Meters,
             new FabricMovementDetails(input.OperationDate, input.Note, SupplierName: input.SupplierName,
-                Document: input.Document, OperationId: input.OperationId), actorName, pairs.Now);
+                Document: input.Document, OperationId: new StockOperationId(input.OperationId)), actorName, pairs.Now);
         if (!result.IsDone) return StockPairs.Refused(result.Refusal!.Value);
         return await pairs.SaveAsync(command.Actor, input.OperationId, Kind, hash, pair, result, cancellationToken);
     }

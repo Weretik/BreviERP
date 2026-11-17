@@ -35,7 +35,7 @@ public sealed class SiteRedirect : IAggregateRoot
         return changed.IsFailure ? changed.Error! : redirect;
     }
 
-    public int Id { get; private set; }
+    public SiteRedirectId Id { get; private set; }
 
     public string FromPath { get; private set; } = null!;
 

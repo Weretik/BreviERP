@@ -12,7 +12,7 @@ public sealed class GetActivityFiltersHandler(IActivityLogDbContext db)
     public async ValueTask<Result<ActivityFiltersDto>> Handle(GetActivityFiltersQuery query,
         CancellationToken cancellationToken)
     {
-        var actors = await db.Actors.AsNoTracking().Select(x => new ActivityActorDto(x.Id, x.Name))
+        var actors = await db.Actors.AsNoTracking().Select(x => new ActivityActorDto(x.Id.Value, x.Name))
             .ToListAsync(cancellationToken);
         var types = await db.SubjectTypes.AsNoTracking().Select(x => new ActivitySubjectTypeDto(x.Key, x.Title))
             .ToListAsync(cancellationToken);

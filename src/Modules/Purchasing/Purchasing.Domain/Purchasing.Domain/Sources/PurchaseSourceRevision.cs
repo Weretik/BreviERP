@@ -6,21 +6,21 @@ public sealed class PurchaseSourceRevision : IAggregateRoot
 {
     private PurchaseSourceRevision() { }
 
-    private PurchaseSourceRevision(string id, string sourceId, string rawJson, DateTimeOffset at)
+    private PurchaseSourceRevision(string id, PurchaseSourceRowId sourceId, string rawJson, DateTimeOffset at)
     {
-        Id = id;
+        Id = new PurchaseSourceRevisionId(id);
         SourceId = sourceId;
         RawJson = rawJson;
         At = at;
     }
 
-    public static PurchaseSourceRevision Create(string id, string sourceId, string rawJson, DateTimeOffset at) =>
+    public static PurchaseSourceRevision Create(string id, PurchaseSourceRowId sourceId, string rawJson, DateTimeOffset at) =>
         new(id, sourceId, rawJson, at);
 
     /// <summary>SHA-256 of sourceId:rawJson, lower-case hex.</summary>
-    public string Id { get; private set; } = null!;
+    public PurchaseSourceRevisionId Id { get; private set; }
 
-    public string SourceId { get; private set; } = null!;
+    public PurchaseSourceRowId SourceId { get; private set; }
     public string RawJson { get; private set; } = null!;
     public DateTimeOffset At { get; private set; }
 }

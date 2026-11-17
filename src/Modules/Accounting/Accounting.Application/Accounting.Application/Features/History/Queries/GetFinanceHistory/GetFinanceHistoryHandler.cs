@@ -12,7 +12,7 @@ public sealed class GetFinanceHistoryHandler(IAccountingDbContext db)
         IReadOnlyList<FinanceHistoryEntryResponse> rows = await db.AuditEntries.AsNoTracking()
             .Where(x => x.Entity == query.Entity && x.EntityId == query.Id)
             .OrderByDescending(x => x.Id)
-            .Select(x => new FinanceHistoryEntryResponse(x.Id, x.Entity, x.EntityId, x.Action, x.By, x.At, x.BeforeJson,
+            .Select(x => new FinanceHistoryEntryResponse(x.Id.Value, x.Entity, x.EntityId, x.Action, x.By, x.At, x.BeforeJson,
                 x.AfterJson))
             .ToListAsync(cancellationToken);
         return Result.Success(rows);

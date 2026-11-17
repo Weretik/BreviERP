@@ -9,12 +9,13 @@ public sealed class ReorderSiteCategoriesHandler(IContentDbContext db)
 {
     public async ValueTask<Result> Handle(ReorderSiteCategoriesCommand command, CancellationToken cancellationToken)
     {
-        var siblings = await db.SiteCategories.Where(x => x.ParentId == command.ParentId).ToListAsync(cancellationToken);
-        if (siblings.Count != command.Ids.Count || siblings.Any(x => !command.Ids.Contains(x.Id)))
+        var parentId = command.ParentId is { } id ? new SiteCategoryId(id) : (SiteCategoryId?)null;
+        var siblings = await db.SiteCategories.Where(x => x.ParentId == parentId).ToListAsync(cancellationToken);
+        if (siblings.Count != command.Ids.Count || siblings.Any(x => !command.Ids.Contains(x.Id.Value)))
             return Result.Conflict(SiteCategoryMessages.OrderChanged);
 
         var byId = siblings.ToDictionary(x => x.Id);
-        for (var index = 0; index < command.Ids.Count; index++) byId[command.Ids[index]].PlaceAt(index + 1);
+        for (var index = 0; index < command.Ids.Count; index++) byId[new SiteCategoryId(command.Ids[index])].PlaceAt(index + 1);
         await db.SaveChangesAsync(cancellationToken);
         return Result.NoContent();
     }

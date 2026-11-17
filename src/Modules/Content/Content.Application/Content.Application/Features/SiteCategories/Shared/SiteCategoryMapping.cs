@@ -9,7 +9,7 @@ internal static class SiteCategoryMapping
     {
         var uk = category.TextIn(ProductPageRules.Ukrainian);
         var ru = category.TextIn(ProductPageRules.Russian);
-        return new SiteCategoryRow(category.Id, category.ParentId, category.Slug, category.SortOrder,
+        return new SiteCategoryRow(category.Id.Value, category.ParentId?.Value, category.Slug, category.SortOrder,
             category.ShowOnSite, OnSite(category, parent), uk?.Name, ru?.Name, uk is { Text.Count: > 0 },
             ru is { Text.Count: > 0 }, uk is { HasSeo: true } && ru is { HasSeo: true }, productCount,
             category.UpdatedAtUtc);

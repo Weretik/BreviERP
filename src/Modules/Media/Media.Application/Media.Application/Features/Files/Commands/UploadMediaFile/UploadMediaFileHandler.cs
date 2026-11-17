@@ -1,3 +1,4 @@
+using Media.Domain.Folders;
 using Media.Application.Abstractions;
 using Media.Domain;
 using Media.Domain.Files;
@@ -18,7 +19,7 @@ public sealed class UploadMediaFileHandler(
 {
     public async ValueTask<Result<MediaFileResponse>> Handle(UploadMediaFileCommand command, CancellationToken cancellationToken)
     {
-        if (command.FolderId is { } folderId && !await db.Folders.AnyAsync(x => x.Id == folderId, cancellationToken))
+        if (command.FolderId is { } folderId && !await db.Folders.AnyAsync(x => x.Id == new MediaFolderId(folderId), cancellationToken))
             return Result<MediaFileResponse>.NotFound(FileMessages.FolderNotFound);
         var sourceKey = string.IsNullOrWhiteSpace(command.SourceKey) ? null : command.SourceKey.Trim();
         if (sourceKey is not null && await db.Files.AnyAsync(x => x.SourceKey == sourceKey, cancellationToken))
@@ -37,7 +38,7 @@ public sealed class UploadMediaFileHandler(
         var now = clock.GetUtcNow();
         var file = MediaFile.Create(
             name.Value,
-            command.FolderId,
+            command.FolderId is { } folder ? new MediaFolderId(folder) : null,
             command.ContentType,
             command.SizeInBytes,
             storage.ProviderName,

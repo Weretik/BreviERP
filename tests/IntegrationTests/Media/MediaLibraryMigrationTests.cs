@@ -64,7 +64,7 @@ public sealed class MediaLibraryMigrationTests
         Assert.Multiple(() =>
         {
             Assert.That(folder.Name, Is.EqualTo("Товари"));
-            Assert.That(files.Select(x => x.Id), Is.EqualTo(new[] { 41, 43 }));
+            Assert.That(files.Select(x => x.Id.Value), Is.EqualTo(new[] { 41, 43 }));
             Assert.That(files.Select(x => x.FolderId), Is.All.EqualTo(folder.Id));
             Assert.That(files[0].PublicUrl, Is.EqualTo("https://cdn.test/a.jpg"));
             Assert.That(nextId, Is.EqualTo(44));
