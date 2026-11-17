@@ -1,7 +1,7 @@
 name: Deploy to Cloud Run
 
 # Pull requests and pushes: build and tests.
-# Deploy runs only in the deploy fork (DEPLOY_REPOSITORY) after its master is synced from Weretik/BreviERP:
+# Deploy runs on every push to master of Weretik/BreviERP (ADR-0018), after verify passes:
 # images are built here, pushed to Artifact Registry, and Cloud Run deploys the ready containers
 # (no build on the Google side).
 on:
@@ -137,8 +137,8 @@ jobs:
           done
 
   deploy:
-    # Only the deploy fork deploys; the same workflow in Weretik/BreviERP stops after verify.
-    if: github.event_name == 'push' && github.repository == 'pnevman-creator/brevi-api'
+    # Only Weretik/BreviERP deploys (ADR-0018); a copy of the workflow in a fork stops after verify.
+    if: github.event_name == 'push' && github.repository == 'Weretik/BreviERP'
     runs-on: ubuntu-latest
     needs: verify
     permissions:

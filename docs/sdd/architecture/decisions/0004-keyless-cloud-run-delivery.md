@@ -13,7 +13,7 @@ The backend runs on Google Cloud. The production database and several integratio
 - Before the API deploys, a Cloud Run Job (`Host.Seed`) applies the EF Core migrations of every module and the seed data. The new API revision deploys only after the job succeeds.
 - The same job image also runs the scheduled work through Cloud Scheduler: the daily sync (KeepinCRM, Google Sheets, supplier prices) and the Telegram reminders.
 - Runtime secrets (database, Gmail, Telegram, KeepinCRM, storage, proxy secret) come from **Secret Manager** as environment variables. `appsettings.json` holds only empty placeholders.
-- Production deploys from the client's deploy repository after its `master` syncs from the development repository.
+- Production deploys from the client's deploy repository after its `master` syncs from the development repository. Superseded by [ADR-0018](0018-deploy-on-merge-from-main-repository.md): production now deploys on every merge to `master` of `Weretik/BreviERP`.
 
 ## Why
 
@@ -24,5 +24,5 @@ The backend runs on Google Cloud. The production database and several integratio
 ## Trade-offs
 
 - The pipeline is longer: seed job first, then deploy.
-- Production deploy depends on a manual "sync fork" step. It is a deliberate gate, but it is easy to forget.
+- ~~Production deploy depends on a manual "sync fork" step.~~ Removed by ADR-0018.
 - There is no staging environment yet. Safety comes from tests in CI and from import screens with preview.
