@@ -1,7 +1,8 @@
+using BuildingBlocks.Domain.Entity;
 namespace Content.Domain.SiteCategories;
 
 /// <summary>A Catalog product placed in a site category (CNT-003 R-03); no database link across modules.</summary>
-public sealed class SiteCategoryProduct
+public sealed class SiteCategoryProduct : IAggregateRoot
 {
     private SiteCategoryProduct() { }
 

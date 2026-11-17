@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
 using Production.Domain.Orders.Rules;
@@ -9,7 +10,7 @@ namespace Production.Domain.Timesheet;
 /// was absent; no row means the day is not marked yet. One row per worker and day; every change is kept in
 /// <see cref="WorkshopTimeChange"/>.
 /// </summary>
-public sealed class WorkshopTimeEntry
+public sealed class WorkshopTimeEntry : IAggregateRoot
 {
     public const int MaxMinutes = 1440;
     public const int Step = 15;
@@ -59,7 +60,7 @@ public sealed class WorkshopTimeEntry
 }
 
 /// <summary>One change of «Робочий час»: who changed the hours of a worker on a day, from what to what.</summary>
-public sealed class WorkshopTimeChange
+public sealed class WorkshopTimeChange : IAggregateRoot
 {
     private WorkshopTimeChange() { }
 

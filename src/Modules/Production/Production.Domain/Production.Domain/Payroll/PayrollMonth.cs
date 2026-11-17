@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
 using Production.Domain.Orders.Rules;
@@ -9,7 +10,7 @@ namespace Production.Domain.Payroll;
 /// closed month keeps the calculation as it was (<see cref="Snapshot"/>) and refuses any change of work, hours or pay
 /// in it. <see cref="Month"/> is the first day of the month.
 /// </summary>
-public sealed class PayrollMonth
+public sealed class PayrollMonth : IAggregateRoot
 {
     public const int MaxStitches = 1_000_000_000;
 

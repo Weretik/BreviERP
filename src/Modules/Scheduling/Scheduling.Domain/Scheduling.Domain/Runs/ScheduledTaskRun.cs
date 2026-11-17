@@ -1,9 +1,10 @@
+using BuildingBlocks.Domain.Entity;
 using Scheduling.Domain.Tasks;
 
 namespace Scheduling.Domain.Runs;
 
 /// <summary>One run of a task: claimed by the tick, started and finished by the job (SCH-001 R-04, R-06).</summary>
-public sealed class ScheduledTaskRun
+public sealed class ScheduledTaskRun : IAggregateRoot
 {
     private ScheduledTaskRun()
     {

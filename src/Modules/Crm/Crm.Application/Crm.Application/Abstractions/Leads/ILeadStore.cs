@@ -7,7 +7,8 @@ namespace Crm.Application.Abstractions.Leads;
 public interface ILeadStore
 {
     DbSet<Lead> Leads { get; }
-    DbSet<LeadCall> LeadCalls { get; }
+    /// <summary>Lead calls for reading; a call is recorded only through its lead.</summary>
+    IQueryable<LeadCall> LeadCalls { get; }
     DbSet<LeadCallResult> LeadCallResults { get; }
     DbSet<LeadCategory> LeadCategories { get; }
     DbSet<LeadSyncState> LeadSyncStates { get; }

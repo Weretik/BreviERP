@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using System.Text.Json.Serialization;
 
@@ -22,7 +23,7 @@ public enum SiteRedirectSource
 /// <see cref="FromPath"/> is sent to <see cref="ToPath"/>, a page of the new site. Both paths are normalized by
 /// <see cref="SiteRedirectRules.Normalize"/>.
 /// </summary>
-public sealed class SiteRedirect
+public sealed class SiteRedirect : IAggregateRoot
 {
     private SiteRedirect() { }
 

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Messages;
 
 /// <summary>The manual supplier link and note of a message at one version.</summary>
@@ -7,7 +8,7 @@ public sealed record PurchaseReview(int? SupplierId, string? Note, int Version);
 /// History of the manual supplier link and note: one entry per saved change, never edited. It does not replace the
 /// revisions of the sheet rows.
 /// </summary>
-public sealed class PurchaseReviewChange
+public sealed class PurchaseReviewChange : IAggregateRoot
 {
     private PurchaseReviewChange() { }
 

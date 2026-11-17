@@ -41,13 +41,13 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public DbSet<QuoteSettings> QuoteSettings => Set<QuoteSettings>();
     public DbSet<StaffMailbox> StaffMailboxes => Set<StaffMailbox>();
     public DbSet<QuoteSending> QuoteSendings => Set<QuoteSending>();
-    public DbSet<QuoteEvent> QuoteEvents => Set<QuoteEvent>();
+    public IQueryable<QuoteEvent> QuoteEvents => Set<QuoteEvent>().AsNoTracking();
     public DbSet<QuoteIntroTemplate> QuoteIntroTemplates => Set<QuoteIntroTemplate>();
     public DbSet<ManagerTask> ManagerTasks => Set<ManagerTask>();
     public DbSet<EmbroiderySettings> EmbroiderySettings => Set<EmbroiderySettings>();
     public DbSet<EmbroiderySavedCalculation> EmbroideryCalculations => Set<EmbroiderySavedCalculation>();
     public DbSet<Lead> Leads => Set<Lead>();
-    public DbSet<LeadCall> LeadCalls => Set<LeadCall>();
+    public IQueryable<LeadCall> LeadCalls => Set<LeadCall>().AsNoTracking();
     public DbSet<LeadCallResult> LeadCallResults => Set<LeadCallResult>();
     public DbSet<LeadCategory> LeadCategories => Set<LeadCategory>();
     public DbSet<LeadSyncState> LeadSyncStates => Set<LeadSyncState>();

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 
 namespace Crm.Domain.SiteRequests;
@@ -7,7 +8,7 @@ namespace Crm.Domain.SiteRequests;
 /// how many, a comment and a file. A manager takes it, calls back and closes it with a note.
 /// <see cref="Version"/> grows with every change and guards against two managers at once.
 /// </summary>
-public sealed class SiteRequest
+public sealed class SiteRequest : IAggregateRoot
 {
     public const int PhoneMaxLength = 32;
     public const int WorkwearMaxLength = 200;

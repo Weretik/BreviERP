@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 
@@ -7,7 +8,7 @@ namespace Production.Domain.FabricNorms;
 /// «Норми витрати тканини»: how much fabric one item of a Catalog sewing model needs. Owned by the workshop and keyed by
 /// the model code (MOD-…); the model itself stays in Catalog. Orders of later stages plan and book fabric from it.
 /// </summary>
-public sealed class ModelFabricNorm : DomainEventSource
+public sealed class ModelFabricNorm : DomainEventSource, IAggregateRoot
 {
     public const int ModelCodeMaxLength = 32;
 

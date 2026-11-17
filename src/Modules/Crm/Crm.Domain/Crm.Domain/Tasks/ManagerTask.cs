@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using System.Globalization;
 using Crm.Domain.Tasks.Enums;
 using Crm.Domain.Tasks.ValueObjects;
@@ -9,7 +10,7 @@ namespace Crm.Domain.Tasks;
 /// <see cref="ManagerTaskStatus"/> and ticks its steps; everything else only Director and Admin change.
 /// <see cref="Version"/> grows with every change and guards against stale saves (R-12).
 /// </summary>
-public sealed class ManagerTask : DomainEventSource
+public sealed class ManagerTask : DomainEventSource, IAggregateRoot
 {
     private readonly List<ManagerTaskStep> _steps = [];
     private readonly List<ManagerTaskEvent> _events = [];

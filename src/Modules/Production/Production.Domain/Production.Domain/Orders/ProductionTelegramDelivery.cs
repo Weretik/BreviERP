@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders.Rules;
 
@@ -16,7 +17,7 @@ public enum TelegramDeliveryStatus
 /// The one message to the workshop group about an order. <see cref="Begin"/> moves it to «Надсилається» first and the
 /// row is a concurrency token, so two presses cannot send it twice; a sent message is never sent again.
 /// </summary>
-public sealed class ProductionTelegramDelivery
+public sealed class ProductionTelegramDelivery : IAggregateRoot
 {
     public const int ErrorMaxLength = 500;
 

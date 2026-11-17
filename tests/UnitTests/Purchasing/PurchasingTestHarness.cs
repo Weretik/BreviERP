@@ -133,7 +133,7 @@ internal sealed class SqlitePurchasingDb(PurchasingDbContext db) : IPurchasingDb
     public DbSet<PurchaseCheckedDocument> CheckedDocuments => db.CheckedDocuments;
     public DbSet<PurchaseCheckedDocumentHistory> CheckedDocumentHistory => db.CheckedDocumentHistory;
     public DbSet<PurchaseRecognitionAttempt> RecognitionAttempts => db.RecognitionAttempts;
-    public DbSet<PurchasePayment> Payments => db.Payments;
+    public IQueryable<PurchasePayment> Payments => db.Payments;
 
     public async Task<IPurchaseWriteScope?> TryBeginWriteAsync(CancellationToken cancellationToken) =>
         LockHeld ? null : new Scope(await db.Database.BeginTransactionAsync(cancellationToken));

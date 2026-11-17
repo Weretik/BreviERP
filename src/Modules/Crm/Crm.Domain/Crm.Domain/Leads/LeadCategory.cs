@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Leads.Events;
 namespace Crm.Domain.Leads;
 
@@ -5,7 +6,7 @@ namespace Crm.Domain.Leads;
 /// What a category letter of the sheet means («Довідники», LEAD-001 R-11). The sync adds every new code it meets
 /// with no description; the director writes the description.
 /// </summary>
-public sealed class LeadCategory : DomainEventSource
+public sealed class LeadCategory : DomainEventSource, IAggregateRoot
 {
     private LeadCategory() { }
 

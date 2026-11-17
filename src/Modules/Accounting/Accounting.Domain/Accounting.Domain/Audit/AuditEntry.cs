@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 namespace Accounting.Domain.Audit;
 
 /// <summary>
 /// One entry of the single finance change log: who did what to which record, with JSON snapshots before and after.
 /// Append-only; it survives the deletion of its record.
 /// </summary>
-public sealed class AuditEntry
+public sealed class AuditEntry : IAggregateRoot
 {
     public const int ByMaxLength = 256;
 

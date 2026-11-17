@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 
@@ -7,7 +8,7 @@ namespace Production.Domain.Staff;
 /// A worker of the sewing workshop («Працівники цеху»). Workers do not sign in: the head of the workshop records their
 /// work, hours and pay. An employee who left is archived, not deleted, so old work and pay keep their name.
 /// </summary>
-public sealed class WorkshopEmployee : DomainEventSource
+public sealed class WorkshopEmployee : DomainEventSource, IAggregateRoot
 {
     public const int FullNameMaxLength = 120;
     public const int PositionMaxLength = 80;

@@ -31,8 +31,8 @@ public sealed class RollbackBankStatementHandler(IAccountingDbContext db, IAccou
         var rollback = statement.Rollback();
         if (rollback.IsFailure) return rollback.Error!.ToResult<BankStatementResponse>();
 
-        var lines = await db.BankStatementLines
-            .Where(x => x.StatementId == id && (x.TransactionId != null || x.TransferId != null))
+        var lines = await db.BankStatements.Entry(statement).Collection(x => x.Lines).Query()
+            .Where(x => (x.TransactionId != null || x.TransferId != null))
             .ToListAsync(cancellationToken);
         var transactionIds = lines.Select(x => x.TransactionId).OfType<FinanceTransactionId>().ToList();
         var transferIds = lines.Select(x => x.TransferId).OfType<FinanceTransferId>().ToList();

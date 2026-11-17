@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
@@ -20,7 +21,7 @@ public sealed record PayrollEntryTarget(DateOnly Month, int EmployeeId, string E
 /// «Виплата» of a month: an advance, a card or cash payment (PRD-D45). Never edited or deleted: a wrong one is
 /// cancelled with a reason and stays in the list.
 /// </summary>
-public sealed class PayrollPayment : DomainEventSource
+public sealed class PayrollPayment : DomainEventSource, IAggregateRoot
 {
     public const decimal MaxAmount = 10_000_000m;
     public const int CommentMaxLength = 1000;
@@ -91,7 +92,7 @@ public sealed class PayrollPayment : DomainEventSource
 /// «Інше нарахування / утримання»: an extra accrual (positive) or a deduction (negative) with a reason (PRD-D45).
 /// Cancelled like a payment.
 /// </summary>
-public sealed class PayrollAdjustment : DomainEventSource
+public sealed class PayrollAdjustment : DomainEventSource, IAggregateRoot
 {
     private PayrollAdjustment() { }
 
@@ -150,7 +151,7 @@ public sealed class PayrollAdjustment : DomainEventSource
 }
 
 /// <summary>«Видано»: the sum the director handed to a worker for the month, a note beside the calculation.</summary>
-public sealed class PayrollIssued
+public sealed class PayrollIssued : IAggregateRoot
 {
     private PayrollIssued() { }
 

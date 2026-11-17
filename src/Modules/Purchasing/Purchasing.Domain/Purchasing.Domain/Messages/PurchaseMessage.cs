@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 
 namespace Purchasing.Domain.Messages;
@@ -6,10 +7,12 @@ namespace Purchasing.Domain.Messages;
 /// One Telegram message of the purchase sheet; several sheet rows (UIDs) may belong to it. Source fields are refreshed by
 /// every sync; the supplier link, the note and their version are Brevi's own and the sync never touches them.
 /// </summary>
-public sealed class PurchaseMessage
+public sealed class PurchaseMessage : IAggregateRoot
 {
     public const int ReviewNoteMaxLength = 1_000;
     public const int ReviewerMaxLength = 256;
+
+    private readonly List<PurchasePayment> _payments = [];
 
     private PurchaseMessage() { }
 
@@ -78,22 +81,27 @@ public sealed class PurchaseMessage
         return true;
     }
 
+    /// <summary>The payment links of this invoice; the commands that link or unlink load the active ones.</summary>
+    public IReadOnlyList<PurchasePayment> Payments => _payments;
+
     /// <summary>
     /// Links an expense of «Бухгалтерія» as a payment of this invoice and adds 1 to the review version. The caller checks
-    /// the expected version, that the operation is an active expense and that it is not linked yet.
+    /// the expected version and that the operation is an active expense.
     /// </summary>
-    public PurchasePayment LinkPayment(Guid transactionId, string by, DateTimeOffset now)
+    public DomainResult LinkPayment(Guid transactionId, string by, DateTimeOffset now)
     {
+        if (_payments.Any(x => x.TransactionId == transactionId && x.Active))
+            return PurchaseMessageErrors.PaymentAlreadyLinked();
+        _payments.Add(new PurchasePayment(Id, transactionId, by, now));
         Reviewed(by, now);
-        return new PurchasePayment(Id, transactionId, by, now);
+        return DomainResult.Success();
     }
 
-    /// <summary>Removes an active payment link of this invoice and adds 1 to the review version.</summary>
-    public DomainResult UnlinkPayment(PurchasePayment payment, string by, DateTimeOffset now)
+    /// <summary>Removes the active link of an expense to this invoice and adds 1 to the review version.</summary>
+    public DomainResult UnlinkPayment(Guid transactionId, string by, DateTimeOffset now)
     {
-        ArgumentNullException.ThrowIfNull(payment);
-        if (payment.MessageId != Id || !payment.Active)
-            return PurchaseMessageErrors.PaymentNotLinked();
+        var payment = _payments.FirstOrDefault(x => x.TransactionId == transactionId && x.Active);
+        if (payment is null) return PurchaseMessageErrors.PaymentNotLinked();
         payment.Unlink(by, now);
         Reviewed(by, now);
         return DomainResult.Success();

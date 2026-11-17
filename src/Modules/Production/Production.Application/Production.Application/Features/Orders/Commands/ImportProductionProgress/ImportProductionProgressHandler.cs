@@ -75,10 +75,11 @@ public sealed class ImportProductionProgressHandler(IProductionDbContext db, Tim
                 foreach (var file in newFiles)
                 {
                     var itemId = file.Position is { } position ? byPosition[position].Id : (int?)null;
-                    db.OrderFiles.Add(new ProductionOrderFile(order.Id, itemId,
-                        Enum.Parse<ProductionFileKind>(file.Kind, ignoreCase: true), file.Name.Trim(),
-                        file.ContentType.Trim(), file.Bytes, file.Url.Trim(), null,
-                        string.IsNullOrWhiteSpace(file.CreatedByName) ? Transfer : file.CreatedByName, file.CreatedAt));
+                    // The item comes from the order itself, so the file cannot miss it.
+                    _ = order.AddMovedFile(itemId, Enum.Parse<ProductionFileKind>(file.Kind, ignoreCase: true),
+                        file.Name.Trim(), file.ContentType.Trim(), file.Bytes, file.Url.Trim(), null,
+                        string.IsNullOrWhiteSpace(file.CreatedByName) ? Transfer : file.CreatedByName,
+                        file.CreatedAt).Value;
                     fileUrls.Add((order.Id, file.Url.Trim()));
                 }
 

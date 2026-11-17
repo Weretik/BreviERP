@@ -33,8 +33,8 @@ public sealed class BookBankStatementHandler(IAccountingDbContext db, IAccountin
 
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         var account = await db.Accounts.AsNoTracking().FirstAsync(x => x.Id == statement.AccountId, cancellationToken);
-        var lines = await db.BankStatementLines
-            .Where(x => x.StatementId == id && !x.Excluded && x.State != BankLineState.Error
+        var lines = await db.BankStatements.Entry(statement).Collection(x => x.Lines).Query()
+            .Where(x => !x.Excluded && x.State != BankLineState.Error
                 && x.Duplicate != BankDuplicate.Exact)
             .OrderBy(x => x.RowNumber).ToListAsync(cancellationToken);
 

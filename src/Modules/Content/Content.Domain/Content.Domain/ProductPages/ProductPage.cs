@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 
 namespace Content.Domain.ProductPages;
@@ -6,7 +7,7 @@ namespace Content.Domain.ProductPages;
 /// The public site page of one Catalog product (CNT-002): whether the site shows it, its address and its texts in
 /// Ukrainian and Russian. The product itself, its fabrics, prices and photos stay in other modules.
 /// </summary>
-public sealed class ProductPage
+public sealed class ProductPage : IAggregateRoot
 {
     private readonly List<ProductPageText> _texts = [];
 

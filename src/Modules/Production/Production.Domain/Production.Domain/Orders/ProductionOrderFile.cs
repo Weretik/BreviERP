@@ -17,7 +17,7 @@ public sealed class ProductionOrderFile
 
     private ProductionOrderFile() { }
 
-    public ProductionOrderFile(int orderId, int? itemId, ProductionFileKind kind, string name, string contentType,
+    internal ProductionOrderFile(int orderId, int? itemId, ProductionFileKind kind, string name, string contentType,
         long bytes, string url, string? storageKey, string actorName, DateTimeOffset createdAt)
     {
         OrderId = orderId;
@@ -51,5 +51,5 @@ public sealed class ProductionOrderFile
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset? DeletedAt { get; private set; }
 
-    public void Delete(DateTimeOffset now) => DeletedAt ??= now;
+    internal void Delete(DateTimeOffset now) => DeletedAt ??= now;
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using System.Globalization;
 using Crm.Domain.Embroidery.Calculation;
@@ -9,7 +10,7 @@ namespace Crm.Domain.Embroidery.Saved;
 /// One saved «Розрахунок» (EMB-001 stage 2): the form, the frozen rates and the result as they were. It is never
 /// recalculated; saving again makes a new record.
 /// </summary>
-public sealed class EmbroiderySavedCalculation : DomainEventSource
+public sealed class EmbroiderySavedCalculation : DomainEventSource, IAggregateRoot
 {
     public const int NameMaxLength = 120;
     public const int CustomerNameMaxLength = 300;

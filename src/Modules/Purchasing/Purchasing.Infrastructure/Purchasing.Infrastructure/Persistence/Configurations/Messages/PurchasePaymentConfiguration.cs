@@ -20,6 +20,6 @@ public sealed class PurchasePaymentConfiguration : IEntityTypeConfiguration<Purc
         b.HasIndex(x => x.TransactionId);
         // One active link of an operation per invoice; removed links stay as history.
         b.HasIndex(x => new { x.MessageId, x.TransactionId }).IsUnique().HasFilter("\"UnlinkedAt\" IS NULL");
-        b.HasOne<PurchaseMessage>().WithMany().HasForeignKey(x => x.MessageId).OnDelete(DeleteBehavior.Restrict);
+        // The invoice owns its links (PurchaseMessageConfiguration maps the navigation).
     }
 }

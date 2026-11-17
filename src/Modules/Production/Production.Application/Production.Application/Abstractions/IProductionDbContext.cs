@@ -17,8 +17,10 @@ public interface IProductionDbContext
     DbSet<WorkshopEmployee> Employees { get; }
     DbSet<ModelFabricNorm> FabricNorms { get; }
     DbSet<ProductionOrder> Orders { get; }
-    DbSet<ProductionOrderChange> OrderChanges { get; }
-    DbSet<ProductionOrderFile> OrderFiles { get; }
+    /// <summary>Order history for reading; a line is written only by its order.</summary>
+    IQueryable<ProductionOrderChange> OrderChanges { get; }
+    /// <summary>Order files for reading; a file is added or removed only through its order.</summary>
+    IQueryable<ProductionOrderFile> OrderFiles { get; }
     DbSet<ProductionTelegramDelivery> TelegramDeliveries { get; }
     DbSet<WorkshopSettings> Settings { get; }
     DbSet<ProductionWork> Work { get; }

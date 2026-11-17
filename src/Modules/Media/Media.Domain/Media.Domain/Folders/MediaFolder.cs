@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 
 namespace Media.Domain.Folders;
 
 /// <summary>A folder of the photo library. Folders exist only in the database: moving a folder or a photo never moves files on the CDN.</summary>
-public sealed class MediaFolder : DomainEventSource
+public sealed class MediaFolder : DomainEventSource, IAggregateRoot
 {
     public const int NameMaxLength = 120;
 

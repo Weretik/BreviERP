@@ -1,3 +1,5 @@
+using Accounting.Domain.Categories;
+using Accounting.Domain.Counterparties;
 using Accounting.Domain.Accounts;
 using Accounting.Domain;
 using Accounting.Domain.Movements;
@@ -8,8 +10,8 @@ using BuildingBlocks.Domain.Entity;
 namespace Accounting.Domain.Statements;
 
 /// <summary>
-/// An uploaded bank statement of one account («Виписки банку»). Its lines are kept apart (<see cref="BankStatementLine"/>)
-/// and corrected while it is a <see cref="BankStatementStatus.Preview"/>; «Провести виписку» books them once and makes it
+/// An uploaded bank statement of one account («Виписки банку») with its lines (<see cref="BankStatementLine"/>), which are
+/// reached only through it and corrected while it is a <see cref="BankStatementStatus.Preview"/>; «Провести виписку» books them once and makes it
 /// <see cref="BankStatementStatus.Booked"/>. The same file of the same account (<see cref="FileHash"/>) opens it again.
 /// </summary>
 public sealed class BankStatement : IAggregateRoot
@@ -39,8 +41,13 @@ public sealed class BankStatement : IAggregateRoot
     public DateTimeOffset? BookedAt { get; private set; }
     public int Version { get; private set; }
 
+    private readonly List<BankStatementLine> _lines = [];
+
+    /// <summary>The lines loaded with the statement; a command loads only the lines it needs.</summary>
+    public IReadOnlyList<BankStatementLine> Lines => _lines;
+
     /// <summary>A new preview of <paramref name="account"/> with its lines; the account must be active.</summary>
-    public static DomainResult<(BankStatement Statement, IReadOnlyList<BankStatementLine> Lines)> Create(
+    public static DomainResult<BankStatement> Create(
         BankStatementId id,
         FinanceAccount account, string fileName, string fileHash, IReadOnlyList<BankLineData> lines, string by,
         DateTimeOffset now)
@@ -70,14 +77,26 @@ public sealed class BankStatement : IAggregateRoot
             CreatedAt = now,
             Version = 1,
         };
-        IReadOnlyList<BankStatementLine> statementLines = lines.Select(x => BankStatementLine.Create(id, x)).ToList();
-        return (statement, statementLines);
+        statement._lines.AddRange(lines.Select(x => BankStatementLine.Create(id, x)));
+        return statement;
     }
 
     /// <summary>Lines change only while the statement is not booked.</summary>
     public DomainResult CheckPreview() => Status == BankStatementStatus.Preview
         ? DomainResult.Success()
         : AccountingErrors.Rule("Accounting.Statement.Booked", "Виписку вже проведено; рядки не змінюються.");
+
+    /// <summary>The director's choice for one line (loaded with the statement); only while the statement is a preview.</summary>
+    public DomainResult<BankStatementLine> EditLine(BankStatementLineId lineId, FinanceCategory? category,
+        CounterpartyState? counterparty, string? oneoffName, string? description, string? comment, bool excluded)
+    {
+        if (CheckPreview() is { IsFailure: true } booked) return booked.Error!;
+        var line = _lines.FirstOrDefault(x => x.Id == lineId);
+        if (line is null)
+            return Error.NotFound("Accounting.Statement.LineNotFound", "Рядок виписки не знайдено. Оновіть виписку.");
+        var edited = line.Edit(category, counterparty, oneoffName, description, comment, excluded);
+        return edited.IsFailure ? edited.Error! : line;
+    }
 
     /// <summary>«Провести виписку»: remembers how many operations and transfers it added.</summary>
     public DomainResult Book(int transactions, int transfers, string by, DateTimeOffset now)

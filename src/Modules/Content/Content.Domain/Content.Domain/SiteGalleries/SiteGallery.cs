@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using System.Text.RegularExpressions;
 using Content.Domain.SiteCompany;
@@ -8,7 +9,7 @@ namespace Content.Domain.SiteGalleries;
 /// «Контент → Наші роботи» and «Контент → Сертифікати» (CNT-011): the pictures of one page of the site as a whole list,
 /// saved with a revision check. The migration seeds the pictures the site kept among its own files.
 /// </summary>
-public sealed partial class SiteGallery
+public sealed partial class SiteGallery : IAggregateRoot
 {
     public const string Works = "works";
     public const string Certificates = "certificates";

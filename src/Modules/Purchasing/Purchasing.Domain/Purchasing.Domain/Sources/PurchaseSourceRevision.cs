@@ -1,7 +1,8 @@
+using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Sources;
 
 /// <summary>An immutable version of a source row's raw cells; the same raw text never makes a second revision.</summary>
-public sealed class PurchaseSourceRevision
+public sealed class PurchaseSourceRevision : IAggregateRoot
 {
     private PurchaseSourceRevision() { }
 

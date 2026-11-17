@@ -104,7 +104,7 @@ public sealed class BankStatementLine : IEntity<BankStatementLineId>
     /// <summary>Whether «Провести виписку» turns this line into a record.</summary>
     public bool WillBook => !Excluded && State != BankLineState.Error && Duplicate != BankDuplicate.Exact;
 
-    public static BankStatementLine Create(BankStatementId statementId, BankLineData data)
+    internal static BankStatementLine Create(BankStatementId statementId, BankLineData data)
     {
         var line = new BankStatementLine
         {
@@ -157,7 +157,7 @@ public sealed class BankStatementLine : IEntity<BankStatementLineId>
     /// The director's choice for the line while the statement is a preview. <paramref name="category"/> must be of the
     /// current books and the direction of the line; a transfer line takes only the note and the include switch.
     /// </summary>
-    public DomainResult Edit(FinanceCategory? category, CounterpartyState? counterparty, string? oneoffName, string? description,
+    internal DomainResult Edit(FinanceCategory? category, CounterpartyState? counterparty, string? oneoffName, string? description,
         string? comment, bool excluded)
     {
         if (!excluded && Error.Length > 0)

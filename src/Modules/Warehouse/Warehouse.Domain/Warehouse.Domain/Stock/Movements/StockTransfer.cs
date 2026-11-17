@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 namespace Warehouse.Domain.Stock.Movements;
 
 /// <summary>
 /// The journal of «Перенесення з v133» (WH-006): one record per export that replaced the stock, known by the SHA-256
 /// of its rows, with the counts it gave. A repeat of the same export finds it and changes nothing.
 /// </summary>
-public sealed class StockTransfer
+public sealed class StockTransfer : IAggregateRoot
 {
     public const int HashLength = 64;
     public const int SnapshotMaxLength = 200;

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using System.Text.RegularExpressions;
 
@@ -24,7 +25,7 @@ public sealed record SiteSocials(string? Instagram, string? Youtube, string? Fac
 /// «Контакти», «Доставка та оплата», the agreement and structured data. One row; the migration seeds what the site
 /// showed before.
 /// </summary>
-public sealed partial class SiteCompanyInfo
+public sealed partial class SiteCompanyInfo : IAggregateRoot
 {
     public const int SingletonId = 1;
     public const int TextMaxLength = 200;

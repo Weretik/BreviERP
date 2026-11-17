@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using Warehouse.Domain.Stock.Movements;
 
 namespace Warehouse.Domain.Stock.Plans;
@@ -23,7 +24,7 @@ public sealed record FabricPlanKey(string FabricCode, string ColorKey);
 /// cutting (TZ §7) says how many products were cut; each line is a fabric and colour pair whose metres may come from
 /// several stock lines of the pair, one movement each. The package is reversed whole («Сторно видачі»).
 /// </summary>
-public sealed class FabricIssue
+public sealed class FabricIssue : IAggregateRoot
 {
     public const int NoteMaxLength = 1000;
     public const int MaxLines = 20;

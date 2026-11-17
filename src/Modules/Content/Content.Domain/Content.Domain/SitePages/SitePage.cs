@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Content.Domain.ProductPages;
 
@@ -8,7 +9,7 @@ namespace Content.Domain.SitePages;
 /// result and the description under it (CNT-007), the main text at the bottom of the page and its frequent questions
 /// (CNT-010). An empty text leaves the site's own text.
 /// </summary>
-public sealed class SitePage
+public sealed class SitePage : IAggregateRoot
 {
     public const int KeyMaxLength = 40;
     public const int TitleMaxLength = 200;

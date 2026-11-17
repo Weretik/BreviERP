@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 namespace Warehouse.Domain.Stock.Movements;
 
@@ -39,7 +40,7 @@ public sealed record FabricMovementTarget(int OrderId, int ItemId, int OrderNumb
 /// record time, then id, so a back-dated movement restates the ones after it. A wrong one is taken back by a «Сторно»
 /// movement that points to it.
 /// </summary>
-public sealed class FabricMovement : DomainEventSource
+public sealed class FabricMovement : DomainEventSource, IAggregateRoot
 {
     public const int NoteMaxLength = 1000;
     public const int DocumentMaxLength = 200;

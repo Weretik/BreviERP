@@ -1,7 +1,8 @@
+using BuildingBlocks.Domain.Entity;
 namespace Reminders.Domain.Calendar;
 
 /// <summary>An extra day off besides Saturday and Sunday, for example a restored public holiday.</summary>
-public sealed class NonWorkingDay
+public sealed class NonWorkingDay : IAggregateRoot
 {
     private NonWorkingDay() { }
 

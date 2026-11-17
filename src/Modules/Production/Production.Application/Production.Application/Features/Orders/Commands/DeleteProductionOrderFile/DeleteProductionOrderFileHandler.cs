@@ -16,15 +16,14 @@ public sealed class DeleteProductionOrderFileHandler(
         var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == command.OrderId, cancellationToken);
         if (order is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.NotFound);
         if (!command.Actor.CanEdit(order)) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotEdit);
-        var file = await db.OrderFiles.SingleOrDefaultAsync(
-            x => x.Id == command.FileId && x.OrderId == order.Id && x.DeletedAt == null, cancellationToken);
-        if (file is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.FileNotFound);
+        await db.Orders.Entry(order).Collection(x => x.Files).Query()
+            .Where(x => x.Id == command.FileId).LoadAsync(cancellationToken);
         var actorName = await OrderActors.NameAsync(staff, command.Actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.ActorUnknown);
 
-        var now = clock.GetUtcNow();
-        file.Delete(now);
-        order.RecordAbout(file.ItemId, "Файл видалено", file.Name, null, actorName, now);
+        var removed = order.RemoveFile(command.FileId, actorName, clock.GetUtcNow());
+        if (removed.IsFailure) return removed.ToResult<ProductionOrderFile, ProductionOrderResponse>();
+        var file = removed.Value;
         await db.SaveChangesAsync(cancellationToken);
         if (file.StorageKey is { } key)
         {

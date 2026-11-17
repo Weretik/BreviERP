@@ -20,7 +20,7 @@ public interface IQuoteStore
     DbSet<QuoteSending> QuoteSendings { get; }
 
     /// <summary>«Історія змін» of every КП (R-22).</summary>
-    DbSet<QuoteEvent> QuoteEvents { get; }
+    IQueryable<QuoteEvent> QuoteEvents { get; }
 
     /// <summary>«Готові шаблони» of introductions (R-19).</summary>
     DbSet<QuoteIntroTemplate> QuoteIntroTemplates { get; }

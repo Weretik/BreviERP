@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Crm.Domain.Quotes.Enums;
 using Crm.Domain.Quotes.Errors;
@@ -9,7 +10,7 @@ namespace Crm.Domain.Quotes.Introductions;
 /// «Готовий шаблон» of a «КП для знайомства» (R-19): the layout, the models with their fabrics and the letter variant.
 /// It keeps no prices; applying it reads the current Catalog. All staff see every template.
 /// </summary>
-public sealed class QuoteIntroTemplate : DomainEventSource
+public sealed class QuoteIntroTemplate : DomainEventSource, IAggregateRoot
 {
     private QuoteIntroTemplate() { }
 

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 namespace Production.Domain.Archive;
 
 /// <summary>Which old book a record of «Архів цеху» comes from.</summary>
@@ -14,7 +15,7 @@ public enum WorkshopArchiveKind
 /// A read-only line of «Архів цеху» moved from the old «Цех» (PRD-D54). Nothing edits it; a repeat import of the same
 /// <see cref="SourceKey"/> is skipped.
 /// </summary>
-public sealed class WorkshopArchiveRecord
+public sealed class WorkshopArchiveRecord : IAggregateRoot
 {
     public const int SourceKeyMaxLength = 80;
     public const int ShortMaxLength = 200;

@@ -51,10 +51,9 @@ public sealed class UploadBankStatementHandler(IAccountingDbContext db, IBankSta
         var created = BankStatement.Create(BankStatementId.New(), account, command.DisplayName, hash, rows,
             command.By, clock.GetUtcNow());
         if (created.IsFailure) return created.Error!.ToResult<BankStatementResponse>();
-        var (statement, lines) = created.Value;
-        await BankLineRecognition.RecogniseAsync(db, customers, suppliers, account, lines, cancellationToken);
+        var statement = created.Value;
+        await BankLineRecognition.RecogniseAsync(db, customers, suppliers, account, statement.Lines, cancellationToken);
         db.BankStatements.Add(statement);
-        db.BankStatementLines.AddRange(lines);
         try
         {
             await db.SaveChangesAsync(cancellationToken);

@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 
 namespace Media.Domain.Files;
 
 /// <summary>A photo stored on the CDN. It is created only after the CDN accepted the file, so every row has a working URL.</summary>
-public sealed class MediaFile : DomainEventSource
+public sealed class MediaFile : DomainEventSource, IAggregateRoot
 {
     public const int FileNameMaxLength = 255;
     public const int AltMaxLength = 300;
