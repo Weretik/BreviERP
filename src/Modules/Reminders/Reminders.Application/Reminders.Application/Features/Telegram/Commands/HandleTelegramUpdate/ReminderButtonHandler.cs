@@ -75,6 +75,10 @@ public sealed class ReminderButtonHandler(IRemindersDbContext db, ITelegramGatew
                 break;
         }
 
+        // The cards lose their buttons in the same save as the press: one save per command. Telegram is called after
+        // the commit; if an edit fails, a card keeps a stale button whose press is answered from the saved state.
+        var live = await db.SentMessages.Where(x => x.OccurrenceId == occurrence.Id && x.HasButtons).ToListAsync(cancellationToken);
+        foreach (var message in live) message.ButtonsRemoved();
         try
         {
             await db.SaveChangesAsync(cancellationToken);
@@ -85,24 +89,18 @@ public sealed class ReminderButtonHandler(IRemindersDbContext db, ITelegramGatew
             return false;
         }
 
-        await RefreshCardsAsync(task, occurrence, today, chatId, messageId, cancellationToken);
+        await RefreshCardsAsync(task, occurrence, today, chatId, messageId, live, cancellationToken);
         await telegram.AnswerCallbackAsync(query.Id, answer, cancellationToken);
         return true;
     }
 
     /// <summary>The pressed card shows the new status without buttons; other live cards of the period lose their buttons.</summary>
     private async Task RefreshCardsAsync(Domain.Tasks.ReminderTask task, ReminderOccurrence occurrence, DateOnly today,
-        long chatId, long messageId, CancellationToken cancellationToken)
+        long chatId, long messageId, IReadOnlyList<SentReminderMessage> live, CancellationToken cancellationToken)
     {
         var text = ReminderMessageFormatter.Text(task, occurrence, new ReminderNotice(ReminderNoticeKind.None), today);
         await telegram.EditMessageAsync(chatId, messageId, text, null, cancellationToken);
-        var live = await db.SentMessages.Where(x => x.OccurrenceId == occurrence.Id && x.HasButtons).ToListAsync(cancellationToken);
-        foreach (var message in live)
-        {
-            if (message.TelegramChatId != chatId || message.TelegramMessageId != messageId)
-                await telegram.EditKeyboardAsync(message.TelegramChatId, message.TelegramMessageId, null, cancellationToken);
-            message.ButtonsRemoved();
-        }
-        await db.SaveChangesAsync(cancellationToken);
+        foreach (var message in live.Where(x => x.TelegramChatId != chatId || x.TelegramMessageId != messageId))
+            await telegram.EditKeyboardAsync(message.TelegramChatId, message.TelegramMessageId, null, cancellationToken);
     }
 }

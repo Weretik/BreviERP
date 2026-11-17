@@ -105,6 +105,24 @@ public sealed class GetActivityEntriesTests
     }
 
     [Test]
+    public async Task Filter_choices_keep_the_latest_name_even_when_an_older_entry_arrives_late()
+    {
+        using var harness = await SeedAsync();
+        harness.Names.Names[7] = "Олена Іваненко";
+        foreach (var at in new[] { Morning.AddHours(3), Morning.AddDays(-3) })
+        {
+            harness.Names.Names[7] = at > Morning ? "Олена Іваненко" : "Стара назва";
+            await using var write = harness.Open();
+            await new RecordActivityOutboxHandler(write, harness.Names, harness.Clock).HandleAsync(
+                ActivityLogTestHarness.Payload(ActivityLogTestHarness.Activity(at: at)), CancellationToken.None);
+        }
+
+        await using var db = harness.Open();
+        var filters = (await new GetActivityFiltersHandler(db).Handle(new GetActivityFiltersQuery(), CancellationToken.None)).Value;
+        Assert.That(filters.Actors.Single(x => x.Id == 7).Name, Is.EqualTo("Олена Іваненко"));
+    }
+
+    [Test]
     public void The_validator_answers_in_ukrainian()
     {
         var validator = new GetActivityEntriesValidator();

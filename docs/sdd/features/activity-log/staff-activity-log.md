@@ -24,12 +24,13 @@ src/BuildingBlocks/
 src/Modules/ActivityLog/
   ActivityLog.Contracts/…/Activity/                # IActivityDescriber + ActivityDescription (what a module implements), ActivityChanges (diff builder), ActivityRecorded, ActivityActions, ActivityMessage.Type
   ActivityLog.Domain/…/Entries/                    # ActivityEntry (limits, roles as |A|B|), ActivityChange, ActivityText
+  ActivityLog.Domain/…/Filters/                    # ActivityActor, ActivitySubjectType: the filter choices, latest name/title
   ActivityLog.Application/…/
     Abstractions/                                  # IActivityLogDbContext, IActorNames
-    Features/Entries/EventHandlers/                # ActivityDomainEventOutbox (description + actor → message), RecordActivityOutboxHandler (idempotent by event id)
+    Features/Entries/EventHandlers/                # ActivityDomainEventOutbox (description + actor → message), RecordActivityOutboxHandler (idempotent by event id; keeps the filter tables in the same save)
     Features/Entries/Queries/GetActivityEntries/   # page, filters, Kyiv period, word search; validator
-    Features/Entries/Queries/GetActivityFilters/   # people and object types found in the journal
-    Features/Entries/Commands/DeleteOldActivityEntries/  # one-year retention: one SQL DELETE (R-12)
+    Features/Entries/Queries/GetActivityFilters/   # people and object types from the small filter tables (database rules 2.2)
+    Features/Entries/Commands/DeleteOldActivityEntries/  # one-year retention: one SQL DELETE (R-12), then filter rows without entries
   ActivityLog.Infrastructure/…/
     Persistence/                                   # ActivityLogDbContext (schema activity_log), configuration, migrations
     Adapters/Identity/StaffActorNames.cs           # full name over Identity.Contracts
