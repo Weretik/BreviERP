@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Saved;
 using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Shared.Access;
 using Crm.Application.Features.Embroidery.Shared.Mapping;
@@ -12,7 +13,7 @@ public sealed class GetEmbroideryCalculationHandler(IEmbroideryStore store, IEmb
         CancellationToken cancellationToken)
     {
         var saved = await store.EmbroideryCalculations.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new EmbroiderySavedCalculationId(query.Id), cancellationToken);
         if (saved is null) return Result.NotFound(EmbroideryMessages.CalculationNotFound);
         var mockups = await media.ReadForAsync([saved.MockupMediaFileId], cancellationToken);
         return Result.Success(saved.ToResponse(query.Actor.SeesCost, mockups.Of(saved.MockupMediaFileId)));

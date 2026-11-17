@@ -1,3 +1,4 @@
+using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Access;
 using Crm.Application.Features.Quotes.Shared.Catalog;
@@ -18,7 +19,7 @@ public sealed class GetQuoteHandler(IQuoteStore store, IQuoteCatalogReader catal
             .Include(x => x.Items).ThenInclude(x => x.Options).ThenInclude(x => x.Fabrics)
             .Include(x => x.Items).ThenInclude(x => x.Lines)
             .AsSplitQuery()
-            .SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new QuoteId(query.Id), cancellationToken);
         if (quote is null || !query.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
 
         var response = quote.ToResponse();

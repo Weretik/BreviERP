@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Leads.Shared.Access;
@@ -26,7 +27,7 @@ public sealed class TakeLeadHandler(ILeadStore store, ITaskStaffReader staff, Ti
             return Result.Conflict(LeadMessages.TakenBy(lead.OwnerName));
         if (!await store.TrySaveAsync(cancellationToken))
         {
-            var fresh = await store.Leads.AsNoTracking().Where(x => x.Id == command.Id).Select(x => x.OwnerName)
+            var fresh = await store.Leads.AsNoTracking().Where(x => x.Id == new LeadId(command.Id)).Select(x => x.OwnerName)
                 .SingleOrDefaultAsync(cancellationToken);
             return Result.Conflict(LeadMessages.TakenBy(fresh));
         }

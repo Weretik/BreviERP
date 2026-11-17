@@ -53,7 +53,7 @@ public sealed class EmbroiderySavedCalculation : DomainEventSource, IAggregateRo
         CreatedAt = now;
     }
 
-    public long Id { get; private set; }
+    public EmbroiderySavedCalculationId Id { get; private set; }
 
     /// <summary>The old calculator's record id for a calculation moved from its archive; null for one saved here.</summary>
     public string? LegacyId { get; private set; }
@@ -111,7 +111,7 @@ public sealed class EmbroiderySavedCalculation : DomainEventSource, IAggregateRo
     }
 
     /// <summary>Tells «Журнал дій» (ACT-001) that the calculation is being deleted; call it before removing it.</summary>
-    public void MarkDeleted() => Raise(new EmbroideryCalculationDeleted(Id, Name));
+    public void MarkDeleted() => Raise(new EmbroideryCalculationDeleted(Id.Value, Name));
 
     /// <summary>«ВШ-0042»: the id with the prefix, never stored.</summary>
     public static string NumberOf(long id) => "ВШ-" + id.ToString("D4", CultureInfo.InvariantCulture);

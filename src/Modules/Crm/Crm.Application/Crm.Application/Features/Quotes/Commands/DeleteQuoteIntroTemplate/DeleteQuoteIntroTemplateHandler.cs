@@ -1,3 +1,4 @@
+using Crm.Domain.Quotes.Introductions;
 using Crm.Application.Features.Quotes.Shared.Introductions.Templates;
 using Crm.Application.Features.Quotes.Shared.Persistence;
 using Crm.Application.Abstractions.Quotes;
@@ -9,7 +10,7 @@ public sealed class DeleteQuoteIntroTemplateHandler(IQuoteStore store)
 {
     public async ValueTask<Result> Handle(DeleteQuoteIntroTemplateCommand command, CancellationToken cancellationToken)
     {
-        var template = await store.QuoteIntroTemplates.SingleOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var template = await store.QuoteIntroTemplates.SingleOrDefaultAsync(x => x.Id == new QuoteIntroTemplateId(command.Id), cancellationToken);
         if (template is null) return Result.NotFound(QuoteIntroTemplateMessages.NotFound);
         if (!command.Actor.CanDeleteTemplate(template)) return Result.Forbidden(QuoteIntroTemplateMessages.DeleteForbidden);
 

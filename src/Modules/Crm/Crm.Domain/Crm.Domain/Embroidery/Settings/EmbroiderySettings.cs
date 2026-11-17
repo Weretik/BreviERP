@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Settings.ValueObjects;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 
@@ -15,12 +16,12 @@ public sealed class EmbroiderySettings : DomainEventSource, IAggregateRoot
 
     public static DomainResult<EmbroiderySettings> Create(EmbroiderySettingsContent content, string updatedByName, DateTimeOffset now)
     {
-        var settings = new EmbroiderySettings { Id = SingletonId, Version = 0 };
+        var settings = new EmbroiderySettings { Id = new EmbroiderySettingsId(SingletonId), Version = 0 };
         var applied = settings.Apply(content, updatedByName, now);
         return applied.IsFailure ? applied.Error! : settings;
     }
 
-    public int Id { get; private set; }
+    public EmbroiderySettingsId Id { get; private set; }
     public EmbroiderySettingsContent Content { get; private set; } = null!;
     public string UpdatedByName { get; private set; } = null!;
     public DateTimeOffset UpdatedAt { get; private set; }

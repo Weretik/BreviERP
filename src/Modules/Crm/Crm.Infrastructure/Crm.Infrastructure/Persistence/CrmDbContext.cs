@@ -115,6 +115,9 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public bool IsDuplicateTemplateName(DbUpdateException exception) =>
         QuoteStoreErrors.IsDuplicateTemplateName(exception);
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(Quote).Assembly);
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema("crm");

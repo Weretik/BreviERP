@@ -38,7 +38,7 @@ public sealed class LeadActivity : IActivityDescriber
     private static ActivityDescription? Result(LeadCallResultSaved e)
     {
         var result = e.Result;
-        var id = result.Id.ToString(CultureInfo.InvariantCulture);
+        var id = result.Id.Value.ToString(CultureInfo.InvariantCulture);
         if (e.NameBefore is null)
             return new ActivityDescription(ActivityActions.Created, ResultSubject, "Результат дзвінка", id, result.Name,
                 null, [], "Crm");
@@ -51,6 +51,6 @@ public sealed class LeadActivity : IActivityDescriber
 
     private static ActivityDescription Lead(Lead lead, string action, string summary,
         IReadOnlyList<ActivityChangeItem> changes) =>
-        new(action, Subject, "Лід", lead.Id.ToString(CultureInfo.InvariantCulture), lead.Company, summary, changes,
+        new(action, Subject, "Лід", lead.Id.Value.ToString(CultureInfo.InvariantCulture), lead.Company, summary, changes,
             "Crm");
 }

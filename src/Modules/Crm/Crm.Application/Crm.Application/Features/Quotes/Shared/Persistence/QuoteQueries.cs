@@ -10,5 +10,5 @@ internal static class QuoteQueries
             .Include(x => x.Items).ThenInclude(x => x.Options).ThenInclude(x => x.Fabrics)
             .Include(x => x.Items).ThenInclude(x => x.Lines)
             .AsSplitQuery()
-            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new QuoteId(id), cancellationToken);
 }

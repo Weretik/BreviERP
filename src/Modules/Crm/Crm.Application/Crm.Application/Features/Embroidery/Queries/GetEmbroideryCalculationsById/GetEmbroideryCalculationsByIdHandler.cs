@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Saved;
 using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Shared.Mapping;
 using Crm.Application.Abstractions.Embroidery;
@@ -11,7 +12,7 @@ public sealed class GetEmbroideryCalculationsByIdHandler(IEmbroideryStore store,
     public async ValueTask<Result<IReadOnlyList<EmbroiderySavedCalculationResponse>>> Handle(
         GetEmbroideryCalculationsByIdQuery query, CancellationToken cancellationToken)
     {
-        var ids = query.Ids.Distinct().ToArray();
+        var ids = query.Ids.Distinct().Select(id => new EmbroiderySavedCalculationId(id)).ToArray();
         if (ids.Length == 0) return Result.Success<IReadOnlyList<EmbroiderySavedCalculationResponse>>([]);
         var saved = await store.EmbroideryCalculations.AsNoTracking().Where(x => ids.Contains(x.Id))
             .ToListAsync(cancellationToken);

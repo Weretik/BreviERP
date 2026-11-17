@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Settings.ValueObjects;
 using Crm.Domain.Embroidery.Saved;
 using Crm.Domain.Embroidery.Settings;
 
@@ -28,7 +29,7 @@ internal static class EmbroideryStoreQueries
         CancellationToken cancellationToken)
     {
         var query = tracking ? store.EmbroiderySettings : store.EmbroiderySettings.AsNoTracking();
-        return query.SingleOrDefaultAsync(x => x.Id == Domain.Embroidery.Settings.EmbroiderySettings.SingletonId,
+        return query.SingleOrDefaultAsync(x => x.Id == new EmbroiderySettingsId(Domain.Embroidery.Settings.EmbroiderySettings.SingletonId),
             cancellationToken);
     }
 }

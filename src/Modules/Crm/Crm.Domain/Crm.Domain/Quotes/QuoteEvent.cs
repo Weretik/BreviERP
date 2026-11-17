@@ -18,7 +18,7 @@ public sealed class QuoteEvent
     }
 
     public long Id { get; private set; }
-    public long QuoteId { get; private set; }
+    public QuoteId QuoteId { get; private set; }
     public QuoteEventKind Kind { get; private set; }
     public int ActorUserId { get; private set; }
     public string ActorName { get; private set; } = null!;

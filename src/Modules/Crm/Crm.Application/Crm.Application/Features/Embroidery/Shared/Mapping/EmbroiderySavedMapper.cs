@@ -14,8 +14,8 @@ public static class EmbroiderySavedMapper
 
     public static EmbroiderySavedSummaryResponse ToSummary(this EmbroiderySavedCalculation saved,
         EmbroideryMockupResponse? mockup = null) => new(
-        saved.Id,
-        EmbroiderySavedCalculation.NumberOf(saved.Id),
+        saved.Id.Value,
+        EmbroiderySavedCalculation.NumberOf(saved.Id.Value),
         saved.Name,
         saved.CustomerPublicId,
         saved.CustomerName,

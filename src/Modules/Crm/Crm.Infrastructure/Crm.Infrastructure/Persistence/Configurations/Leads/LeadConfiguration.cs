@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Leads;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ public sealed class LeadConfiguration : IEntityTypeConfiguration<Lead>
             t.HasCheckConstraint("CK_Leads_Owner", "(\"OwnerUserId\" IS NULL) = (\"OwnerName\" IS NULL)");
         });
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedOnAdd();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new LeadId(x)).ValueGeneratedOnAdd();
         b.Property(x => x.NameKey).HasMaxLength(LeadLimits.ShortText);
         b.HasIndex(x => x.NameKey).IsUnique();
         b.HasIndex(x => x.SourceId);

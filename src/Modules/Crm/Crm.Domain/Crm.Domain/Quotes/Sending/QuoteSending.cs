@@ -1,3 +1,4 @@
+using Crm.Domain.Quotes;
 using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Quotes.ValueObjects;
 
@@ -8,7 +9,7 @@ public sealed class QuoteSending : IAggregateRoot
 {
     private QuoteSending() { }
 
-    private QuoteSending(long quoteId, int quoteVersion, QuotePerson sender, string fromEmail, string to, string subject,
+    private QuoteSending(QuoteId quoteId, int quoteVersion, QuotePerson sender, string fromEmail, string to, string subject,
         string? providerMessageId, DateTimeOffset sentAt, Guid? requestId = null)
     {
         RequestId = requestId;
@@ -23,15 +24,15 @@ public sealed class QuoteSending : IAggregateRoot
         SentAt = sentAt;
     }
 
-    public static QuoteSending Create(long quoteId, int quoteVersion, QuotePerson sender, string fromEmail, string to, string subject,
+    public static QuoteSending Create(QuoteId quoteId, int quoteVersion, QuotePerson sender, string fromEmail, string to, string subject,
         string? providerMessageId, DateTimeOffset sentAt, Guid? requestId = null) =>
         new(quoteId, quoteVersion, sender, fromEmail, to, subject, providerMessageId, sentAt, requestId);
 
-    public long Id { get; private set; }
+    public QuoteSendingId Id { get; private set; }
 
     /// <summary>The «Надіслати» press; a repeat with the same id sends nothing new (unique).</summary>
     public Guid? RequestId { get; private set; }
-    public long QuoteId { get; private set; }
+    public QuoteId QuoteId { get; private set; }
 
     /// <summary>The КП version whose PDF went out.</summary>
     public int QuoteVersion { get; private set; }

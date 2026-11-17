@@ -30,7 +30,7 @@ public sealed class GetQuotesHandler(IQuoteStore store) : IQueryHandler<GetQuote
         var rows = await quotes
             .OrderByDescending(x => x.UpdatedAt).ThenByDescending(x => x.Id)
             .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
-            .Select(x => new QuoteSummaryResponse(x.Id, x.Number, x.Kind.ToString(), x.Status.ToString(),
+            .Select(x => new QuoteSummaryResponse(x.Id.Value, x.Number, x.Kind.ToString(), x.Status.ToString(),
                 x.InternalName, x.CompanyName, new QuotePersonResponse(x.ResponsibleUserId, x.ResponsibleName),
                 x.Items.Count, x.UpdatedAt, x.LastSentAt, x.Version))
             .ToListAsync(cancellationToken);

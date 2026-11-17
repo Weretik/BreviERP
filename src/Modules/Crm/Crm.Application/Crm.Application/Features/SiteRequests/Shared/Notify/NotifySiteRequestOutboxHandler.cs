@@ -24,7 +24,7 @@ public sealed class NotifySiteRequestOutboxHandler(
     public async Task<string?> HandleAsync(string payload, CancellationToken cancellationToken)
     {
         var id = OutboxMessage.Read<NotifySiteRequestPayload>(payload).RequestId;
-        var request = await store.SiteRequests.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+        var request = await store.SiteRequests.SingleOrDefaultAsync(x => x.Id == new SiteRequestId(id), cancellationToken);
         if (request is null || request.NotifiedAt is not null) return null;
 
         string? error;

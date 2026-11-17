@@ -15,6 +15,6 @@ public sealed class GetEmbroideryMockupUsagesHandler(IEmbroideryStore store)
             .Select(x => new { x.Id, x.Name, FileId = x.MockupMediaFileId!.Value })
             .ToListAsync(cancellationToken);
         return Result.Success<IReadOnlyList<EmbroideryMockupUsage>>(rows.Select(x => new EmbroideryMockupUsage(x.FileId,
-            x.Id, (EmbroiderySavedCalculation.NumberOf(x.Id) + " " + x.Name).Trim())).ToArray());
+            x.Id.Value, (EmbroiderySavedCalculation.NumberOf(x.Id.Value) + " " + x.Name).Trim())).ToArray());
     }
 }

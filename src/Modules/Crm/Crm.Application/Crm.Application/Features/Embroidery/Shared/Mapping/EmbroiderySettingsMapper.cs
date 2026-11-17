@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Settings.ValueObjects;
 using Crm.Domain.Embroidery.Settings;
 using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Abstractions.Embroidery;

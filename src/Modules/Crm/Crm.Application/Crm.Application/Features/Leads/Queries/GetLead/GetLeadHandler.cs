@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Leads.Shared.Access;
 using Crm.Application.Features.Leads.Shared.Calling;
@@ -12,7 +13,7 @@ public sealed class GetLeadHandler(ILeadStore store, TimeProvider clock)
     public async ValueTask<Result<LeadDetailResponse>> Handle(GetLeadQuery query, CancellationToken cancellationToken)
     {
         var lead = await store.Leads.AsNoTracking().Include(x => x.Calls).AsSplitQuery()
-            .SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new LeadId(query.Id), cancellationToken);
         if (lead is null) return Result.NotFound(LeadMessages.NotFound);
         return Result.Success(await store.DetailAsync(lead, clock.GetUtcNow(), cancellationToken));
     }

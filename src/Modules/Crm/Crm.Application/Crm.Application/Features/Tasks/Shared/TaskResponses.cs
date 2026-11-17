@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 namespace Crm.Application.Features.Tasks.Shared;
 
 public sealed record TaskPersonResponse(int UserId, string Name);

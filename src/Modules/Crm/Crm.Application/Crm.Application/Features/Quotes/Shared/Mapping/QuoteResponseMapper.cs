@@ -8,7 +8,7 @@ namespace Crm.Application.Features.Quotes.Shared.Mapping;
 internal static class QuoteResponseMapper
 {
     public static QuoteResponse ToResponse(this Quote quote) => new(
-        quote.Id, quote.Number, quote.Kind.ToString(), quote.Status.ToString(), quote.InternalName, quote.CustomerId,
+        quote.Id.Value, quote.Number, quote.Kind.ToString(), quote.Status.ToString(), quote.InternalName, quote.CustomerId,
         quote.RecipientName, quote.CompanyName, quote.ClientComment, quote.ManagerNote,
         new QuotePersonResponse(quote.AuthorUserId, quote.AuthorName),
         new QuotePersonResponse(quote.ResponsibleUserId, quote.ResponsibleName),
@@ -25,7 +25,7 @@ internal static class QuoteResponseMapper
         item.Options.OrderBy(x => x.Position).Select(ToResponse).ToArray(),
         item.Lines.OrderBy(x => x.Position).Select(x => new QuoteItemLineResponse(x.Id, x.Kind.ToString(),
             x.ReferenceId, x.Name, x.Unit, x.Quantity, x.ManualMinutes, x.CostCode)).ToArray(),
-        item.EmbroideryCalculationId);
+        item.EmbroideryCalculationId?.Value);
 
     private static QuoteOptionResponse ToResponse(QuoteItemOption option) => new(
         option.Id, option.ArticleId, option.FabricId, option.Title, option.Details, option.IsRecommended,

@@ -45,7 +45,7 @@ public sealed class QuoteNumbering(IQuoteStore store)
 
     private async Task<Quote?> SavedAsync(Guid? requestId, CancellationToken cancellationToken) =>
         requestId is { } id && await store.Quotes.AsNoTracking().Where(x => x.CreateRequestId == id)
-            .Select(x => (long?)x.Id).SingleOrDefaultAsync(cancellationToken) is { } quoteId
+            .Select(x => (long?)x.Id.Value).SingleOrDefaultAsync(cancellationToken) is { } quoteId
             ? await store.LoadAsync(quoteId, cancellationToken)
             : null;
 

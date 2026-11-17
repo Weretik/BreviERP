@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Leads.Shared.Access;
@@ -19,7 +20,7 @@ public sealed class SaveLeadCallResultHandler(ILeadStore store)
         LeadCallResult result;
         if (command.Id is { } id)
         {
-            var found = await store.LeadCallResults.FindAsync([id], cancellationToken);
+            var found = await store.LeadCallResults.FindAsync([new LeadCallResultId(id)], cancellationToken);
             if (found is null) return Result.NotFound(LeadMessages.ResultNotFound);
             result = found;
             result.Edit(input.Name, outcome, input.RetryDays, input.IsActive, input.Position);

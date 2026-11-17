@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Leads.Shared;
@@ -112,7 +113,7 @@ public sealed class LeadSheetSync(
             foreach (var code in sheet.Rows.Select(x => x.Category).OfType<string>().Distinct().Except(known))
                 store.LeadCategories.Add(LeadCategory.Create(code, null));
 
-            var state = await store.LeadSyncStates.FindAsync([LeadSyncState.GoogleSheet], cancellationToken);
+            var state = await store.LeadSyncStates.FindAsync([new LeadSyncStateId(LeadSyncState.GoogleSheet)], cancellationToken);
             if (state is null) store.LeadSyncStates.Add(state = LeadSyncState.Create(LeadSyncState.GoogleSheet));
             warning = Warning(sheet.DuplicatesWarning, unknownOwners, unknownResults);
             state.Succeeded(now, sheet.Rows.Count, added, updated, warning);
@@ -165,7 +166,7 @@ public sealed class LeadSheetSync(
 
     private async Task RecordFailureAsync(DateTimeOffset now, string error, CancellationToken cancellationToken)
     {
-        var state = await store.LeadSyncStates.FindAsync([LeadSyncState.GoogleSheet], cancellationToken);
+        var state = await store.LeadSyncStates.FindAsync([new LeadSyncStateId(LeadSyncState.GoogleSheet)], cancellationToken);
         if (state is null) store.LeadSyncStates.Add(state = LeadSyncState.Create(LeadSyncState.GoogleSheet));
         state.Failed(now, error);
         await store.SaveChangesAsync(cancellationToken);

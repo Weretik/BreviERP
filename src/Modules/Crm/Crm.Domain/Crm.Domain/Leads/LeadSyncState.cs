@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Domain.Entity;
 namespace Crm.Domain.Leads;
 
@@ -8,12 +9,12 @@ public sealed class LeadSyncState : IAggregateRoot
 
     private LeadSyncState() { }
 
-    private LeadSyncState(string id) => Id = id;
+    private LeadSyncState(string id) => Id = new LeadSyncStateId(id);
 
     public static LeadSyncState Create(string id) =>
         new(id);
 
-    public string Id { get; private set; } = null!;
+    public LeadSyncStateId Id { get; private set; }
     public DateTimeOffset? LastRunAt { get; private set; }
     public DateTimeOffset? LastSuccessAt { get; private set; }
     public int Rows { get; private set; }

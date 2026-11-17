@@ -17,7 +17,7 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
             t.HasCheckConstraint("CK_Quotes_NumberSequence", "\"NumberSequence\" > 0");
         });
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedOnAdd();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new QuoteId(x)).ValueGeneratedOnAdd();
         b.Property(x => x.Number).HasMaxLength(QuoteLimits.NumberMaxLength);
         b.Property(x => x.Kind).HasConversion<string>().HasMaxLength(20);
         b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);

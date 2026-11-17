@@ -80,7 +80,7 @@ public sealed class ImportEmbroideryArchiveHandler(IEmbroideryStore store, IQuot
             store.EmbroideryCalculations.AddRange(created.OrderBy(x => x.Saved.CreatedAt).Select(x => x.Saved));
             await store.SaveChangesAsync(cancellationToken);
             foreach (var (line, saved) in created)
-                lines[line] = lines[line] with { Number = EmbroiderySavedCalculation.NumberOf(saved.Id) };
+                lines[line] = lines[line] with { Number = EmbroiderySavedCalculation.NumberOf(saved.Id.Value) };
         }
 
         return Result.Success(new EmbroideryArchiveImportResult(!apply, created.Count,

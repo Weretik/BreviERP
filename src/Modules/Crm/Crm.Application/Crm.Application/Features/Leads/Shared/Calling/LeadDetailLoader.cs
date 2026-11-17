@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Leads.Shared;
@@ -20,7 +21,7 @@ internal static class LeadDetailLoader
                 .SingleOrDefaultAsync(cancellationToken);
         var taskId = await store.ManagerTasks.AsNoTracking()
             .Where(x => x.LeadId == lead.Id && x.Status != ManagerTaskStatus.Done)
-            .OrderByDescending(x => x.Id).Select(x => (long?)x.Id).FirstOrDefaultAsync(cancellationToken);
+            .OrderByDescending(x => x.Id).Select(x => (long?)x.Id.Value).FirstOrDefaultAsync(cancellationToken);
         return lead.ToDetail(description, taskId, now);
     }
 }

@@ -199,8 +199,8 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
         Assert.That(withOrder.Status, Is.EqualTo(ResultStatus.Conflict));
         Assert.That(deleted.IsSuccess, Is.True);
-        Assert.That(db.Quotes.Select(x => x.Id), Is.EqualTo(new[] { kept.Id }));
-        Assert.That(db.QuoteEvents.Count(x => x.QuoteId == created.Id), Is.Zero);
+        Assert.That(db.Quotes.Select(x => x.Id.Value), Is.EqualTo(new[] { kept.Id }));
+        Assert.That(db.QuoteEvents.Count(x => x.QuoteId == new QuoteId(created.Id)), Is.Zero);
     }
 
     [Test]
@@ -341,7 +341,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         Assert.That(refused.Status, Is.EqualTo(ResultStatus.Forbidden));
         Assert.That(purged.Value, Is.EqualTo(new LegacyArchivePurgeResponse(1, 1)));
         await using var fresh = Context();
-        Assert.That(fresh.Quotes.OrderBy(x => x.Id).Select(x => x.Id), Is.EqualTo(new[] { kept.Id, working.Id }));
+        Assert.That(fresh.Quotes.OrderBy(x => x.Id).Select(x => x.Id.Value), Is.EqualTo(new[] { kept.Id, working.Id }));
         Assert.That(fresh.Quotes.Count(x => x.ArchivedAt != null), Is.Zero);
     }
 

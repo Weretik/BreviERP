@@ -13,7 +13,7 @@ public sealed class QuoteIntroTemplateConfiguration : IEntityTypeConfiguration<Q
     {
         b.ToTable("QuoteIntroTemplates");
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedOnAdd();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new QuoteIntroTemplateId(x)).ValueGeneratedOnAdd();
         b.Property(x => x.Name).HasMaxLength(QuoteIntroTemplateLimits.NameMaxLength);
         b.Property(x => x.NameKey).HasMaxLength(QuoteIntroTemplateLimits.NameMaxLength);
         b.Property(x => x.Layout).HasConversion<string>().HasMaxLength(20);

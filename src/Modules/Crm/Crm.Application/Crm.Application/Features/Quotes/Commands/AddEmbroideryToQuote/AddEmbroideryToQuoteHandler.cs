@@ -32,7 +32,7 @@ public sealed class AddEmbroideryToQuoteHandler(
         if (actor is null) return Result.Forbidden(QuoteMessages.ActorUnknown);
 
         var saved = await embroidery.EmbroideryCalculations.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == command.CalculationId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new EmbroiderySavedCalculationId(command.CalculationId), cancellationToken);
         if (saved is null) return Result.Invalid(new ValidationError(CalculationNotFound));
         var price = saved.Price;
         if (price is null || price.Unit <= 0) return Result.Invalid(new ValidationError(LevelNotFound));
@@ -42,7 +42,7 @@ public sealed class AddEmbroideryToQuoteHandler(
         var added = quote.AddItem(QuoteEmbroideryItems.Create(position, saved, price), now);
         if (added.IsFailure) return added.Error!.ToResult<QuoteResponse>();
         quote.Record(QuoteEventKind.EmbroideryAdded, actor,
-            $"{EmbroiderySavedCalculation.NumberOf(saved.Id)}, {EmbroideryCategories.Label(price.Name)}", now);
+            $"{EmbroiderySavedCalculation.NumberOf(saved.Id.Value)}, {EmbroideryCategories.Label(price.Name)}", now);
         try
         {
             await quotes.SaveChangesAsync(cancellationToken);

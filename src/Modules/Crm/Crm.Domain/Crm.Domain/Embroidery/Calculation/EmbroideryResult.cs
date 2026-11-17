@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Settings.ValueObjects;
 using Crm.Domain.Embroidery.Settings;
 
 namespace Crm.Domain.Embroidery.Calculation;

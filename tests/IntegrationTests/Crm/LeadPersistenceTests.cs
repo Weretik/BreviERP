@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Domain.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -57,13 +58,13 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
     private async Task<long> IdOf(int sourceId)
     {
         await using var db = Context();
-        return await db.Leads.Where(x => x.SourceId == sourceId).Select(x => x.Id).SingleAsync();
+        return await db.Leads.Where(x => x.SourceId == sourceId).Select(x => x.Id.Value).SingleAsync();
     }
 
     private async Task<long> ResultId(string name)
     {
         await using var db = Context();
-        return await db.LeadCallResults.Where(x => x.Name == name).Select(x => x.Id).SingleAsync();
+        return await db.LeadCallResults.Where(x => x.Name == name).Select(x => x.Id.Value).SingleAsync();
     }
 
     private async Task<Ardalis.Result.Result<LeadDetailResponse>> Take(LeadActor actor, long id)
@@ -98,7 +99,7 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
         var second = await Sync();
 
         await using var db = Context();
-        var lead = await db.Leads.SingleAsync(x => x.Id == taken.Id);
+        var lead = await db.Leads.SingleAsync(x => x.Id == new LeadId(taken.Id));
         Assert.Multiple(() =>
         {
             Assert.That((second.Rows, second.Added, second.Updated, second.Gone), Is.EqualTo((2, 0, 2, 1)));
@@ -150,7 +151,7 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
             Assert.That(alpha.Calls.Single().Comment, Is.EqualTo("У таблиці: «Вышли на ответственного». Просили КП"));
             Assert.That(alpha.Calls.Single().At, Is.EqualTo(new DateTimeOffset(2026, 8, 19, 6, 0, 0, TimeSpan.Zero)));
             Assert.That(alpha.NextContactAt, Is.EqualTo(new DateTimeOffset(2026, 11, 4, 7, 0, 0, TimeSpan.Zero)));
-            Assert.That((task.LeadId, task.AssigneeUserId, task.Title), Is.EqualTo(((long?)alpha.Id, 18, "Подзвонити: Альфа")));
+            Assert.That((task.LeadId?.Value, task.AssigneeUserId, task.Title), Is.EqualTo(((long?)alpha.Id.Value, 18, "Подзвонити: Альфа")));
 
             Assert.That((leads["Бета"].Stage, leads["Бета"].NextContactAt), Is.EqualTo((LeadStage.Closed, (DateTimeOffset?)null)));
             Assert.That((leads["Гама"].OwnerUserId, leads["Гама"].CallCount), Is.EqualTo(((int?)17, 0)));
@@ -213,8 +214,8 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
             Assert.That(tasks[1].Title, Is.EqualTo("Подзвонити: L&S Distributions"));
             Assert.That(tasks[1].AssigneeUserId, Is.EqualTo(17));
             Assert.That(tasks[1].DueAt, Is.EqualTo(_clock.Now.AddDays(3)));
-            Assert.That(tasks[1].LeadId, Is.EqualTo(lead.Id));
-            Assert.That(lead.OpenTaskId, Is.EqualTo(tasks[1].Id).And.Not.EqualTo(firstTask));
+            Assert.That(tasks[1].LeadId?.Value, Is.EqualTo(lead.Id));
+            Assert.That(lead.OpenTaskId, Is.EqualTo(tasks[1].Id.Value).And.Not.EqualTo(firstTask));
         }
 
         lead = (await Call(Anastasia, lead, "Відмова", _clock.Now.AddDays(5))).Value;

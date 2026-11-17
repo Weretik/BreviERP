@@ -23,18 +23,18 @@ public sealed class TaskActivity : IActivityDescriber
         var task = e.Task;
         return e.Kind switch
         {
-            ManagerTaskEventKind.Created => Of(ActivityActions.Created, task.Id, task.Title,
+            ManagerTaskEventKind.Created => Of(ActivityActions.Created, task.Id.Value, task.Title,
                 "Виконавець: " + task.AssigneeName, []),
             ManagerTaskEventKind.Edited => Changes(e.Before, task.Snapshot()) is { Any: true } changes
-                ? Of(ActivityActions.Changed, task.Id, task.Title, null, changes.Items)
+                ? Of(ActivityActions.Changed, task.Id.Value, task.Title, null, changes.Items)
                 : null,
-            ManagerTaskEventKind.StatusChanged => Of(ActivityActions.Changed, task.Id, task.Title,
+            ManagerTaskEventKind.StatusChanged => Of(ActivityActions.Changed, task.Id.Value, task.Title,
                 "Статус: " + Status(task.Status), []),
-            ManagerTaskEventKind.UrgentChanged => Of(ActivityActions.Changed, task.Id, task.Title,
+            ManagerTaskEventKind.UrgentChanged => Of(ActivityActions.Changed, task.Id.Value, task.Title,
                 task.IsUrgent ? "Позначено терміновим" : "Знято позначку «Терміново»", []),
-            ManagerTaskEventKind.StepChecked => Of(ActivityActions.Changed, task.Id, task.Title,
+            ManagerTaskEventKind.StepChecked => Of(ActivityActions.Changed, task.Id.Value, task.Title,
                 "Виконано крок: " + e.Details, []),
-            ManagerTaskEventKind.StepUnchecked => Of(ActivityActions.Changed, task.Id, task.Title,
+            ManagerTaskEventKind.StepUnchecked => Of(ActivityActions.Changed, task.Id.Value, task.Title,
                 "Знято позначку кроку: " + e.Details, []),
             _ => null,
         };

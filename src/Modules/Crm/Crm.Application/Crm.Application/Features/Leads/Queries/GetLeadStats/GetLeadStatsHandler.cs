@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Leads.Shared.Persistence;
@@ -29,7 +30,7 @@ public sealed class GetLeadStatsHandler(ILeadStore store, TimeProvider clock)
             .Select(x => new { x.ByUserId, x.ByName, x.ResultName, x.Outcome })
             .ToListAsync(cancellationToken);
         var sync = await store.LeadSyncStates.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == LeadSyncState.GoogleSheet, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new LeadSyncStateId(LeadSyncState.GoogleSheet), cancellationToken);
 
         bool Open(LeadStage stage) => stage is not (LeadStage.Client or LeadStage.Closed);
         var open = leads.Where(x => Open(x.Stage)).ToList();

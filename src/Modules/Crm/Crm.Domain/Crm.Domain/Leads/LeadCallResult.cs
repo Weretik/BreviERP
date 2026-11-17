@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Leads.Events;
 using Crm.Domain.Leads.Enums;
@@ -21,7 +22,7 @@ public sealed class LeadCallResult : DomainEventSource, IAggregateRoot
     public static LeadCallResult Create(string name, LeadOutcome outcome, int? retryDays, int position) =>
         new(name, outcome, retryDays, position);
 
-    public long Id { get; private set; }
+    public LeadCallResultId Id { get; private set; }
     public string Name { get; private set; } = null!;
     public LeadOutcome Outcome { get; private set; }
 

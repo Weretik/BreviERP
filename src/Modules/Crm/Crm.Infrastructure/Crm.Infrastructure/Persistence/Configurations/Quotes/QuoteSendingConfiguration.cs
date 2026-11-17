@@ -12,7 +12,7 @@ public sealed class QuoteSendingConfiguration : IEntityTypeConfiguration<QuoteSe
     {
         b.ToTable("QuoteSendings");
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedOnAdd();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new QuoteSendingId(x)).ValueGeneratedOnAdd();
         b.Property(x => x.SenderName).HasMaxLength(QuoteLimits.NameMaxLength);
         b.Property(x => x.FromEmail).HasMaxLength(QuoteSendingLimits.EmailMaxLength);
         b.Property(x => x.To).HasMaxLength(QuoteSendingLimits.RecipientsMaxLength);
