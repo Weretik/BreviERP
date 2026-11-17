@@ -76,7 +76,7 @@ flowchart TB
     seed -.-> secrets
 ```
 
-Deploy: changes land in `Weretik/BreviERP`; syncing the fork `pnevman-creator/brevi-api` starts GitHub Actions, which signs in without a key, runs `brevierp-seed` and then deploys `brevierp-api` ([ADR-0004](../decisions/0004-keyless-cloud-run-delivery.md)). The old OpenCart site keeps `brevi.com.ua` until the cutover; it is not drawn.
+Deploy: a merge to `master` of `Weretik/BreviERP` starts GitHub Actions, which signs in without a key, runs `brevierp-seed` and then deploys `brevierp-api` ([ADR-0004](../decisions/0004-keyless-cloud-run-delivery.md), [ADR-0018](../decisions/0018-deploy-on-merge-from-main-repository.md)). The old OpenCart site keeps `brevi.com.ua` until the cutover; it is not drawn.
 
 ## Level 3: Components of the backend
 

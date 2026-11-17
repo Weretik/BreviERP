@@ -7,7 +7,7 @@ Keep accepted decisions that change long-term boundaries, contracts, or approach
 | [0001](0001-modular-monolith.md) | Modular monolith with a database schema per module | Accepted |
 | [0002](0002-cross-module-ports.md) | Modules talk through ports implemented in the host | Superseded by 0006 |
 | [0003](0003-cookie-session-behind-proxy.md) | Cookie session + CSRF behind a Cloudflare proxy | Accepted |
-| [0004](0004-keyless-cloud-run-delivery.md) | Keyless delivery to Cloud Run, migrations as a job | Accepted |
+| [0004](0004-keyless-cloud-run-delivery.md) | Keyless delivery to Cloud Run, migrations as a job | Accepted; deploy source superseded by 0018 |
 | [0005](0005-nextjs-site-on-workers.md) | Public site on Next.js + Cloudflare Workers, reading the ERP API | Accepted |
 | [0006](0006-module-contracts.md) | Modules talk through their own Contracts projects | Accepted |
 | [0007](0007-use-cases-through-mediator.md) | Every use case is a command or query sent through Mediator from a Minimal API endpoint | Accepted |
@@ -21,6 +21,7 @@ Keep accepted decisions that change long-term boundaries, contracts, or approach
 | [0015](0015-openapi-generated-from-code.md) | The OpenAPI contract is generated from the code at build | Accepted |
 | [0016](0016-domain-events-to-activity-log.md) | Domain events reach the activity log through each module's outbox | Accepted |
 | [0017](0017-opentelemetry-traces-to-cloud-trace.md) | Requests are traced with OpenTelemetry straight to Google Cloud Trace; logs are Cloud Logging JSON with the trace id | Accepted |
+| [0018](0018-deploy-on-merge-from-main-repository.md) | Production deploys on every merge to `master` of Weretik/BreviERP | Accepted |
 
 For a new decision, create `NNNN-short-name.md` and record:
 

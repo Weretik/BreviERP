@@ -20,7 +20,7 @@ While the client id or secret is empty, Gmail is off: «Підключити Gma
 3. **Data Access**: add the scope `https://www.googleapis.com/auth/gmail.send` (plus `openid`, `email`).
 4. **Clients → Create client → Web application**. Authorized redirect URI: `https://api.brevi.com.ua/api/crm/mailboxes/google-callback`. Copy the client id and secret; do not send them in chat.
 5. In Secret Manager of `brevistoreapi` create `crm-gmail-client-id` and `crm-gmail-client-secret` with those values. The Cloud Run runtime service account already has Secret Accessor.
-6. Set `CRM_GMAIL_ENABLED: 'true'` in the deploy workflow (a one-line PR), Sync fork, wait for the green deploy. Done 2026-11-04; set it back to `'false'` to switch sending off.
+6. Set `CRM_GMAIL_ENABLED: 'true'` in the deploy workflow (a one-line PR), merge it, wait for the green deploy. Done 2026-11-04; set it back to `'false'` to switch sending off.
 
 ## Use
 
