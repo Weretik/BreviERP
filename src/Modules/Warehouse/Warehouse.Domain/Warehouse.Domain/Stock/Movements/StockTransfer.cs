@@ -12,7 +12,7 @@ public sealed class StockTransfer : IAggregateRoot
 
     private StockTransfer() { }
 
-    public StockTransfer(string hash, string? snapshot, int lines, int movements, int issues, decimal meters,
+    private StockTransfer(string hash, string? snapshot, int lines, int movements, int issues, decimal meters,
         string actorName, DateTimeOffset now)
     {
         if (hash.Length != HashLength) throw new ArgumentException("SHA-256 in hex is required.", nameof(hash));
@@ -25,6 +25,10 @@ public sealed class StockTransfer : IAggregateRoot
         CreatedByName = WarehouseText.Clean(actorName, FabricMovement.PersonMaxLength);
         CreatedAt = now;
     }
+
+    public static StockTransfer Create(string hash, string? snapshot, int lines, int movements, int issues, decimal meters,
+        string actorName, DateTimeOffset now) =>
+        new(hash, snapshot, lines, movements, issues, meters, actorName, now);
 
     public int Id { get; private set; }
     public string Hash { get; private set; } = null!;

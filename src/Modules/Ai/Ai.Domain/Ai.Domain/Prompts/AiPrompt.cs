@@ -12,7 +12,10 @@ public sealed class AiPrompt : IAggregateRoot
 
     private AiPrompt() { }
 
-    public AiPrompt(string key) => Id = key;
+    private AiPrompt(string key) => Id = key;
+
+    public static AiPrompt Create(string key) =>
+        new(key);
 
     public string Id { get; private set; } = null!;
     public string Text { get; private set; } = string.Empty;

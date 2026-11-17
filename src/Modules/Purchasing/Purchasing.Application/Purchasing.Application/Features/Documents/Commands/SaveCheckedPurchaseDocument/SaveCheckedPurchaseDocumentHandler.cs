@@ -37,7 +37,7 @@ public sealed class SaveCheckedPurchaseDocumentHandler(IPurchasingDbContext db, 
         var current = await db.CheckedDocuments.FirstOrDefaultAsync(x => x.Id == file.Id, cancellationToken);
         var replaced = false;
         if (current is null)
-            db.CheckedDocuments.Add(new PurchaseCheckedDocument(file.Id, file.MessageId, document, PurchaseDocumentOrigin.Manual,
+            db.CheckedDocuments.Add(PurchaseCheckedDocument.Create(file.Id, file.MessageId, document, PurchaseDocumentOrigin.Manual,
                 null, null, command.By, now));
         else if (current.PayloadHash == PurchaseDocumentJson.Hash(PurchaseDocumentJson.Write(document)))
             return Result.Success(new PurchaseDocumentSaveResponse(file.Id, Unchanged: true, Replaced: false));

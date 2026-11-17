@@ -9,7 +9,7 @@ public sealed class PurchaseSourceRow : IAggregateRoot
 {
     private PurchaseSourceRow() { }
 
-    public PurchaseSourceRow(string id, string messageId, string sourceUid, int rowNumber, string rawJson,
+    private PurchaseSourceRow(string id, string messageId, string sourceUid, int rowNumber, string rawJson,
         IReadOnlyList<string> issues, Guid run, DateTimeOffset now)
     {
         Id = id;
@@ -22,6 +22,10 @@ public sealed class PurchaseSourceRow : IAggregateRoot
         SeenRun = run;
         UpdatedAt = now;
     }
+
+    public static PurchaseSourceRow Create(string id, string messageId, string sourceUid, int rowNumber, string rawJson,
+        IReadOnlyList<string> issues, Guid run, DateTimeOffset now) =>
+        new(id, messageId, sourceUid, rowNumber, rawJson, issues, run, now);
 
     /// <summary>SHA-256 of spreadsheetId:sheetId:trim(UID), lower-case hex.</summary>
     public string Id { get; private set; } = null!;

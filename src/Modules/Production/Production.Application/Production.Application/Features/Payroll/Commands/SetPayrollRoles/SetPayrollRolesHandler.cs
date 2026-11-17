@@ -26,7 +26,7 @@ public sealed class SetPayrollRolesHandler(IProductionDbContext db, PayrollChang
             {
                 if (!roles.TryGetValue(kind, out var role))
                 {
-                    role = new PayrollRole(kind);
+                    role = PayrollRole.Create(kind);
                     db.PayrollRoles.Add(role);
                 }
 

@@ -8,7 +8,7 @@ public sealed class SentReminderMessage : IAggregateRoot
 {
     private SentReminderMessage() { }
 
-    public SentReminderMessage(ReminderOccurrenceId occurrenceId, ReminderChatId chatId, long telegramChatId,
+    private SentReminderMessage(ReminderOccurrenceId occurrenceId, ReminderChatId chatId, long telegramChatId,
         long telegramMessageId, DateOnly sentOn, DateTimeOffset sentAt)
     {
         OccurrenceId = occurrenceId;
@@ -19,6 +19,10 @@ public sealed class SentReminderMessage : IAggregateRoot
         SentAt = sentAt;
         HasButtons = true;
     }
+
+    public static SentReminderMessage Create(ReminderOccurrenceId occurrenceId, ReminderChatId chatId, long telegramChatId,
+        long telegramMessageId, DateOnly sentOn, DateTimeOffset sentAt) =>
+        new(occurrenceId, chatId, telegramChatId, telegramMessageId, sentOn, sentAt);
 
     public long Id { get; private set; }
     public ReminderOccurrenceId OccurrenceId { get; private set; }

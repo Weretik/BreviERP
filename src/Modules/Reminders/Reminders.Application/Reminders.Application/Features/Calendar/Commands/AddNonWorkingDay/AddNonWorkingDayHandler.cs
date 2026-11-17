@@ -11,7 +11,7 @@ public sealed class AddNonWorkingDayHandler(IRemindersDbContext db)
     {
         if (await db.NonWorkingDays.AnyAsync(x => x.Date == command.Input.Date, cancellationToken))
             return Result<NonWorkingDayResponse>.Conflict("Цей день уже позначено неробочим.");
-        var day = new NonWorkingDay(command.Input.Date, command.Input.Note);
+        var day = NonWorkingDay.Create(command.Input.Date, command.Input.Note);
         db.NonWorkingDays.Add(day);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(new NonWorkingDayResponse(day.Date, day.Note));

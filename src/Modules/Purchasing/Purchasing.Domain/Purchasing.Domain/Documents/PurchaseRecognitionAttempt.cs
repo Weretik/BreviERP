@@ -13,7 +13,7 @@ public sealed class PurchaseRecognitionAttempt : IAggregateRoot
 
     private PurchaseRecognitionAttempt() { }
 
-    public PurchaseRecognitionAttempt(string fileId, string messageId, PurchaseRecognitionOutcome outcome,
+    private PurchaseRecognitionAttempt(string fileId, string messageId, PurchaseRecognitionOutcome outcome,
         IEnumerable<string> problems, string? model, decimal costUsd, string? outputJson, string by, DateTimeOffset at)
     {
         FileId = fileId;
@@ -26,6 +26,10 @@ public sealed class PurchaseRecognitionAttempt : IAggregateRoot
         By = by.Length > PurchaseCheckedDocument.ByMaxLength ? by[..PurchaseCheckedDocument.ByMaxLength] : by;
         At = at;
     }
+
+    public static PurchaseRecognitionAttempt Create(string fileId, string messageId, PurchaseRecognitionOutcome outcome,
+        IEnumerable<string> problems, string? model, decimal costUsd, string? outputJson, string by, DateTimeOffset at) =>
+        new(fileId, messageId, outcome, problems, model, costUsd, outputJson, by, at);
 
     public long Id { get; private set; }
     public string FileId { get; private set; } = null!;

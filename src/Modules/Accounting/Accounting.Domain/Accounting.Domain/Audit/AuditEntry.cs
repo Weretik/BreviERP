@@ -11,7 +11,7 @@ public sealed class AuditEntry : IAggregateRoot
 
     private AuditEntry() { }
 
-    public AuditEntry(AuditEntity entity, Guid entityId, AuditAction action, string by, DateTimeOffset at,
+    private AuditEntry(AuditEntity entity, Guid entityId, AuditAction action, string by, DateTimeOffset at,
         string? beforeJson, string? afterJson)
     {
         Entity = entity;
@@ -22,6 +22,10 @@ public sealed class AuditEntry : IAggregateRoot
         BeforeJson = beforeJson;
         AfterJson = afterJson;
     }
+
+    public static AuditEntry Create(AuditEntity entity, Guid entityId, AuditAction action, string by, DateTimeOffset at,
+        string? beforeJson, string? afterJson) =>
+        new(entity, entityId, action, by, at, beforeJson, afterJson);
 
     public long Id { get; private set; }
     public AuditEntity Entity { get; private set; }

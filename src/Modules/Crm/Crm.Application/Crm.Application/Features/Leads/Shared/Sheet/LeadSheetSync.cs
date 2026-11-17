@@ -77,7 +77,7 @@ public sealed class LeadSheetSync(
                 }
                 else
                 {
-                    store.Leads.Add(lead = new Lead(row, now));
+                    store.Leads.Add(lead = Lead.Create(row, now));
                     added++;
                 }
 
@@ -110,10 +110,10 @@ public sealed class LeadSheetSync(
 
             var known = await store.LeadCategories.Select(x => x.Code).ToListAsync(cancellationToken);
             foreach (var code in sheet.Rows.Select(x => x.Category).OfType<string>().Distinct().Except(known))
-                store.LeadCategories.Add(new LeadCategory(code, null));
+                store.LeadCategories.Add(LeadCategory.Create(code, null));
 
             var state = await store.LeadSyncStates.FindAsync([LeadSyncState.GoogleSheet], cancellationToken);
-            if (state is null) store.LeadSyncStates.Add(state = new LeadSyncState(LeadSyncState.GoogleSheet));
+            if (state is null) store.LeadSyncStates.Add(state = LeadSyncState.Create(LeadSyncState.GoogleSheet));
             warning = Warning(sheet.DuplicatesWarning, unknownOwners, unknownResults);
             state.Succeeded(now, sheet.Rows.Count, added, updated, warning);
             await store.SaveChangesAsync(cancellationToken);
@@ -166,7 +166,7 @@ public sealed class LeadSheetSync(
     private async Task RecordFailureAsync(DateTimeOffset now, string error, CancellationToken cancellationToken)
     {
         var state = await store.LeadSyncStates.FindAsync([LeadSyncState.GoogleSheet], cancellationToken);
-        if (state is null) store.LeadSyncStates.Add(state = new LeadSyncState(LeadSyncState.GoogleSheet));
+        if (state is null) store.LeadSyncStates.Add(state = LeadSyncState.Create(LeadSyncState.GoogleSheet));
         state.Failed(now, error);
         await store.SaveChangesAsync(cancellationToken);
         logger.LogWarning("Leads sync failed: {Error}", error);

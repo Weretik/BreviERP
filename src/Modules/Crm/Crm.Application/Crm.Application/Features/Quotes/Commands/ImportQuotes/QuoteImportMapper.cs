@@ -104,7 +104,7 @@ public sealed class QuoteImportMapper(
                 warn($"Варіанта «{option.Title.Trim()}» немає в каталозі: ціну збережено, «Перерахувати» її не оновить.");
             return Option(index, option, variant?.ArticleId, fabricId, takenAt);
         });
-        return new QuoteItem(position, QuoteItemKind.Sewing, model.ProductId,
+        return QuoteItem.Create(position, QuoteItemKind.Sewing, model.ProductId,
             Texts(input, code, QuoteItemsBuilder.SewingSubtitle), options);
     }
 
@@ -124,7 +124,7 @@ public sealed class QuoteImportMapper(
         if (option.HasManualPrice)
             option.SetManualAudit(source.ManualReason ?? "Перенесено з калькулятора",
                 Manual(source, author), source.ManualAt ?? takenAt);
-        return new QuoteItem(position, QuoteItemKind.Ppe, productId,
+        return QuoteItem.Create(position, QuoteItemKind.Ppe, productId,
             Texts(input, code, QuoteItemsBuilder.PpeSubtitle), [option]);
     }
 
@@ -133,10 +133,10 @@ public sealed class QuoteImportMapper(
     {
         var source = input.Options[0];
         static QuotePrice Price(ImportPriceInput price) => new(null, price.Manual ?? price.Source, price.Shown);
-        var option = new QuoteItemOption(0, null, null, "Ціна", null, false, Price(source.Prices.Retail),
+        var option = QuoteItemOption.Create(0, null, null, "Ціна", null, false, Price(source.Prices.Retail),
             Price(source.Prices.Wholesale), Price(source.Prices.Large), null);
         if (option.HasManualPrice) option.SetManualAudit(source.ManualReason, author, source.ManualAt);
-        return new QuoteItem(position, QuoteItemKind.OneOffPpe, null,
+        return QuoteItem.Create(position, QuoteItemKind.OneOffPpe, null,
             Texts(input, null, QuoteItemsBuilder.OneOffSubtitle) with { SiteUrl = null, Season = null }, [option]);
     }
 
@@ -164,7 +164,7 @@ public sealed class QuoteImportMapper(
                 break;
             }
 
-            lines.Add(new QuoteItemLine(lines.Count, kind, row.Id, row.Name, row.Unit, line.Quantity, null));
+            lines.Add(QuoteItemLine.Create(lines.Count, kind, row.Id, row.Name, row.Unit, line.Quantity, null));
         }
 
         var options = input.Options.Select((option, index) =>
@@ -174,10 +174,10 @@ public sealed class QuoteImportMapper(
                 warn($"Тканини {option.FabricCode} немає в довіднику: ціну збережено.");
             var row = Option(index, option, null, fabric?.Id, takenAt);
             return fabric is not null && option.FabricMeters is > 0
-                ? row.WithFabrics([new QuoteItemOptionFabric(0, fabric.Id, fabric.Name, option.FabricMeters.Value)])
+                ? row.WithFabrics([QuoteItemOptionFabric.Create(0, fabric.Id, fabric.Name, option.FabricMeters.Value)])
                 : row;
         });
-        return new QuoteItem(position, QuoteItemKind.CustomSewing, null,
+        return QuoteItem.Create(position, QuoteItemKind.CustomSewing, null,
             Texts(input, code, QuoteCustomSewingItemBuilder.Subtitle), options.ToArray(), lines);
     }
 
@@ -194,7 +194,7 @@ public sealed class QuoteImportMapper(
 
     private static QuoteItemOption Option(int position, ImportOptionInput input, long? articleId, int? fabricId,
         DateTimeOffset takenAt, string? title = null, bool? recommended = null) =>
-        new(position, articleId, fabricId, title ?? input.Title, input.Details, recommended ?? input.IsRecommended,
+        QuoteItemOption.Create(position, articleId, fabricId, title ?? input.Title, input.Details, recommended ?? input.IsRecommended,
             Price(input.Prices.Retail), Price(input.Prices.Wholesale), Price(input.Prices.Large), takenAt);
 
     private static QuotePrice Price(ImportPriceInput price) => new(price.Source, price.Manual, price.Shown);

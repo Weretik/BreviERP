@@ -9,11 +9,14 @@ public sealed class StaffMailbox : IAggregateRoot
 {
     private StaffMailbox() { }
 
-    public StaffMailbox(int userId, string email, string protectedRefreshToken, string connectedByName, DateTimeOffset now)
+    private StaffMailbox(int userId, string email, string protectedRefreshToken, string connectedByName, DateTimeOffset now)
     {
         UserId = userId;
         Connect(email, protectedRefreshToken, connectedByName, now);
     }
+
+    public static StaffMailbox Create(int userId, string email, string protectedRefreshToken, string connectedByName, DateTimeOffset now) =>
+        new(userId, email, protectedRefreshToken, connectedByName, now);
 
     public int UserId { get; private set; }
     public string Email { get; private set; } = null!;

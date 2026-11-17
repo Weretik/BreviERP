@@ -34,7 +34,7 @@ public static class PayrollMonths
         var row = db.PayrollMonths.Local.FirstOrDefault(x => x.Month == month) ??
                   await db.PayrollMonths.SingleOrDefaultAsync(x => x.Month == month, cancellationToken);
         if (row is not null) return row;
-        row = new PayrollMonth(month);
+        row = PayrollMonth.Create(month);
         db.PayrollMonths.Add(row);
         return row;
     }

@@ -23,11 +23,14 @@ public sealed class ProductionTelegramDelivery : IAggregateRoot
 
     private ProductionTelegramDelivery() { }
 
-    public ProductionTelegramDelivery(int orderId)
+    private ProductionTelegramDelivery(int orderId)
     {
         OrderId = orderId;
         Status = TelegramDeliveryStatus.NotSent;
     }
+
+    public static ProductionTelegramDelivery Create(int orderId) =>
+        new(orderId);
 
     public int OrderId { get; private set; }
     public TelegramDeliveryStatus Status { get; private set; }

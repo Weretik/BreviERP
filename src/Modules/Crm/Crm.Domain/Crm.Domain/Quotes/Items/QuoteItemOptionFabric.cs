@@ -8,13 +8,16 @@ public sealed class QuoteItemOptionFabric
 {
     private QuoteItemOptionFabric() { }
 
-    public QuoteItemOptionFabric(int position, int fabricId, string name, decimal meters)
+    private QuoteItemOptionFabric(int position, int fabricId, string name, decimal meters)
     {
         Position = position;
         FabricId = fabricId;
         Name = name.Trim();
         Meters = meters;
     }
+
+    public static QuoteItemOptionFabric Create(int position, int fabricId, string name, decimal meters) =>
+        new(position, fabricId, name, meters);
 
     public long Id { get; private set; }
     public long OptionId { get; private set; }

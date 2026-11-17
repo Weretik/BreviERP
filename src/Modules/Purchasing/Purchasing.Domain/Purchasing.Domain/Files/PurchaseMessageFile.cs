@@ -11,7 +11,7 @@ public sealed class PurchaseMessageFile : IAggregateRoot
 
     private PurchaseMessageFile() { }
 
-    public PurchaseMessageFile(string id, string messageId, string url, Guid run)
+    private PurchaseMessageFile(string id, string messageId, string url, Guid run)
     {
         Id = id;
         MessageId = messageId;
@@ -20,6 +20,9 @@ public sealed class PurchaseMessageFile : IAggregateRoot
         SeenRun = run;
         State = AwaitingRecognition;
     }
+
+    public static PurchaseMessageFile Create(string id, string messageId, string url, Guid run) =>
+        new(id, messageId, url, run);
 
     /// <summary>SHA-256 of messageId:exactUrl, lower-case hex.</summary>
     public string Id { get; private set; } = null!;

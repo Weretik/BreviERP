@@ -8,7 +8,10 @@ public sealed class LeadSyncState : IAggregateRoot
 
     private LeadSyncState() { }
 
-    public LeadSyncState(string id) => Id = id;
+    private LeadSyncState(string id) => Id = id;
+
+    public static LeadSyncState Create(string id) =>
+        new(id);
 
     public string Id { get; private set; } = null!;
     public DateTimeOffset? LastRunAt { get; private set; }

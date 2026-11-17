@@ -21,7 +21,7 @@ public sealed class LeadActivityTests
     ];
 
     private static Lead NewLead() =>
-        new(LeadSheetParser.Parse([Header, ["1", null, "L&S Distributions", null]]).Value.Rows[0], Now);
+        Lead.Create(LeadSheetParser.Parse([Header, ["1", null, "L&S Distributions", null]]).Value.Rows[0], Now);
 
     private static IReadOnlyCollection<IDomainEvent> Events(IHasDomainEvents source) => source.DomainEvents;
 
@@ -49,7 +49,7 @@ public sealed class LeadActivityTests
         lead.Take(Anastasia, Now);
         ((IHasDomainEvents)lead).ClearDomainEvents();
 
-        lead.RecordCall(Anastasia, new LeadCallResult("Не взяли", LeadOutcome.Retry, 1, 1), " Перезвонити ", null, Now);
+        lead.RecordCall(Anastasia, LeadCallResult.Create("Не взяли", LeadOutcome.Retry, 1, 1), " Перезвонити ", null, Now);
 
         Assert.That(_describer.Describe(Events(lead).Single())!.Summary, Is.EqualTo("Дзвінок: Не взяли; Перезвонити"));
     }
@@ -60,7 +60,7 @@ public sealed class LeadActivityTests
         var lead = NewLead();
 
         lead.ApplySheetOwner("Анастасія", Anastasia, Now);
-        lead.ApplySheetCall("Не взяли", Anastasia, new LeadCallResult("Не взяли", LeadOutcome.Retry, 1, 1), null, null, Now);
+        lead.ApplySheetCall("Не взяли", Anastasia, LeadCallResult.Create("Не взяли", LeadOutcome.Retry, 1, 1), null, null, Now);
 
         Assert.That(lead.OwnerUserId, Is.EqualTo(Anastasia.UserId));
         Assert.That(lead.CallCount, Is.EqualTo(1));
@@ -70,7 +70,7 @@ public sealed class LeadActivityTests
     [Test]
     public void Describing_a_category_lists_the_old_and_new_text()
     {
-        var category = new LeadCategory("a", null);
+        var category = LeadCategory.Create("a", null);
 
         category.Describe("Великі підприємства");
 

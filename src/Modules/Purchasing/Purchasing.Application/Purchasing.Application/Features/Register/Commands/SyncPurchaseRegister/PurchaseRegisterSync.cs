@@ -67,7 +67,7 @@ public sealed class PurchaseRegisterSync(
 
             counters = await ApplyAsync(snapshot, rows, Guid.NewGuid(), now, cancellationToken);
             var state = await db.SyncStates.FindAsync([PurchaseSyncState.GoogleFinance], cancellationToken);
-            if (state is null) db.SyncStates.Add(state = new PurchaseSyncState(PurchaseSyncState.GoogleFinance));
+            if (state is null) db.SyncStates.Add(state = PurchaseSyncState.Create(PurchaseSyncState.GoogleFinance));
             state.Succeeded(now, snapshot.Rows.Count, snapshot.FileCount);
             await db.SaveChangesAsync(cancellationToken);
             await scope.CommitAsync(cancellationToken);
@@ -110,7 +110,7 @@ public sealed class PurchaseRegisterSync(
             }
             else
             {
-                db.Messages.Add(new PurchaseMessage(group.Key, representative.TelegramKey, representative.Message, now));
+                db.Messages.Add(PurchaseMessage.Create(group.Key, representative.TelegramKey, representative.Message, now));
                 counters.MessagesAdded++;
             }
 
@@ -122,14 +122,14 @@ public sealed class PurchaseRegisterSync(
                 }
                 else
                 {
-                    db.SourceRows.Add(new PurchaseSourceRow(source.SourceId, source.MessageId, source.Uid, source.RowNumber,
+                    db.SourceRows.Add(PurchaseSourceRow.Create(source.SourceId, source.MessageId, source.Uid, source.RowNumber,
                         source.RawJson, source.Issues, run, now));
                     counters.RowsAdded++;
                 }
 
                 var revisionId = PurchaseIdentity.RevisionId(source.SourceId, source.RawJson);
                 if (revisions.Add(revisionId))
-                    db.SourceRevisions.Add(new PurchaseSourceRevision(revisionId, source.SourceId, source.RawJson, now));
+                    db.SourceRevisions.Add(PurchaseSourceRevision.Create(revisionId, source.SourceId, source.RawJson, now));
             }
 
             foreach (var url in group.SelectMany(x => x.Links).Distinct(StringComparer.Ordinal))
@@ -141,7 +141,7 @@ public sealed class PurchaseRegisterSync(
                 }
                 else
                 {
-                    var added = new PurchaseMessageFile(fileId, group.Key, url, run);
+                    var added = PurchaseMessageFile.Create(fileId, group.Key, url, run);
                     files.Add(fileId, added);
                     db.Files.Add(added);
                     counters.FilesAdded++;
@@ -165,7 +165,7 @@ public sealed class PurchaseRegisterSync(
     {
         logger.LogWarning("Purchase register sync failed: {Reason}", error);
         var state = await db.SyncStates.FindAsync([PurchaseSyncState.GoogleFinance], cancellationToken);
-        if (state is null) db.SyncStates.Add(state = new PurchaseSyncState(PurchaseSyncState.GoogleFinance));
+        if (state is null) db.SyncStates.Add(state = PurchaseSyncState.Create(PurchaseSyncState.GoogleFinance));
         state.Failed(now, error);
         await db.SaveChangesAsync(cancellationToken);
     }

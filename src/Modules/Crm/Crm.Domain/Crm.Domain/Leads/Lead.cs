@@ -16,7 +16,7 @@ public sealed class Lead : DomainEventSource, IAggregateRoot
 
     private Lead() { }
 
-    public Lead(LeadSheetRow row, DateTimeOffset now)
+    private Lead(LeadSheetRow row, DateTimeOffset now)
     {
         SourceId = row.SourceId;
         SheetNotes = LeadLimits.Cut(row.SheetNotes, LeadLimits.LongText);
@@ -25,6 +25,9 @@ public sealed class Lead : DomainEventSource, IAggregateRoot
         Version = 1;
         ApplySheet(row, now);
     }
+
+    public static Lead Create(LeadSheetRow row, DateTimeOffset now) =>
+        new(row, now);
 
     public long Id { get; private set; }
 

@@ -47,5 +47,5 @@ internal static class AuditTrail
 
     public static void Add(IAccountingDbContext db, AuditEntity entity, Guid entityId, AuditAction action, string by,
         DateTimeOffset at, string? before, string? after) =>
-        db.AuditEntries.Add(new AuditEntry(entity, entityId, action, by, at, before, after));
+        db.AuditEntries.Add(AuditEntry.Create(entity, entityId, action, by, at, before, after));
 }

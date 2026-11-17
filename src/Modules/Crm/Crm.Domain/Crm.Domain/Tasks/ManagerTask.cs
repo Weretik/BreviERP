@@ -17,7 +17,7 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
 
     private ManagerTask() { }
 
-    public ManagerTask(ManagerTaskDraft draft, ManagerTaskPerson author, DateTimeOffset now)
+    private ManagerTask(ManagerTaskDraft draft, ManagerTaskPerson author, DateTimeOffset now)
     {
         AuthorUserId = author.UserId;
         AuthorName = author.Name;
@@ -29,6 +29,9 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
         _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.Created, author, now, null));
         Raise(new ManagerTaskRecorded(this, ManagerTaskEventKind.Created, null, null));
     }
+
+    public static ManagerTask Create(ManagerTaskDraft draft, ManagerTaskPerson author, DateTimeOffset now) =>
+        new(draft, author, now);
 
     public long Id { get; private set; }
     public string Title { get; private set; } = null!;

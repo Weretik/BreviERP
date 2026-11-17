@@ -12,7 +12,7 @@ public sealed class StockOperation : IAggregateRoot
 
     private StockOperation() { }
 
-    public StockOperation(Guid id, string kind, string requestHash, int userId, string fabricCode, string colorKey,
+    private StockOperation(Guid id, string kind, string requestHash, int userId, string fabricCode, string colorKey,
         string color, decimal metersAfter, DateTimeOffset now)
     {
         if (id == Guid.Empty) throw new ArgumentException("Operation id is required.", nameof(id));
@@ -26,6 +26,10 @@ public sealed class StockOperation : IAggregateRoot
         MetersAfter = metersAfter;
         CreatedAt = now;
     }
+
+    public static StockOperation Create(Guid id, string kind, string requestHash, int userId, string fabricCode, string colorKey,
+        string color, decimal metersAfter, DateTimeOffset now) =>
+        new(id, kind, requestHash, userId, fabricCode, colorKey, color, metersAfter, now);
 
     public Guid Id { get; private set; }
     public string Kind { get; private set; } = null!;

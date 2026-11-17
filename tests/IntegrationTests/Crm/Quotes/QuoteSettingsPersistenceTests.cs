@@ -85,11 +85,11 @@ public sealed class QuoteSettingsPersistenceTests : CrmDatabaseFixture
         long quoteId;
         await using (var db = Context())
         {
-            var option = new QuoteItemOption(0, null, null, "Ціна", null, false, new QuotePrice(100m, null, true),
+            var option = QuoteItemOption.Create(0, null, null, "Ціна", null, false, new QuotePrice(100m, null, true),
                 new QuotePrice(90m, null, false), new QuotePrice(80m, null, true), _clock.GetUtcNow());
             var quote = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(17, "Олена"),
                 new QuoteHeader("Внутрішнє", null, null, "ТОВ «Агро»", null, "Нотатка"),
-                [new QuoteItem(0, QuoteItemKind.OneOffPpe, null, new QuoteItemTexts(null, "Каска", null, null, null, null, null, null), [option])],
+                [QuoteItem.Create(0, QuoteItemKind.OneOffPpe, null, new QuoteItemTexts(null, "Каска", null, null, null, null, null, null), [option])],
                 _clock.GetUtcNow()).Value;
             db.Quotes.Add(quote);
             await db.SaveChangesAsync();

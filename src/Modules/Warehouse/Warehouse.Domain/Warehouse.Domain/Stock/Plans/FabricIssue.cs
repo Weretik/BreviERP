@@ -33,7 +33,7 @@ public sealed class FabricIssue : IAggregateRoot
 
     private FabricIssue() { }
 
-    public FabricIssue(FabricMovementTarget target, DateOnly issuedOn, string? note, string actorName,
+    private FabricIssue(FabricMovementTarget target, DateOnly issuedOn, string? note, string actorName,
         DateTimeOffset now, string? legacyId = null, int? issuedQuantity = null, Guid? operationId = null,
         int? planVersion = null)
     {
@@ -51,6 +51,11 @@ public sealed class FabricIssue : IAggregateRoot
         OperationId = operationId;
         PlanVersion = planVersion;
     }
+
+    public static FabricIssue Create(FabricMovementTarget target, DateOnly issuedOn, string? note, string actorName,
+        DateTimeOffset now, string? legacyId = null, int? issuedQuantity = null, Guid? operationId = null,
+        int? planVersion = null) =>
+        new(target, issuedOn, note, actorName, now, legacyId, issuedQuantity, operationId, planVersion);
 
     public int Id { get; private set; }
     public int OrderId { get; private set; }

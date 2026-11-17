@@ -24,7 +24,7 @@ public sealed class SaveForecastQueueHandler(IProductionDbContext db, ForecastQu
         var now = clock.GetUtcNow();
         if (queue is null)
         {
-            queue = new ForecastQueue(now);
+            queue = ForecastQueue.Create(now);
             db.ForecastQueues.Add(queue);
         }
 

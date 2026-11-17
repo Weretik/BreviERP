@@ -37,7 +37,7 @@ public sealed class SaveTimesheetDayHandler(IProductionDbContext db, IProduction
             if (row?.Version != entry.Version) return Result<TimesheetDayResponse>.Conflict(TimesheetMessages.Stale);
             if (row?.Minutes == entry.Minutes) continue;
             var name = employees[entry.EmployeeId].FullName;
-            db.TimeChanges.Add(new WorkshopTimeChange(entry.EmployeeId, name, input.Date, row?.Minutes, entry.Minutes,
+            db.TimeChanges.Add(WorkshopTimeChange.Create(entry.EmployeeId, name, input.Date, row?.Minutes, entry.Minutes,
                 actorName, now));
             if (row is null)
             {

@@ -101,11 +101,11 @@ public sealed class QuoteRulesTests
     [Test]
     public void CopyKeepsManualPricesAndCompositionButNotTheStatus()
     {
-        var option = new QuoteItemOption(0, null, 5, "Саржа", null, true, new QuotePrice(100m, 120m, true),
-            QuotePrice.Empty, QuotePrice.Empty, DateTimeOffset.UnixEpoch).WithFabrics([new QuoteItemOptionFabric(0, 5, "Саржа", 1.5m)]);
+        var option = QuoteItemOption.Create(0, null, 5, "Саржа", null, true, new QuotePrice(100m, 120m, true),
+            QuotePrice.Empty, QuotePrice.Empty, DateTimeOffset.UnixEpoch).WithFabrics([QuoteItemOptionFabric.Create(0, 5, "Саржа", 1.5m)]);
         option.SetManualAudit("Знижка", new QuotePerson(5, "Олена"), DateTimeOffset.UnixEpoch);
-        var item = new QuoteItem(0, QuoteItemKind.CustomSewing, null, new QuoteItemTexts(null, "Фартух", null, null,
-            null, null, null, null), [option], [new QuoteItemLine(0, QuoteItemLineKind.Operation, 155, "Шов", "хв", 1m, 12m)]);
+        var item = QuoteItem.Create(0, QuoteItemKind.CustomSewing, null, new QuoteItemTexts(null, "Фартух", null, null,
+            null, null, null, null), [option], [QuoteItemLine.Create(0, QuoteItemLineKind.Operation, 155, "Шов", "хв", 1m, 12m)]);
         var source = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(5, "Олена"),
             new QuoteHeader("Клієнт", 7, "Іван", "Агро", null, null), [item], DateTimeOffset.UnixEpoch).Value;
         source.MarkSent(DateTimeOffset.UnixEpoch);

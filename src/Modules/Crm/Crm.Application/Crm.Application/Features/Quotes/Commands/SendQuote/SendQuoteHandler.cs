@@ -46,7 +46,7 @@ public sealed class SendQuoteHandler(IQuoteStore store, QuotePdfComposer compose
         if (!sent.IsSuccess) return Result.Conflict(sent.Errors.ToArray());
 
         var now = clock.GetUtcNow();
-        store.QuoteSendings.Add(new QuoteSending(quote.Id, quote.Version, new QuotePerson(member.UserId, member.Name),
+        store.QuoteSendings.Add(QuoteSending.Create(quote.Id, quote.Version, new QuotePerson(member.UserId, member.Name),
             mailbox.Email, string.Join(", ", recipients), subject, sent.Value, now,
             command.Input.RequestId));
         quote.MarkSent(now);

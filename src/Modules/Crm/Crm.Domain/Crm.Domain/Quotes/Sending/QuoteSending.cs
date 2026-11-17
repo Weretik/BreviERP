@@ -8,7 +8,7 @@ public sealed class QuoteSending : IAggregateRoot
 {
     private QuoteSending() { }
 
-    public QuoteSending(long quoteId, int quoteVersion, QuotePerson sender, string fromEmail, string to, string subject,
+    private QuoteSending(long quoteId, int quoteVersion, QuotePerson sender, string fromEmail, string to, string subject,
         string? providerMessageId, DateTimeOffset sentAt, Guid? requestId = null)
     {
         RequestId = requestId;
@@ -22,6 +22,10 @@ public sealed class QuoteSending : IAggregateRoot
         ProviderMessageId = providerMessageId;
         SentAt = sentAt;
     }
+
+    public static QuoteSending Create(long quoteId, int quoteVersion, QuotePerson sender, string fromEmail, string to, string subject,
+        string? providerMessageId, DateTimeOffset sentAt, Guid? requestId = null) =>
+        new(quoteId, quoteVersion, sender, fromEmail, to, subject, providerMessageId, sentAt, requestId);
 
     public long Id { get; private set; }
 

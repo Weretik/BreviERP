@@ -18,7 +18,10 @@ public sealed class PayrollRole : IAggregateRoot
 {
     private PayrollRole() { }
 
-    public PayrollRole(PayrollRoleKind role) => Role = role;
+    private PayrollRole(PayrollRoleKind role) => Role = role;
+
+    public static PayrollRole Create(PayrollRoleKind role) =>
+        new(role);
 
     public PayrollRoleKind Role { get; private set; }
     public int? EmployeeId { get; private set; }

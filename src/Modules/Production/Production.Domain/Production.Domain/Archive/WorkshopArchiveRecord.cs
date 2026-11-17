@@ -29,7 +29,7 @@ public sealed class WorkshopArchiveRecord : IAggregateRoot
     {
     }
 
-    public WorkshopArchiveRecord(WorkshopArchiveKind kind, string sourceKey, int sourceRow, WorkshopArchiveEntry entry)
+    private WorkshopArchiveRecord(WorkshopArchiveKind kind, string sourceKey, int sourceRow, WorkshopArchiveEntry entry)
     {
         if (!Enum.IsDefined(kind)) throw new ArgumentOutOfRangeException(nameof(kind));
         if (sourceRow <= 0) throw new ArgumentOutOfRangeException(nameof(sourceRow));
@@ -53,6 +53,9 @@ public sealed class WorkshopArchiveRecord : IAggregateRoot
             .Concat(_fields.Select(x => x.Value)).Where(x => !string.IsNullOrWhiteSpace(x))).ToLowerInvariant();
         SearchText = search.Length > SearchMaxLength ? search[..SearchMaxLength] : search;
     }
+
+    public static WorkshopArchiveRecord Create(WorkshopArchiveKind kind, string sourceKey, int sourceRow, WorkshopArchiveEntry entry) =>
+        new(kind, sourceKey, sourceRow, entry);
 
     public int Id { get; private set; }
     public WorkshopArchiveKind Kind { get; private set; }

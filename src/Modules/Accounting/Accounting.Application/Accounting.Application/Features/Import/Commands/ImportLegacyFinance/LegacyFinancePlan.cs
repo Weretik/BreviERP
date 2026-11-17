@@ -342,7 +342,7 @@ internal sealed class LegacyFinancePlan
 
             var action = LegacyFinanceValues.Action(row.Action);
             if (action is null) unknown++;
-            NewAuditEntries.Add(new AuditEntry(entity, id, action ?? AuditAction.Update, Author(row.Actor), at,
+            NewAuditEntries.Add(AuditEntry.Create(entity, id, action ?? AuditAction.Update, Author(row.Actor), at,
                 Snapshot(row.BeforeJson), Snapshot(row.AfterJson ?? row.SnapshotJson)));
         }
 

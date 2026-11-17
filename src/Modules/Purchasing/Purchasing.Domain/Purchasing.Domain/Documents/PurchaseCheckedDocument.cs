@@ -13,13 +13,17 @@ public sealed class PurchaseCheckedDocument : IAggregateRoot
 
     private PurchaseCheckedDocument() { }
 
-    public PurchaseCheckedDocument(string fileId, string messageId, PurchaseDocument document, PurchaseDocumentOrigin origin,
+    private PurchaseCheckedDocument(string fileId, string messageId, PurchaseDocument document, PurchaseDocumentOrigin origin,
         string? model, decimal? costUsd, string checkedBy, DateTimeOffset checkedAt)
     {
         Id = fileId;
         MessageId = messageId;
         Set(document, origin, model, costUsd, checkedBy, checkedAt);
     }
+
+    public static PurchaseCheckedDocument Create(string fileId, string messageId, PurchaseDocument document, PurchaseDocumentOrigin origin,
+        string? model, decimal? costUsd, string checkedBy, DateTimeOffset checkedAt) =>
+        new(fileId, messageId, document, origin, model, costUsd, checkedBy, checkedAt);
 
     /// <summary>The file id (SHA-256 of messageId:url).</summary>
     public string Id { get; private set; } = null!;

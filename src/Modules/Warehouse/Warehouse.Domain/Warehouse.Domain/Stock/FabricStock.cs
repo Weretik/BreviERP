@@ -27,7 +27,7 @@ public sealed class FabricStock : IAggregateRoot
 
     private FabricStock() { }
 
-    public FabricStock(StockFabric fabric, string color, DateTimeOffset now, string? legacyId = null)
+    private FabricStock(StockFabric fabric, string color, DateTimeOffset now, string? legacyId = null)
     {
         FabricId = fabric.FabricId;
         FabricCode = WarehouseText.Clean(fabric.Code, CodeMaxLength).ToUpperInvariant();
@@ -38,6 +38,9 @@ public sealed class FabricStock : IAggregateRoot
         UpdatedAt = now;
         LegacyId = string.IsNullOrWhiteSpace(legacyId) ? null : legacyId.Trim();
     }
+
+    public static FabricStock Create(StockFabric fabric, string color, DateTimeOffset now, string? legacyId = null) =>
+        new(fabric, color, now, legacyId);
 
     public int Id { get; private set; }
     public int? FabricId { get; private set; }

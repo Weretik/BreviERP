@@ -13,7 +13,7 @@ public sealed class UpdateAiPromptHandler(IAiDbContext db, AiSettingsStore store
     {
         if (!AiPromptKeys.IsKnown(command.Key)) return Result<AiSettingsResponse>.NotFound("Таких умов немає.");
         var prompt = await db.Prompts.FirstOrDefaultAsync(x => x.Id == command.Key, cancellationToken);
-        if (prompt is null) db.Prompts.Add(prompt = new AiPrompt(command.Key));
+        if (prompt is null) db.Prompts.Add(prompt = AiPrompt.Create(command.Key));
         if (prompt.Update(command.Text ?? string.Empty, command.By, clock.GetUtcNow())) await db.SaveChangesAsync(cancellationToken);
 
         var settings = await db.Settings.AsNoTracking().FirstOrDefaultAsync(x => x.Id == AiSettings.OpenAi, cancellationToken)

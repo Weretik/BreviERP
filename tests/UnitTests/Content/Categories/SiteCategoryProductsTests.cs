@@ -190,7 +190,7 @@ public sealed class SiteCategoryProductsTests
             new SiteCategoryTextInput("Наш спецодяг", null, null, null), null, ContentTestHarness.Editor), None)).Value.Category.Id;
         await using (var seed = h.Open())
         {
-            seed.SiteCategoryProducts.Add(new SiteCategoryProduct(id, 2, 1));
+            seed.SiteCategoryProducts.Add(SiteCategoryProduct.Create(id, 2, 1));
             await seed.SaveChangesAsync();
         }
 

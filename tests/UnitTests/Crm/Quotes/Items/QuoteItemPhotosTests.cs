@@ -51,9 +51,9 @@ public sealed class QuoteItemPhotosTests
     [Test]
     public void Pdf_shows_the_main_photo_of_an_item_from_the_old_site()
     {
-        var item = new QuoteItem(0, QuoteItemKind.Ppe, 10,
+        var item = QuoteItem.Create(0, QuoteItemKind.Ppe, 10,
             new QuoteItemTexts("PPE-1", "Рукавиці", null, null, null, "https://brevi.com.ua/image/old.jpg", null, null),
-            [new QuoteItemOption(0, null, null, "Ціна", null, false, new QuotePrice(100m, null, true),
+            [QuoteItemOption.Create(0, null, null, "Ціна", null, false, new QuotePrice(100m, null, true),
                 new QuotePrice(90m, null, true), new QuotePrice(80m, null, true), DateTimeOffset.UnixEpoch)]);
         var quote = Quote.Create(new QuoteNumber(2026, 11, 5), QuoteKind.Request, new QuotePerson(5, "Юлія"),
             new QuoteHeader("КП", null, null, null, null, null), [item], DateTimeOffset.UnixEpoch).Value;

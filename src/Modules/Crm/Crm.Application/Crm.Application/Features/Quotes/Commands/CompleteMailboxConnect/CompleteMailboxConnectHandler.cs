@@ -35,7 +35,7 @@ public sealed class CompleteMailboxConnectHandler(IQuoteStore store, IGmailClien
         var token = protector.ProtectToken(grant.Value.RefreshToken);
         var mailbox = await store.StaffMailboxes.SingleOrDefaultAsync(x => x.UserId == state.UserId, cancellationToken);
         if (mailbox is null)
-            store.StaffMailboxes.Add(new StaffMailbox(state.UserId, grant.Value.Email, token, state.ConnectedByName, now));
+            store.StaffMailboxes.Add(StaffMailbox.Create(state.UserId, grant.Value.Email, token, state.ConnectedByName, now));
         else
             mailbox.Connect(grant.Value.Email, token, state.ConnectedByName, now);
 

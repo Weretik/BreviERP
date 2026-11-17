@@ -31,10 +31,10 @@ public sealed class LeadRulesTests
     ];
 
     private static Lead NewLead() =>
-        new(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions")]).Value.Rows[0], Now);
+        Lead.Create(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions")]).Value.Rows[0], Now);
 
     private static LeadCallResult Result(LeadOutcome outcome, int? retryDays = null) =>
-        new("Результат", outcome, retryDays, 10);
+        LeadCallResult.Create("Результат", outcome, retryDays, 10);
 
     [Test]
     public void Parser_finds_columns_by_header_and_keeps_the_manager_columns_as_notes()
@@ -118,8 +118,8 @@ public sealed class LeadRulesTests
     {
         LeadCallResult[] active =
         [
-            new("Не дозвонились", LeadOutcome.Retry, 1, 10), new("Передзвонити", LeadOutcome.Callback, null, 30),
-            new("Надіслали КП", LeadOutcome.Offer, null, 50), new("Відмова", LeadOutcome.Closed, null, 70),
+            LeadCallResult.Create("Не дозвонились", LeadOutcome.Retry, 1, 10), LeadCallResult.Create("Передзвонити", LeadOutcome.Callback, null, 30),
+            LeadCallResult.Create("Надіслали КП", LeadOutcome.Offer, null, 50), LeadCallResult.Create("Відмова", LeadOutcome.Closed, null, 70),
         ];
 
         Assert.Multiple(() =>
@@ -139,7 +139,7 @@ public sealed class LeadRulesTests
     public void Sheet_call_is_recorded_once_and_only_on_an_open_lead_of_that_manager()
     {
         var lead = NewLead();
-        var noAnswer = new LeadCallResult("Не дозвонились", LeadOutcome.Retry, 1, 10);
+        var noAnswer = LeadCallResult.Create("Не дозвонились", LeadOutcome.Retry, 1, 10);
         lead.ApplySheetOwner("Анастасия", Anastasia, Now);
 
         Assert.That(lead.ApplySheetCall("Не дозвонились", Vadym, noAnswer, null, null, Now), Is.Null, "not his lead");
@@ -237,8 +237,8 @@ public sealed class LeadRulesTests
     [Test]
     public void Retry_days_belong_only_to_retry_results()
     {
-        Assert.That(new LeadCallResult("Не дозвонились", LeadOutcome.Retry, null, 1).RetryDays, Is.EqualTo(1));
-        Assert.That(new LeadCallResult("Передзвонити", LeadOutcome.Callback, 3, 1).RetryDays, Is.Null);
+        Assert.That(LeadCallResult.Create("Не дозвонились", LeadOutcome.Retry, null, 1).RetryDays, Is.EqualTo(1));
+        Assert.That(LeadCallResult.Create("Передзвонити", LeadOutcome.Callback, 3, 1).RetryDays, Is.Null);
     }
 
     [Test]

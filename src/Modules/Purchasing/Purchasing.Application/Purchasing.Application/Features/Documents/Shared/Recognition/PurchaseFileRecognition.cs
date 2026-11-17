@@ -103,13 +103,13 @@ public sealed class PurchaseFileRecognition(
         {
             var current = await db.CheckedDocuments.FirstOrDefaultAsync(x => x.Id == file.Id, cancellationToken);
             if (current is null)
-                db.CheckedDocuments.Add(new PurchaseCheckedDocument(file.Id, file.MessageId, document, PurchaseDocumentOrigin.Ai,
+                db.CheckedDocuments.Add(PurchaseCheckedDocument.Create(file.Id, file.MessageId, document, PurchaseDocumentOrigin.Ai,
                     model, cost, by, now));
             else if (current.PayloadHash != PurchaseDocumentJson.Hash(PurchaseDocumentJson.Write(document)))
                 db.CheckedDocumentHistory.Add(current.Replace(document, PurchaseDocumentOrigin.Ai, model, cost, by, now));
         }
 
-        db.RecognitionAttempts.Add(new PurchaseRecognitionAttempt(file.Id, file.MessageId, outcome, problems, model, cost, output, by, now));
+        db.RecognitionAttempts.Add(PurchaseRecognitionAttempt.Create(file.Id, file.MessageId, outcome, problems, model, cost, output, by, now));
         await db.SaveChangesAsync(cancellationToken);
         await scope.CommitAsync(cancellationToken);
         return Result.Success(new PurchaseRecognitionResponse(file.Id, PurchaseDocumentMapping.ToContract(outcome), problems, model, cost));

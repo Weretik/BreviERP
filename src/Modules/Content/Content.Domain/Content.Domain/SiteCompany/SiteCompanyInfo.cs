@@ -36,12 +36,15 @@ public sealed partial class SiteCompanyInfo : IAggregateRoot
 
     private SiteCompanyInfo() { }
 
-    public SiteCompanyInfo(string updatedBy, DateTimeOffset now)
+    private SiteCompanyInfo(string updatedBy, DateTimeOffset now)
     {
         Id = SingletonId;
         UpdatedBy = updatedBy;
         UpdatedAtUtc = now;
     }
+
+    public static SiteCompanyInfo Create(string updatedBy, DateTimeOffset now) =>
+        new(updatedBy, now);
 
     public int Id { get; private set; }
 

@@ -28,7 +28,7 @@ internal static class ProductCategoryLinks
         {
             var last = await db.SiteCategoryProducts.Where(x => x.CategoryId == categoryId)
                 .Select(x => (int?)x.SortOrder).MaxAsync(cancellationToken) ?? 0;
-            db.SiteCategoryProducts.Add(new SiteCategoryProduct(categoryId, productId, last + 1));
+            db.SiteCategoryProducts.Add(SiteCategoryProduct.Create(categoryId, productId, last + 1));
         }
 
         return true;

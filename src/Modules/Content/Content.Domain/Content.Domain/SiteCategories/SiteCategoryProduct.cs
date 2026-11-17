@@ -6,13 +6,16 @@ public sealed class SiteCategoryProduct : IAggregateRoot
 {
     private SiteCategoryProduct() { }
 
-    public SiteCategoryProduct(int categoryId, int productId, int sortOrder)
+    private SiteCategoryProduct(int categoryId, int productId, int sortOrder)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(productId);
         CategoryId = categoryId;
         ProductId = productId;
         SortOrder = sortOrder;
     }
+
+    public static SiteCategoryProduct Create(int categoryId, int productId, int sortOrder) =>
+        new(categoryId, productId, sortOrder);
 
     public int CategoryId { get; private set; }
     public int ProductId { get; private set; }
