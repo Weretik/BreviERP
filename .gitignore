@@ -363,3 +363,7 @@ Desktop.ini
 .history/
 .ionide/
 
+
+# Agent working files (never commit)
+usage.json
+tmp*.json
