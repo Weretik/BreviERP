@@ -27,6 +27,20 @@ public sealed class ApiLayoutTests
         Assert.That(offending, Is.Empty);
     }
 
+    /// <summary>Input rules live in the use case's FluentValidation validator with Ukrainian messages, not on requests.</summary>
+    [Test]
+    public void Api_requests_carry_no_data_annotations()
+    {
+        var offending = ApiProjects()
+            .SelectMany(project => Directory.GetFiles(project, "*.cs", SearchOption.AllDirectories))
+            .Where(NotBuildOutput)
+            .Where(file => File.ReadAllText(file).Contains("System.ComponentModel.DataAnnotations"))
+            .Select(Relative)
+            .ToArray();
+
+        Assert.That(offending, Is.Empty);
+    }
+
     [Test]
     public void Api_projects_have_no_folders_named_after_kinds_of_classes()
     {

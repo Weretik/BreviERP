@@ -20,7 +20,7 @@ internal static class CreatePpeRuleVersionEndpoint
         var actor = user.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrWhiteSpace(actor)) return Results.Forbid();
         return (await sender.Send(new CreatePpeRuleVersionCommand(
-            request.ExpectedVersionId, request.RequestId, request.Values.ToValues(), actor),
+            request.ExpectedVersionId, request.RequestId, request.Values?.ToValues(), actor),
                 cancellationToken)).ToHttpResult();
     }
 }

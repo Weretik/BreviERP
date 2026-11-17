@@ -5,6 +5,6 @@ public sealed class CreatePpeOfferVersionHandler(IPpeOfferVersionWriter writer) 
 {
  public async ValueTask<Result<PpeOfferVersion>> Handle(CreatePpeOfferVersionCommand command, CancellationToken cancellationToken)
  {
- return await writer.AppendAsync(command.ProductId, command.ExpectedVersionId, command.RequestId, command.Values, command.Actor, cancellationToken);
+ return await writer.AppendAsync(command.ProductId, command.ExpectedVersionId, command.RequestId, command.Values!, command.Actor, cancellationToken);
  }
 }
