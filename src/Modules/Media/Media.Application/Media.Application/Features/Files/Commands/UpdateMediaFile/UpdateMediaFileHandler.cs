@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Media.Domain.Folders;
 using Media.Domain.Files;
 using Media.Application.Abstractions;

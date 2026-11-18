@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.ValueObjects;
@@ -8,7 +9,7 @@ public sealed class ProductByIdSpec : Specification<ProductEntity>
 {
     public ProductByIdSpec(int id)
     {
-        var productId = ProductId.Create(id);
+        var productId = new ProductId(id);
         Query.Where(x => x.Id == productId);
     }
 }

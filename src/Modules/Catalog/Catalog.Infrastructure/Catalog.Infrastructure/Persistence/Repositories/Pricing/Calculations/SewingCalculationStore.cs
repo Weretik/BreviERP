@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
@@ -24,7 +25,7 @@ public sealed class SewingCalculationStore(CatalogDbContext db) : ISewingCalcula
         if (productId <= 0 || articleId <= 0)
             return null;
         var row = await db.Set<SavedSewingCalculationRecord>().AsNoTracking()
-            .Where(x => x.ProductId == ProductId.Create(productId) && x.ArticleId == ArticleId.Create(articleId))
+            .Where(x => x.ProductId == new ProductId(productId) && x.ArticleId == new ArticleId(articleId))
             .SingleOrDefaultAsync(x => x.PublicId == id, cancellationToken);
         return row is null ? null : SewingCalculationSnapshotSerializer.Read(row);
     }
@@ -38,8 +39,8 @@ public sealed class SewingCalculationStore(CatalogDbContext db) : ISewingCalcula
             CreatedAt = calculation.CreatedAt,
             CreatedBy = calculation.CreatedBy,
             SnapshotJson = SewingCalculationSnapshotSerializer.Serialize(calculation.Snapshot),
-            ProductId = ProductId.Create(calculation.Snapshot.ProductId),
-            ArticleId = ArticleId.Create(calculation.Snapshot.ArticleId)
+            ProductId = new ProductId(calculation.Snapshot.ProductId),
+            ArticleId = new ArticleId(calculation.Snapshot.ArticleId)
         });
         await db.SaveChangesAsync(cancellationToken);
     }

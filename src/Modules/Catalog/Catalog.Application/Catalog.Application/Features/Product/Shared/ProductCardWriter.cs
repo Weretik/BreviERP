@@ -1,5 +1,5 @@
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
@@ -30,7 +30,7 @@ internal static class ProductCardWriter
 
         foreach (var (photo, index) in request.Photos.Select((photo, index) => (photo, index)))
         {
-            var added = product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(photo.MediaFileId), now,
+            var added = product.AddPhoto(ProductPhotoId.Create(index + 1), new MediaFileId(photo.MediaFileId), now,
                 photo.Alt, photo.IsVisible, photo.SortOrder, photo.IsMain);
             if (added.IsFailure) return added;
         }

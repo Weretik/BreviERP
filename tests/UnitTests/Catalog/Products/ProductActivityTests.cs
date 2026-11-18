@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
 using Catalog.Application.Features.Activity.EventHandlers;
@@ -13,7 +14,7 @@ public sealed class ProductActivityTests
 {
     private static readonly DateTimeOffset Now = new(2026, 11, 16, 10, 0, 0, TimeSpan.Zero);
 
-    private static Product NewProduct() => Product.Create(ProductId.Create(101), "Фартух", "Фартук",
+    private static Product NewProduct() => Product.Create(new ProductId(101), "Фартух", "Фартук",
         ProductSlug.Create("fartukh").Value, ProductType.Sewing, Now).Value;
 
     private static IReadOnlyCollection<IDomainEvent> Events(IHasDomainEvents source) => source.DomainEvents;

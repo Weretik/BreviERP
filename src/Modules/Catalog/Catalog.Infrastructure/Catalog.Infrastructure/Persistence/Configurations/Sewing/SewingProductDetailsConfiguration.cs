@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -9,7 +10,7 @@ public sealed class SewingProductDetailsConfiguration : IEntityTypeConfiguration
     public void Configure(EntityTypeBuilder<SewingProductDetails> builder)
     {
         builder.ToTable("SewingProductDetails", "catalog");
-        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => ProductId.Create(x));
+        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => new ProductId(x));
         builder.HasKey(x => x.ProductId);
         builder.Property(x => x.MetersPerProduct).IsRequired();
         builder.HasMany(x => x.Fabrics).WithOne().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);

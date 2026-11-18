@@ -1,3 +1,4 @@
+using MediaFileId = BuildingBlocks.Domain.Identifiers.Products.MediaFileId;
 using Content.Application.Abstractions;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
@@ -45,7 +46,7 @@ public sealed class SaveContentArticleHandler(IContentDbContext db, IContentMedi
         var texts = new Dictionary<string, ArticleTextValues>();
         if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk.ToValues();
         if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru.ToValues();
-        var replaced = article.Replace(slug, command.PublishedOn, command.ShowOnSite, command.CoverPhotoId, texts,
+        var replaced = article.Replace(slug, command.PublishedOn, command.ShowOnSite, MediaFileId.FromNullable(command.CoverPhotoId), texts,
             command.UpdatedBy, now);
         if (replaced.IsFailure) return replaced.Error!.ToResult<ArticleResponse>();
 

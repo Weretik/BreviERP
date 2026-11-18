@@ -1,7 +1,7 @@
 using Ardalis.Result;
 using Ardalis.Specification;
 using Catalog.Application.Features.Product.Shared;
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products;
 using Moq;
@@ -34,7 +34,7 @@ public sealed class ProductCommandHandlerTests
         var result = await fixture.CreateHandler.Handle(new CreateProductCommand(SewingRequest()), CancellationToken.None);
 
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Ok));
-        fixture.ProductRepository.Verify(x => x.AddAsync(It.Is<global::Catalog.Domain.Products.Product>(p => p.Id == ProductId.Create(101)), It.IsAny<CancellationToken>()), Times.Once);
+        fixture.ProductRepository.Verify(x => x.AddAsync(It.Is<global::Catalog.Domain.Products.Product>(p => p.Id == new ProductId(101)), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -151,7 +151,7 @@ public sealed class ProductCommandHandlerTests
 
     private static CreateProductCommandRequest SewingRequest() => new(101, "Куртка", "Куртка", ProductType.Sewing, "Опис", "Описание", [], [], [], [], new SewingProductRequest(1m, [new FabricRequest(10, true, 0)], [], []), null);
 
-    private static Product NewProduct() => Product.Create(ProductId.Create(101), "Стара куртка", "Старая куртка", ProductSlug.Create("stara-kurtka").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
+    private static Product NewProduct() => Product.Create(new ProductId(101), "Стара куртка", "Старая куртка", ProductSlug.Create("stara-kurtka").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
 
     private static ProductReferenceData References() => new(
         new Dictionary<int, ReferenceItem>(), new Dictionary<int, PricedReferenceItem> { [10] = new(10, "Тканина", 100m) },

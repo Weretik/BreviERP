@@ -1,7 +1,7 @@
 using System.Data.Common;
 using Ardalis.Specification.EntityFrameworkCore;
 using Catalog.Domain.ProductCategories;
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -244,7 +244,7 @@ public sealed class GetAdminProductsSpecTests
         ProductCategoryId categoryId,
         DateTimeOffset? createdAt = null)
     {
-        var productId = ProductId.Create(id);
+        var productId = new ProductId(id);
         var product = Product.Create(productId, name, name, ProductSlug.Create(slug).Value, type, createdAt ?? DateTimeOffset.UtcNow).Value;
         product.ReplaceCategories([categoryId], DateTimeOffset.UtcNow);
         return product;

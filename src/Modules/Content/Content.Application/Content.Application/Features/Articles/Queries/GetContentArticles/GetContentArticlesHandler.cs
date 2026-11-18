@@ -11,7 +11,7 @@ public sealed class GetContentArticlesHandler(IContentDbContext db, IContentMedi
     {
         var articles = await db.Articles.AsNoTracking().Include(x => x.Texts)
             .OrderByDescending(x => x.PublishedOn).ThenByDescending(x => x.Id).ToListAsync(cancellationToken);
-        var covers = articles.Where(x => x.CoverPhotoId is not null).Select(x => x.CoverPhotoId!.Value).Distinct().ToArray();
+        var covers = articles.Where(x => x.CoverPhotoId is not null).Select(x => x.CoverPhotoId!.Value.Value).Distinct().ToArray();
         var photos = await ArticleReads.PhotosAsync(media, covers, cancellationToken);
         return new ArticleList(articles.Select(x => ArticleMapping.Row(x, photos)).ToArray());
     }

@@ -12,10 +12,10 @@ public sealed class GetContentProductsHandler(IContentDbContext db, IContentCata
     {
         var products = await catalog.GetAllAsync(cancellationToken);
         var pages = await db.ProductPages.AsNoTracking().Include(x => x.Texts)
-            .ToDictionaryAsync(x => x.ProductId, cancellationToken);
+            .ToDictionaryAsync(x => x.ProductId.Value, cancellationToken);
         var categories = (await db.SiteCategoryProducts.AsNoTracking()
                 .Select(x => new { x.ProductId, x.CategoryId }).ToListAsync(cancellationToken))
-            .GroupBy(x => x.ProductId)
+            .GroupBy(x => x.ProductId.Value)
             .ToDictionary(x => x.Key, x => (IReadOnlyList<int>)x.Select(y => y.CategoryId.Value).Order().ToArray());
         var wanted = await WantedCategoriesAsync(query.CategoryId, cancellationToken);
         var search = query.Search?.Trim();

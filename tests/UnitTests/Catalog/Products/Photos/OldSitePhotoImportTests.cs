@@ -1,6 +1,6 @@
 using Ardalis.Result;
 using Ardalis.Specification;
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Mediator;
 using Moq;
@@ -178,9 +178,9 @@ public sealed class OldSitePhotoImportTests
         private Product Build(int id)
         {
             var now = DateTimeOffset.UtcNow;
-            var product = Product.Create(ProductId.Create(id), "P", "P", ProductSlug.Create($"p-{id}").Value, ProductType.Sewing, now).Value;
+            var product = Product.Create(new ProductId(id), "P", "P", ProductSlug.Create($"p-{id}").Value, ProductType.Sewing, now).Value;
             foreach (var (file, index) in ProductPhotos[id].Select((file, index) => (file, index)))
-                product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(file), now, sortOrder: index);
+                product.AddPhoto(ProductPhotoId.Create(index + 1), new MediaFileId(file), now, sortOrder: index);
             return product;
         }
     }

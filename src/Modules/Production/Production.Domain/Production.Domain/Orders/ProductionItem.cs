@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders.Enums;
@@ -74,8 +75,8 @@ public sealed class ProductionItem
     public int Position { get; private set; }
     public long? QuoteItemId { get; private set; }
     public long? QuoteOptionId { get; private set; }
-    public int? ProductId { get; private set; }
-    public long? ArticleId { get; private set; }
+    public ProductId? ProductId { get; private set; }
+    public ArticleId? ArticleId { get; private set; }
 
     /// <summary>Catalog model code (MOD-…); null for a «Виріб з нуля» of the КП.</summary>
     public string? ModelCode { get; private set; }
@@ -183,8 +184,8 @@ public sealed class ProductionItem
 public sealed record ItemSource(
     long? QuoteItemId,
     long? QuoteOptionId,
-    int? ProductId,
-    long? ArticleId,
+    ProductId? ProductId,
+    ArticleId? ArticleId,
     string? ModelCode,
     string ModelName,
     FabricId? FabricId,

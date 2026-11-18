@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Application.Abstractions;
 using Content.Application.Features.ProductPages.Shared;
 
@@ -9,7 +10,7 @@ public sealed class DeleteContentProductHandler(IContentDbContext db)
     public async ValueTask<Result> Handle(DeleteContentProductCommand command, CancellationToken cancellationToken)
     {
         var page = await db.ProductPages.Include(x => x.Texts)
-            .FirstOrDefaultAsync(x => x.ProductId == command.ProductId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.ProductId == new ProductId(command.ProductId), cancellationToken);
         if (page is null) return Result.NotFound(ContentProductMessages.PageNotFound);
         db.ProductPages.Remove(page);
         await db.SaveChangesAsync(cancellationToken);

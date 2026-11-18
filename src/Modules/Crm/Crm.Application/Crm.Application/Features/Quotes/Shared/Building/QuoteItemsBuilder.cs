@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
@@ -38,7 +39,7 @@ public sealed class QuoteItemsBuilder(
         {
             var input = inputs[index];
             var kind = Enum.Parse<QuoteItemKind>(input.Kind);
-            var previous = saved.FirstOrDefault(x => x.Id == input.Id && x.Kind == kind && x.ProductId == input.ProductId);
+            var previous = saved.FirstOrDefault(x => x.Id == input.Id && x.Kind == kind && x.ProductId?.Value == input.ProductId);
             var built = kind switch
             {
                 QuoteItemKind.OneOffPpe => BuildOneOff(index, input, previous, actor, now),
@@ -138,7 +139,7 @@ public sealed class QuoteItemsBuilder(
             options.Add(option.Value);
         }
 
-        return Result.Success(QuoteItem.Create(position, kind, input.ProductId, texts, options));
+        return Result.Success(QuoteItem.Create(position, kind, ProductId.FromNullable(input.ProductId), texts, options));
     }
 
     private static Result<QuoteItemOption> BuildVariant(
@@ -147,7 +148,7 @@ public sealed class QuoteItemsBuilder(
     {
         var saved = input.ArticleId is null
             ? SavedOtherFabric(previous, input)
-            : previous?.Options.FirstOrDefault(x => x.Id == input.Id && x.ArticleId == input.ArticleId);
+            : previous?.Options.FirstOrDefault(x => x.Id == input.Id && x.ArticleId?.Value == input.ArticleId);
         if (saved is not null)
             return Result.Success(QuoteItemOption.Create(position, saved.ArticleId, saved.FabricId, saved.Title,
                     saved.Details, input.IsRecommended, saved.Retail with { Shown = input.Retail.Shown },
@@ -162,7 +163,7 @@ public sealed class QuoteItemsBuilder(
         if (variant.Prices is not { } prices)
             return Result.Conflict($"«{itemName}», «{variant.Title}»: немає опублікованої ціни ({string.Join(", ", variant.Problems)}).");
 
-        return Result.Success(QuoteItemOption.Create(position, variant.ArticleId, FabricId.FromNullable(variant.FabricId), variant.Title,
+        return Result.Success(QuoteItemOption.Create(position, new ArticleId(variant.ArticleId), FabricId.FromNullable(variant.FabricId), variant.Title,
             variant.Details, input.IsRecommended,
             new QuotePrice(prices.Retail, null, input.Retail.Shown),
             new QuotePrice(prices.Wholesale, null, input.Wholesale.Shown),

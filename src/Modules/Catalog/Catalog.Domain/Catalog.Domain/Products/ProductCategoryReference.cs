@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Entity;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products.ValueObjects;

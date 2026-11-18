@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
@@ -74,7 +75,7 @@ public sealed class SewingCompositionPersistenceTests
     {
         using var db = CreateContext();
         var now = DateTimeOffset.UtcNow;
-        var productId = ProductId.Create(7);
+        var productId = new ProductId(7);
         var product = Product.Create(productId, "Model", "Модель", ProductSlug.Create("model").Value, ProductType.Sewing, now).Value;
         product.AddArticle(SewingArticle.Create(default, productId, "SKU-1").Value, now);
         product.AddArticle(SewingArticle.Create(default, productId, "SKU-2").Value, now);

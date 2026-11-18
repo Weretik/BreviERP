@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Application.Abstractions;
 using Content.Domain.SiteSettings;
 using Content.Application.Features.SiteSettings.Shared;
@@ -25,7 +26,7 @@ public sealed class SaveSiteSeoSettingsHandler(IContentDbContext db, IContentMed
         }
 
         var replaced = settings.Replace(command.GoogleAnalyticsId, command.GoogleTagManagerId, command.GoogleSiteVerification,
-            command.BingSiteVerification, command.DefaultOgPhotoId, command.UpdatedBy, now);
+            command.BingSiteVerification, MediaFileId.FromNullable(command.DefaultOgPhotoId), command.UpdatedBy, now);
         if (replaced.IsFailure) return replaced.Error!.ToResult<SiteSeoSettingsResponse>();
         try
         {

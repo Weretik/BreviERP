@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.ProductPages.Shared;
@@ -16,11 +17,11 @@ public sealed class SetContentProductVisibilityHandler(
         if (product is null) return Result.NotFound(ContentProductMessages.ProductNotFound);
 
         var now = clock.GetUtcNow();
-        var page = await db.ProductPages.FirstOrDefaultAsync(x => x.ProductId == command.ProductId, cancellationToken);
+        var page = await db.ProductPages.FirstOrDefaultAsync(x => x.ProductId == new ProductId(command.ProductId), cancellationToken);
         if (page is null)
         {
             var slug = await ProductPageSlugs.FreeAsync(db, product, cancellationToken);
-            var created = ProductPage.Create(product.Id, slug, command.UpdatedBy, now);
+            var created = ProductPage.Create(new ProductId(product.Id), slug, command.UpdatedBy, now);
             if (created.IsFailure) return created.Error!.ToResult<ContentProductVisibilityResponse>();
             page = created.Value;
             db.ProductPages.Add(page);
@@ -36,7 +37,7 @@ public sealed class SetContentProductVisibilityHandler(
             return Result.Conflict(ContentProductMessages.Stale);
         }
 
-        return new ContentProductVisibilityResponse(page.ProductId, page.ShowOnSite,
+        return new ContentProductVisibilityResponse(page.ProductId.Value, page.ShowOnSite,
             page.ShowOnSite && product.IsActive, page.Revision, page.Slug);
     }
 }

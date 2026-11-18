@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
@@ -64,11 +65,11 @@ internal static class CatalogSheetImportFixtures
     /// <summary>A stored product exactly as the import would write the planned one (articles get IDs 1, 2, …).</summary>
     public static Product Stored(SheetPlannedProduct planned, int? id = null)
     {
-        var product = Product.Create(id is null ? planned.Id : ProductId.Create(id.Value), planned.Draft.Name,
+        var product = Product.Create(id is null ? planned.Id : new ProductId(id.Value), planned.Draft.Name,
             planned.Draft.Name, ProductSlug.Create(planned.Slug).Value, planned.Draft.Type, Now).Value;
         var offset = (id ?? planned.Id.Value) * 100;
         SheetProductApplier.ApplyCard(product, planned.Draft, Now,
-            index => ArticleId.Create(offset + index + 1));
+            index => new ArticleId(offset + index + 1));
         if (planned.Draft.Sewing is { } sewing)
             SheetProductApplier.ApplyComposition(product, sewing, Now);
         return product;
@@ -76,7 +77,7 @@ internal static class CatalogSheetImportFixtures
 
     public static Product Legacy(int id, ProductType type, string name, string? code)
     {
-        var product = Product.Create(ProductId.Create(id), name, name + " RU", ProductSlug.Create("legacy-" + id).Value, type, Now).Value;
+        var product = Product.Create(new ProductId(id), name, name + " RU", ProductSlug.Create("legacy-" + id).Value, type, Now).Value;
         product.SetCode(code, Now);
         return product;
     }

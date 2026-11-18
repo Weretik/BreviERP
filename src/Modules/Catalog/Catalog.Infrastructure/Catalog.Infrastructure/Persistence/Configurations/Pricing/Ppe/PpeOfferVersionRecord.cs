@@ -13,7 +13,7 @@ public sealed class PpeOfferVersionRecord
     public string? ApprovedBy { get; set; }
     public DateTimeOffset? ApprovedAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
-    public Catalog.Domain.Products.ValueObjects.ProductId ProductId { get; set; }
+    public BuildingBlocks.Domain.Identifiers.Products.ProductId ProductId { get; set; }
     public PpeOfferValues Values() => JsonSerializer.Deserialize<PpeOfferValues>(ValuesJson)!;
     public PpeOfferVersion ToVersion() => new(PublicId, ProductId.Value, Values(), ApprovedBy is not null, ApprovedBy, ApprovedAt, CreatedAt);
 }

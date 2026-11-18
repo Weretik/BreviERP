@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
@@ -25,7 +26,7 @@ public sealed class SewingPublicationStore(CatalogDbContext db) : ISewingPublica
         if (productId <= 0 || articleId <= 0)
             return null;
         var calculations = db.Set<SavedSewingCalculationRecord>().AsNoTracking()
-            .Where(x => x.ProductId == ProductId.Create(productId) && x.ArticleId == ArticleId.Create(articleId));
+            .Where(x => x.ProductId == new ProductId(productId) && x.ArticleId == new ArticleId(articleId));
         var row = await db.Set<SewingPricePublicationRecord>().AsNoTracking().Include(x => x.Calculation)
             .Where(x => calculations.Any(c => c.Id == x.CalculationId))
             .OrderByDescending(x => x.Id).FirstOrDefaultAsync(cancellationToken);

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.Sewing.Composition;
 using Catalog.Domain.Products.ValueObjects;
@@ -10,7 +11,7 @@ public sealed class ProductFabricConfiguration : IEntityTypeConfiguration<Produc
     public void Configure(EntityTypeBuilder<ProductFabric> builder)
     {
         builder.ToTable("SewingProductFabrics", "catalog");
-        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => ProductId.Create(x));
+        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => new ProductId(x));
         builder.HasKey(x => new { x.ProductId, x.FabricId });
         builder.Property(x => x.FabricId).IsRequired();
         builder.Property(x => x.IsPrimary).IsRequired();

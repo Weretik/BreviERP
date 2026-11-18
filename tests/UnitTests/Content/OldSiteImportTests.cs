@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Domain.ProductPages;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
@@ -68,7 +69,7 @@ public sealed class OldSiteImportTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Value.Created, Is.EqualTo(1));
-            Assert.That(page.ProductId, Is.EqualTo(1));
+            Assert.That(page.ProductId, Is.EqualTo(new ProductId(1)));
             Assert.That(page.Slug, Is.EqualTo("kostyum-lider"));
             Assert.That(page.ShowOnSite, Is.True);
             Assert.That(page.UpdatedBy, Is.EqualTo(ContentTestHarness.Editor));

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 namespace Content.Domain.ProductPages;
 
 /// <summary>Texts of a product page in one language. Replaced as a whole when the page is saved.</summary>
@@ -5,7 +6,7 @@ public sealed class ProductPageText
 {
     private ProductPageText() { }
 
-    internal ProductPageText(int productId, string language, ProductPageTextValues input)
+    internal ProductPageText(ProductId productId, string language, ProductPageTextValues input)
     {
         ProductId = productId;
         Language = language;
@@ -23,7 +24,7 @@ public sealed class ProductPageText
         Specs = Groups(input.Specs);
     }
 
-    public int ProductId { get; private set; }
+    public ProductId ProductId { get; private set; }
 
     /// <summary><c>uk</c> or <c>ru</c>.</summary>
     public string Language { get; private set; } = null!;

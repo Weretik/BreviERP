@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products;
@@ -26,7 +27,7 @@ public sealed class GetAdminProductsSpec : Specification<ProductEntity, ProductL
                 .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if (searchTerms.Length == 1 && int.TryParse(searchTerms[0], out var id))
             {
-                Query.Where(x => x.Id == ProductId.Create(id));
+                Query.Where(x => x.Id == new ProductId(id));
             }
             else
             {

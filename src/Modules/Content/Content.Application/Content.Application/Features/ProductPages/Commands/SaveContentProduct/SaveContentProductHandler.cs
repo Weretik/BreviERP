@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.ProductPages.Shared;
@@ -17,7 +18,7 @@ public sealed class SaveContentProductHandler(IContentDbContext db, IContentCata
         if (product is null) return Result.NotFound(ContentProductMessages.ProductNotFound);
 
         var page = await db.ProductPages.Include(x => x.Texts)
-            .FirstOrDefaultAsync(x => x.ProductId == command.ProductId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.ProductId == new ProductId(command.ProductId), cancellationToken);
         if ((page?.Revision ?? 0) != command.Revision) return Result.Conflict(ContentProductMessages.Stale);
 
         var slug = string.IsNullOrWhiteSpace(command.Slug)
@@ -34,7 +35,7 @@ public sealed class SaveContentProductHandler(IContentDbContext db, IContentCata
         var pageOldSlug = page?.Slug;
         if (page is null)
         {
-            var created = ProductPage.Create(product.Id, slug, command.UpdatedBy, now);
+            var created = ProductPage.Create(new ProductId(product.Id), slug, command.UpdatedBy, now);
             if (created.IsFailure) return created.Error!.ToResult<ContentProductResponse>();
             page = created.Value;
             db.ProductPages.Add(page);

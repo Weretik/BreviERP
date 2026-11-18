@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using System.Text.RegularExpressions;
@@ -41,7 +42,7 @@ public sealed partial class SiteSeoSettings : IAggregateRoot
     public string? BingSiteVerification { get; private set; }
 
     /// <summary>The picture of the «Фото» library for sharing; the id of another module, no FK.</summary>
-    public int? DefaultOgPhotoId { get; private set; }
+    public MediaFileId? DefaultOgPhotoId { get; private set; }
 
     public int Revision { get; private set; }
 
@@ -50,7 +51,7 @@ public sealed partial class SiteSeoSettings : IAggregateRoot
     public string UpdatedBy { get; private set; } = null!;
 
     public DomainResult Replace(string? googleAnalyticsId, string? googleTagManagerId, string? googleSiteVerification,
-        string? bingSiteVerification, int? defaultOgPhotoId, string updatedBy, DateTimeOffset now)
+        string? bingSiteVerification, MediaFileId? defaultOgPhotoId, string updatedBy, DateTimeOffset now)
     {
         var analyticsId = Clean(googleAnalyticsId)?.ToUpperInvariant();
         var tagManagerId = Clean(googleTagManagerId)?.ToUpperInvariant();
