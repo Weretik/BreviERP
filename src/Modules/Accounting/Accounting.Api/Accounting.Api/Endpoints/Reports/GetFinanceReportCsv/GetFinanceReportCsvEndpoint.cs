@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using BuildingBlocks.Api.Errors;
 using Accounting.Application.Features.Reports.Queries.GetFinanceReport;
 using Accounting.Application.Features.Reports.Shared;
@@ -15,7 +16,7 @@ namespace Accounting.Api.Endpoints.Reports.GetFinanceReportCsv;
 internal static class GetFinanceReportCsvEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("csv", HandleAsync).WithName("getFinanceReportCsv")
+        group.MapGet("csv", HandleAsync).WithName("getFinanceReportCsv").RequireRateLimiting("HeavyOperation")
             .WithSummary("Get finance report csv")
             .WithDescription("The same report as a download: UTF-8 with BOM, «;» separators, CRLF, every field quoted, sums in hryvnias with a decimal comma, dates dd.MM.yyyy; text starting with = + - @ gets a leading apostrophe. The operations report holds up to 50 000 rows. Cache-Control private, no-store.")
             .Produces(StatusCodes.Status200OK, contentType: "text/csv");

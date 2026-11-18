@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Production.Application.Features.Archive.Commands.ImportWorkshopArchive;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,7 @@ namespace Production.Api.Endpoints.Archive.ImportWorkshopArchive;
 internal static class ImportWorkshopArchiveEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("import", HandleAsync).WithName("importWorkshopArchive")
+        group.MapPost("import", HandleAsync).WithName("importWorkshopArchive").RequireRateLimiting("HeavyOperation")
             .WithSummary("Admin: move workshop-archive.json; dryRun only counts; a line already moved is skipped; any error saves nothing")
             .Produces<WorkshopArchiveImportResult>();
 

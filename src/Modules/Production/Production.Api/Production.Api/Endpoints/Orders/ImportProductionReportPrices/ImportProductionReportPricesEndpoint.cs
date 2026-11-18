@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Production.Application.Features.Orders.Commands.ImportProductionReportPrices;
 using Production.Application.Features.Orders.Commands.ImportProductionReportPrices.Rows;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,7 @@ namespace Production.Api.Endpoints.Orders.ImportProductionReportPrices;
 internal static class ImportProductionReportPricesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("report-price-import", HandleAsync).WithName("importProductionReportPrices")
+        group.MapPost("report-price-import", HandleAsync).WithName("importProductionReportPrices").RequireRateLimiting("HeavyOperation")
             .WithSummary("Admin: «Ціни КП» of orders moved from the old «Цех» for «Звіти цеху»; only an item without a price takes one; dryRun only shows them; any error saves nothing")
             .Produces<ProductionReportPriceImportResult>();
 

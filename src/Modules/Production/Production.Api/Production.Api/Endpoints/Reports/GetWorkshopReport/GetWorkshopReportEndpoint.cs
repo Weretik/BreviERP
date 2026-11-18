@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Production.Application.Features.Reports.Queries.GetWorkshopReport;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,7 @@ namespace Production.Api.Endpoints.Reports.GetWorkshopReport;
 internal static class GetWorkshopReportEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getWorkshopReport")
+        group.MapGet("", HandleAsync).WithName("getWorkshopReport").RequireRateLimiting("HeavyOperation")
             .WithSummary("«Звіти цеху» of the months from..to (at most 12) and, with both compare months, the months to compare with (Admin)")
             .Produces<WorkshopReportPairResponse>();
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using BuildingBlocks.Api.Errors;
 using Accounting.Application.Features.Attachments.Shared;
 using Accounting.Api.Access;
@@ -13,7 +14,7 @@ internal static class UploadFinanceAttachmentEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("api/accounting/transactions/{id:guid}/attachments", HandleAsync)
-            .WithName("uploadFinanceAttachment")
+            .WithName("uploadFinanceAttachment").RequireRateLimiting("Upload")
             .WithSummary("Upload finance attachment")
             .WithDescription("«Додати файл»: a PDF, JPEG or PNG from 1 byte to 10 MiB, told by its first bytes, into the private storage under finance/<transactionId>/<attachmentId>.<ext>. A voided operation takes no files. Logged as AttachmentAdd of the Transaction.")
             .DisableAntiforgery()

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Warehouse.Application.Features.Stock.Queries.GetFabricPlanFact;
 using Warehouse.Application.Features.Stock.Shared;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,7 @@ namespace Warehouse.Api.Endpoints.Reports.GetFabricPlanFact;
 internal static class GetFabricPlanFactEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("plan-fact", HandleAsync).WithName("getFabricPlanFact")
+        group.MapGet("plan-fact", HandleAsync).WithName("getFabricPlanFact").RequireRateLimiting("HeavyOperation")
             .WithSummary("«План і факт»: main fabric by model for items issued for all their products (access:fabric-plan-fact)").Produces<FabricPlanFactResponse>()
             .RequireAuthorization(WarehouseAccess.FabricPlanFact);
 

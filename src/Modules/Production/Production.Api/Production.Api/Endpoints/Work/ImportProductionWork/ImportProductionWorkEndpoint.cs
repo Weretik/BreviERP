@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Production.Application.Features.Work.Commands.ImportProductionWork;
 using Production.Application.Features.Work.Shared;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,7 @@ namespace Production.Api.Endpoints.Work.ImportProductionWork;
 internal static class ImportProductionWorkEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("work/import", HandleAsync).WithName("importProductionWork")
+        group.MapPost("work/import", HandleAsync).WithName("importProductionWork").RequireRateLimiting("HeavyOperation")
             .WithSummary("Moves the work log of the old «Цех» (Admin); nothing is saved unless every row is fine")
             .Produces<ProductionWorkImportResult>();
 

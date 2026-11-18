@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Content.Application;
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogProducts;
 using BuildingBlocks.Api.Errors;
@@ -9,7 +10,7 @@ internal static class GetPublicCatalogProductsEndpoint
     public const int DefaultPageSize = 24;
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("products", HandleAsync).WithName("getPublicCatalogProducts")
+        group.MapGet("products", HandleAsync).WithName("getPublicCatalogProducts").RequireRateLimiting("PublicSearch")
             .WithSummary("One page of product cards, sewing first, by code")
             .Produces<PublicCatalogCardPage>();
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Production.Application.Features.FabricNorms.Commands.ImportFabricNorms;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,7 @@ namespace Production.Api.Endpoints.FabricNorms.ImportFabricNorms;
 internal static class ImportFabricNormsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("import", HandleAsync).WithName("importFabricNorms")
+        group.MapPost("import", HandleAsync).WithName("importFabricNorms").RequireRateLimiting("HeavyOperation")
             .WithSummary("Load norms from a list (up to 1000); nothing is saved while a row has an error")
             .Produces<FabricNormImportResult>();
 

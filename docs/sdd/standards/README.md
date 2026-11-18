@@ -8,6 +8,7 @@ This directory contains stable rules for every backend change. It does not conta
 - [API rules](api-rules.md) — HTTP contracts, validation, results, and errors.
 - [Database rules](database-rules.md) — queries and N+1, indexes and search, transactions, concurrency, migrations; Brevi specifics and open deviations.
 - [Idempotency rules](idempotency-rules.md) — where a repeated request or message must not do the work twice, the `requestId` pattern, at-least-once handlers (outbox, Telegram, scheduler, imports), tests, and the 2026-11-15 audit of every write operation.
+- [Rate limit rules](rate-limit-rules.md) — the decision for every endpoint (global soft limit or its own policy), the policy table with numbers, configuration, the edge layer, and the tests.
 - [Security and observability rules](security-observability-rules.md) — authorization, privacy, Serilog, and diagnostics.
 - [Testing rules](testing-rules.md) — scenario coverage, Red → Green → Refactor, test selection, exceptions, and required verification commands.
 - [Delivery rules](delivery-rules.md) — behavior-first SDD workflow, traceability, boundaries, and completion criteria.

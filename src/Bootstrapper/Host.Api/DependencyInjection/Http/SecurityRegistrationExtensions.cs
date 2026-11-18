@@ -1,4 +1,5 @@
 using BuildingBlocks.Api.TrustedProxy;
+using Host.Api.DependencyInjection.Http.RateLimits;
 using Identity.Api.DependencyInjection;
 
 
@@ -13,7 +14,7 @@ public static class SecurityRegistrationsExtensions
         services.AddForwardedHeadersRegistration();
         services.AddTrustedProxyRegistration(configuration);
         services.AddCorsService(configuration);
-        services.AddRateLimitingServices();
+        services.AddRateLimitingServices(configuration);
         services.AddAuthorizationPolicies();
 
         return services;

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Commands.UploadQuotePhoto;
 using BuildingBlocks.Api.Errors;
@@ -11,7 +12,7 @@ internal static class UploadCrmQuotePhotoEndpoint
     private const long MaxPhotoRequestBytes = 32L * 1024 * 1024;
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("photos", HandleAsync).WithName("uploadCrmQuotePhoto")
+        group.MapPost("photos", HandleAsync).WithName("uploadCrmQuotePhoto").RequireRateLimiting("Upload")
             .WithSummary("Upload CRM quote photo")
             .WithDescription("R-34. «Змінити фото → Завантажити своє»: stores a JPG, PNG or WebP photo in the media library folder «Фото КП» (its CDN path) and returns its address. The editor puts it into one item; it is not added to the product.")
             .DisableAntiforgery()

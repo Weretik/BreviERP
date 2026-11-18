@@ -16,6 +16,7 @@ security/
 - Protecting an endpoint or adding a policy or role: [authorization](authorization/README.md)
 - User creation, registration, or invitations: [users](users/README.md)
 - Planning a permission-controlled feature: [planning checklist](planning/access-control-checklist.md)
+- Abuse protection and request limits: [rate limit rules](../../standards/rate-limit-rules.md)
 
 ## Responsibility split
 

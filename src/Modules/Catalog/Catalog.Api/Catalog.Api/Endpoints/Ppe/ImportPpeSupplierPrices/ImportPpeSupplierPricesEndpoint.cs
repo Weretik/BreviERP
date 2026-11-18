@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
@@ -15,7 +16,7 @@ internal static class ImportPpeSupplierPricesEndpoint
     private const long MaxRequestBytes = 30 * 1024 * 1024;
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("{key}/import", HandleAsync).WithName("importPpeSupplierPrices")
+        group.MapPost("{key}/import", HandleAsync).WithName("importPpeSupplierPrices").RequireRateLimiting("HeavyOperation")
             .WithSummary("Import PPE supplier prices")
             .WithDescription("access:price-import. Reads the supplier's files (Insight: 3 XML; СЕМТО: 1 PDF; each may be gzipped) and returns every product of the supplier with old and new prices. dryRun=false saves changed prices as new approved offer versions; manual-price and inactive products are skipped. Request limit 30 MB.")
             .RequireAuthorization("access:price-import")

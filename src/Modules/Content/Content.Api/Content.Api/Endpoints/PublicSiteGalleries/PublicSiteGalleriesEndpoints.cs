@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Content.Api.Endpoints.PublicSiteGalleries.GetPublicSiteGalleries;
 using BuildingBlocks.Api.Http;
 
@@ -14,7 +15,7 @@ internal static class PublicSiteGalleriesEndpoints
 
     public static IEndpointRouteBuilder MapPublicSiteGalleriesEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api/public/galleries").AllowAnonymous()
+        var group = app.MapGroup("api/public/galleries").AllowAnonymous().RequireRateLimiting("PublicRead")
             .WithPublicResponseCache(CacheSeconds)
             .WithTags("PublicSiteGalleries");
         GetPublicSiteGalleriesEndpoint.Map(group);

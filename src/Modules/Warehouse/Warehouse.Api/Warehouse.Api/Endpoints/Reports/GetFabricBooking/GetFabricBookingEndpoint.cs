@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Warehouse.Application.Features.Stock.Queries.GetFabricBooking;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Shared.Booking;
@@ -9,7 +10,7 @@ namespace Warehouse.Api.Endpoints.Reports.GetFabricBooking;
 internal static class GetFabricBookingEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("booking", HandleAsync).WithName("getFabricBooking")
+        group.MapGet("booking", HandleAsync).WithName("getFabricBooking").RequireRateLimiting("HeavyOperation")
             .WithSummary("«Бронь і що замовити»: stock handed to the plans of open orders by order date; reads only (access:fabric-booking)").Produces<FabricBookingResponse>()
             .RequireAuthorization(WarehouseAccess.FabricBooking);
 

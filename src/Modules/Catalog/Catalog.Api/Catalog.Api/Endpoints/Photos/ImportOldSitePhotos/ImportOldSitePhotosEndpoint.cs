@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Catalog.Application.Features.Product.Commands.ImportOldSitePhotos;
 using BuildingBlocks.Api.Errors;
 
@@ -10,7 +11,7 @@ namespace Catalog.Api.Endpoints.Photos.ImportOldSitePhotos;
 internal static class ImportOldSitePhotosEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("importOldSitePhotos")
+        group.MapPost("", HandleAsync).WithName("importOldSitePhotos").RequireRateLimiting("HeavyOperation")
             .WithSummary("Photos and missing sewing models from the old site")
             .WithDescription("Admin only. A product is found by an old-site SKU (article SKUs of a sewing model, the site article of PPE) or by newModel name; a missing sewing model with newModel is created switched off. Photos are downloaded from baseUrl + path into the Media folder «Старий сайт» (old subfolders kept) and added after the product's own photos; the old main photo becomes main only for a product without photos. dryRun reports and changes nothing; a real run takes at most 20 products, so the admin page sends the file in parts. A repeat adds nothing twice.")
             .RequireAuthorization("RequireAdminRole")

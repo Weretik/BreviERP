@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Content.Api.Endpoints.PublicArticles.GetPublicArticle;
 using Content.Api.Endpoints.PublicArticles.GetPublicArticles;
 using BuildingBlocks.Api.Http;
@@ -15,7 +16,7 @@ internal static class PublicArticlesEndpoints
 
     public static IEndpointRouteBuilder MapPublicArticlesEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api/public/articles").AllowAnonymous()
+        var group = app.MapGroup("api/public/articles").AllowAnonymous().RequireRateLimiting("PublicRead")
             .WithPublicResponseCache(CacheSeconds)
             .WithTags("PublicArticles");
         GetPublicArticlesEndpoint.Map(group);

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder.Results;
@@ -9,7 +10,7 @@ namespace Warehouse.Api.Endpoints.Reports.GetHardwareOrder;
 internal static class GetHardwareOrderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("hardware", HandleAsync).WithName("getHardwareOrder")
+        group.MapGet("hardware", HandleAsync).WithName("getHardwareOrder").RequireRateLimiting("HeavyOperation")
             .WithSummary("«Фурнітура до замовлення»: full accessory need of open orders by model composition (access:hardware-order)").Produces<HardwareOrderResponse>()
             .RequireAuthorization(WarehouseAccess.HardwareOrder);
 

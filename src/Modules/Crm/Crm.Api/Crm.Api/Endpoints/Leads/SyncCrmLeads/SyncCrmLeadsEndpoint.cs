@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Leads.Commands.SyncLeads;
@@ -10,7 +11,7 @@ namespace Crm.Api.Endpoints.Leads.SyncCrmLeads;
 internal static class SyncCrmLeadsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("sync", HandleAsync).WithName("syncCrmLeads")
+        group.MapPost("sync", HandleAsync).WithName("syncCrmLeads").RequireRateLimiting("HeavyOperation")
             .WithSummary("Sync CRM leads")
             .WithDescription("Requires access:lead-stats (create). «Синхронізувати зараз»: reads the sheet and applies it in one transaction, the same run as the weekday 09:00 job. Rows are matched by «ID»; the calling work is never touched; rows missing from the sheet only get `inSheet: false`.")
             .RequireAuthorization(CrmAccess.LeadSync)
