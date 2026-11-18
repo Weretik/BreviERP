@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.ProductPages.Shared;
@@ -19,7 +20,9 @@ public sealed record SaveContentProductCommand(
     ProductPageTextInput? Uk,
     ProductPageTextInput? Ru,
     string UpdatedBy,
-    IReadOnlyList<int>? CategoryIds = null) : ICommand<Result<ContentProductResponse>>
+    IReadOnlyList<int>? CategoryIds = null) : ICommand<Result<ContentProductResponse>>, IInvalidatesReadCache
 {
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+
     public const int MaxCategories = 50;
 }

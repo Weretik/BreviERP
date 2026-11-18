@@ -1,10 +1,10 @@
+using UnitTests.TestSupport;
 using BuildingBlocks.Domain.Identifiers.Products;
 using Ardalis.Result;
 using Content.Domain.Articles;
 using Content.Domain.Redirects;
 using Content.Domain.SiteCategories;
 using FluentValidation.TestHelper;
-using Microsoft.Extensions.Caching.Memory;
 using Content.Application.Features.Articles.Commands.SaveContentArticle;
 using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
 using Content.Application.Features.Redirects.Commands.DeleteSiteRedirect;
@@ -284,7 +284,7 @@ public sealed class SiteRedirectsTests
         // A loop that can only come from data written before the checks.
         db.SiteRedirects.Add(SiteRedirect.Create("/uk/y", "/uk/x", SiteRedirectSource.Manual, null, "x", h.Time.GetUtcNow()).Value);
         await db.SaveChangesAsync(None);
-        var cache = new MemoryCache(new MemoryCacheOptions());
+        var cache = TestReadCache.Create();
 
         var items = await h.PublicRedirects(cache).GetAsync(None);
         await Add(h, "/later", "/uk/c");

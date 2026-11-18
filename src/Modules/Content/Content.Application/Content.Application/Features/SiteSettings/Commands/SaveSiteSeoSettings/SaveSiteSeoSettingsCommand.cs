@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.SiteSettings;
 using Content.Application.Features.SiteSettings.Shared;
@@ -12,4 +13,7 @@ public sealed record SaveSiteSeoSettingsCommand(
     string? GoogleSiteVerification,
     string? BingSiteVerification,
     int? DefaultOgPhotoId,
-    string UpdatedBy) : ICommand<Result<SiteSeoSettingsResponse>>;
+    string UpdatedBy) : ICommand<Result<SiteSeoSettingsResponse>>, IInvalidatesReadCache
+{
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+}

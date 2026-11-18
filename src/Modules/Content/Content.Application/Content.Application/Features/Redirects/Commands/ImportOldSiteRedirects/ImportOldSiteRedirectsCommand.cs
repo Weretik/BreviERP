@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.Redirects;
 using Content.Application.Features.Redirects.Shared;
@@ -15,8 +16,10 @@ public sealed record ImportOldSiteRedirectsCommand(
     bool DryRun,
     bool Overwrite,
     IReadOnlyList<OldSiteRedirectItem> Items,
-    string UpdatedBy) : ICommand<Result<OldSiteRedirectImportResponse>>
+    string UpdatedBy) : ICommand<Result<OldSiteRedirectImportResponse>>, IInvalidatesReadCache
 {
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+
     public const int MaxItems = 3_000;
     public const int AddressMaxLength = 2_000;
 }

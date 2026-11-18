@@ -1,3 +1,4 @@
+using Content.Application.Features.Catalog.Shared.Snapshot;
 using Content.Application.Features.Catalog.Shared;
 
 namespace Content.Application.Features.Catalog.Queries.GetPublicCatalogTree;

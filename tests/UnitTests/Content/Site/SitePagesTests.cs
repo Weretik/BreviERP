@@ -1,8 +1,8 @@
+using UnitTests.TestSupport;
 using Ardalis.Result;
 using Content.Domain.ProductPages;
 using Content.Domain.SitePages;
 using FluentValidation.TestHelper;
-using Microsoft.Extensions.Caching.Memory;
 using Content.Application.Features.SitePages.Commands.SaveSitePage;
 using Content.Application.Features.SitePages.Queries.GetSitePages;
 using Content.Application.Features.SitePages.Shared;
@@ -74,7 +74,7 @@ public sealed class SitePagesTests
     {
         using var h = new ContentTestHarness();
         await h.SaveSitePage().Handle(Save("contacts", 0, titleRu: "Контакты"), None);
-        var cache = new MemoryCache(new MemoryCacheOptions());
+        var cache = TestReadCache.Create();
 
         var first = await h.PublicSitePages(cache).GetAsync(None);
         await h.SaveSitePage().Handle(Save("contacts", 1, titleUk: null), None);

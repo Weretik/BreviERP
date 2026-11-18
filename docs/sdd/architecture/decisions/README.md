@@ -24,6 +24,7 @@ Keep accepted decisions that change long-term boundaries, contracts, or approach
 | [0018](0018-deploy-on-merge-from-main-repository.md) | Production deploys on every merge to `master` of Weretik/BreviERP | Accepted |
 | [0019](0019-module-graph-without-cycles.md) | The module graph has no cycle: an upstream module declares a port that a downstream module implements | Accepted |
 | [0020](0020-shared-kernel-ids-across-modules.md) | Ids referenced across modules live in the shared kernel `BuildingBlocks.Domain` | Accepted |
+| [0021](0021-read-cache-hybridcache.md) | Cached reads go through one port over HybridCache (memory only), dropped by tag after a command | Accepted |
 
 For a new decision, create `NNNN-short-name.md` and record:
 
@@ -58,5 +59,6 @@ Every backend keeps an accepted ADR for each area below. A full architecture aud
 | Public site and how it reads the backend | 0005 |
 | Public API contract (OpenAPI) | 0015 |
 | Observability (traces, structured logs) | 0017 |
+| Caching | 0021 |
 
 A new decision of this kind (a new module, a new external system, a new way to run work or to deploy) gets an ADR in the same change, and the C4 diagrams are updated with it. Frontend-only decisions live in brevi-web ([workspace ADRs](https://github.com/Weretik/brevi-web/blob/master/docs/architecture/adr/README.md)).

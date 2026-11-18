@@ -1,3 +1,4 @@
+using Content.Application.Features.Catalog.Shared.Snapshot;
 using Content.Application.Features.Catalog.Shared;
 using Content.Application.Features.Catalog.Shared.Links;
 

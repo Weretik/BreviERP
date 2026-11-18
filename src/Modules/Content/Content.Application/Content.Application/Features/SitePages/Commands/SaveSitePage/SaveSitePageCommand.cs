@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.SitePages;
 using Content.Application.Features.SitePages.Shared;
@@ -13,4 +14,7 @@ public sealed record SaveSitePageCommand(
     int Revision,
     SitePageText Uk,
     SitePageText Ru,
-    string UpdatedBy) : ICommand<Result<SitePageResponse>>;
+    string UpdatedBy) : ICommand<Result<SitePageResponse>>, IInvalidatesReadCache
+{
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+}

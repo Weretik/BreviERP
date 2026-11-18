@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.SiteGalleries;
 using Content.Application.Features.SiteGalleries.Shared;
@@ -10,4 +11,7 @@ namespace Content.Application.Features.SiteGalleries.Commands.TransferSiteGaller
 /// <see cref="SiteGalleryFiles.TransferBatch"/> pictures; the Admin repeats it while some are left. A picture already in
 /// the library is not downloaded again.
 /// </summary>
-public sealed record TransferSiteGalleryCommand(string Key, string UpdatedBy) : ICommand<Result<SiteGalleryTransferResponse>>;
+public sealed record TransferSiteGalleryCommand(string Key, string UpdatedBy) : ICommand<Result<SiteGalleryTransferResponse>>, IInvalidatesReadCache
+{
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+}

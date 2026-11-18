@@ -1,6 +1,6 @@
+using UnitTests.TestSupport;
 using Ardalis.Result;
 using FluentValidation.TestHelper;
-using Microsoft.Extensions.Caching.Memory;
 using Content.Application.Features.SiteSettings.Commands.SaveSiteSeoSettings;
 using Content.Application.Features.SiteSettings.Queries.GetSiteSeoSettings;
 using Content.Application.Features.SiteSettings.Shared;
@@ -71,7 +71,7 @@ public sealed class SiteSeoSettingsTests
         using var h = new ContentTestHarness();
         h.AddPhoto(7);
         await h.SaveSeoSettings().Handle(Save(0, bing: "0123456789ABCDEF", photo: 7), None);
-        var cache = new MemoryCache(new MemoryCacheOptions());
+        var cache = TestReadCache.Create();
 
         var first = await h.PublicSiteSettings(cache).GetAsync(None);
         await h.SaveSeoSettings().Handle(Save(1, ga: null), None);

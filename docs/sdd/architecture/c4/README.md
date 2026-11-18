@@ -110,7 +110,7 @@ flowchart LR
         activitylog["<b>ActivityLog</b><br/>«Журнал дій»: who did what"]
     end
 
-    bb["<b>BuildingBlocks</b><br/>Result mapping, Mediator behaviors,<br/>outbox, shared primitives"]
+    bb["<b>BuildingBlocks</b><br/>Result mapping, Mediator behaviors,<br/>outbox, read cache (HybridCache, in memory),<br/>shared primitives"]
     ext["<b>Outside systems</b><br/>KeepinCRM, Google Sheets, Gmail,<br/>OpenAI, Telegram, CDN adm.tools,<br/>Dropbox, supplier sites, Cloud Run"]
 
     host --> sales & make & money & platform

@@ -20,6 +20,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Application\Catalog.Application\Catalog.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Content\Content.Application\Content.Application\Content.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Identity\Identity.Infrastructure\Identity.Infrastructure\Identity.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

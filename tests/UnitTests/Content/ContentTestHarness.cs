@@ -1,3 +1,4 @@
+using Content.Application.Features.Articles.Shared.Public.Snapshot;
 using Content.Application.Abstractions;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
@@ -10,7 +11,8 @@ using Content.Domain.SiteCategories;
 using Content.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using BuildingBlocks.Application.Caching;
+using UnitTests.TestSupport;
 using Microsoft.Extensions.Time.Testing;
 using Content.Application.Features.Articles.Commands.DeleteContentArticle;
 using Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
@@ -231,29 +233,29 @@ internal sealed class ContentTestHarness : IDisposable
     public SaveSiteGalleryHandler SaveGallery() => new(new SqliteContentDb(Open()), Media, Time);
     public TransferSiteGalleryHandler TransferGallery() => new(new SqliteContentDb(Open()), OldSitePhotos, Media, Time);
 
-    public PublicSiteGalleriesSource PublicGalleries(IMemoryCache? cache = null) =>
-        new(new SqliteContentDb(Open()), Media, cache ?? new MemoryCache(new MemoryCacheOptions()));
+    public PublicSiteGalleriesSource PublicGalleries(IReadCache? cache = null) =>
+        new(new SqliteContentDb(Open()), Media, cache ?? TestReadCache.Create());
 
-    public PublicSiteCompanySource PublicCompany(IMemoryCache? cache = null) =>
-        new(new SqliteContentDb(Open()), cache ?? new MemoryCache(new MemoryCacheOptions()));
+    public PublicSiteCompanySource PublicCompany(IReadCache? cache = null) =>
+        new(new SqliteContentDb(Open()), cache ?? TestReadCache.Create());
 
-    public PublicSitePagesSource PublicSitePages(IMemoryCache? cache = null) =>
-        new(new SqliteContentDb(Open()), cache ?? new MemoryCache(new MemoryCacheOptions()));
+    public PublicSitePagesSource PublicSitePages(IReadCache? cache = null) =>
+        new(new SqliteContentDb(Open()), cache ?? TestReadCache.Create());
 
-    public PublicSiteSettingsSource PublicSiteSettings(IMemoryCache? cache = null) =>
-        new(new SqliteContentDb(Open()), Media, cache ?? new MemoryCache(new MemoryCacheOptions()));
+    public PublicSiteSettingsSource PublicSiteSettings(IReadCache? cache = null) =>
+        new(new SqliteContentDb(Open()), Media, cache ?? TestReadCache.Create());
 
     /// <summary>The public redirects as one request sees them; <paramref name="cache"/> is shared to test its lifetime.</summary>
-    public PublicRedirectsSource PublicRedirects(IMemoryCache? cache = null) =>
-        new(new SqliteContentDb(Open()), cache ?? new MemoryCache(new MemoryCacheOptions()));
+    public PublicRedirectsSource PublicRedirects(IReadCache? cache = null) =>
+        new(new SqliteContentDb(Open()), cache ?? TestReadCache.Create());
 
     /// <summary>The public catalog as one request sees it; <paramref name="cache"/> is shared to test its lifetime.</summary>
-    public PublicCatalogSource Site(IMemoryCache? cache = null) =>
-        new(new SqliteContentDb(Open()), Catalog, cache ?? new MemoryCache(new MemoryCacheOptions()));
+    public PublicCatalogSource Site(IReadCache? cache = null) =>
+        new(new SqliteContentDb(Open()), Catalog, cache ?? TestReadCache.Create());
 
     /// <summary>The public articles as one request sees them; <paramref name="cache"/> is shared to test its lifetime.</summary>
-    public PublicArticlesSource PublicArticles(IMemoryCache? cache = null) =>
-        new(new SqliteContentDb(Open()), Media, cache ?? new MemoryCache(new MemoryCacheOptions()));
+    public PublicArticlesSource PublicArticles(IReadCache? cache = null) =>
+        new(new SqliteContentDb(Open()), Media, cache ?? TestReadCache.Create());
 
     public ContentDbContext Open()
     {

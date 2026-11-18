@@ -1,3 +1,4 @@
+using Content.Application;
 using Microsoft.AspNetCore.Routing;
 using UnitTests.TestSupport;
 using Content.Api.DependencyInjection;
@@ -5,7 +6,6 @@ using System.Text.Json;
 using Content.Domain.Articles;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Caching.Memory;
 using Content.Application.Features.Articles.Commands.SaveContentArticle;
 using Content.Application.Features.Articles.Queries.GetPublicArticle;
 using Content.Application.Features.Articles.Queries.GetPublicArticles;
@@ -136,23 +136,23 @@ public sealed class PublicArticlesTests
     }
 
     [Test]
-    public async Task Articles_are_kept_for_a_short_time_so_a_change_reaches_the_site_after_it()
+    public async Task Articles_are_kept_for_a_short_time_and_a_dropped_tag_reads_them_again()
     {
         using var h = Site();
         await Add(h, "persha", new DateOnly(2024, 5, 1));
-        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var cache = TestReadCache.Create();
 
         var before = await h.PublicArticles(cache).GetAsync(None);
         await Add(h, "druha", new DateOnly(2024, 6, 1));
         var kept = await h.PublicArticles(cache).GetAsync(None);
-        cache.Compact(1);
+        await cache.InvalidateAsync(PublicSiteCache.Tag, None);
         var after = await h.PublicArticles(cache).GetAsync(None);
 
         Assert.Multiple(() =>
         {
             Assert.That(kept, Is.SameAs(before));
             Assert.That(after.Articles.Select(x => x.Slug), Is.EqualTo(new[] { "druha", "persha" }));
-            Assert.That(PublicArticlesSource.Lifetime, Is.LessThanOrEqualTo(TimeSpan.FromMinutes(5)));
+            Assert.That(PublicSiteCache.Lifetime, Is.LessThanOrEqualTo(TimeSpan.FromMinutes(5)));
         });
     }
 

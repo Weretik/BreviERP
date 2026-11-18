@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
@@ -21,4 +22,7 @@ public sealed record SaveContentArticleCommand(
     int? CoverPhotoId,
     ArticleTextInput? Uk,
     ArticleTextInput? Ru,
-    string UpdatedBy) : ICommand<Result<ArticleResponse>>;
+    string UpdatedBy) : ICommand<Result<ArticleResponse>>, IInvalidatesReadCache
+{
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+}

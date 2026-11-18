@@ -81,6 +81,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
 | Platform | [003 Transactional outbox](platform/003-transactional-outbox/README.md) | implemented 2026-11-14; Cloud Scheduler job pending |
 | Platform | [004 Request tracing and log correlation](platform/004-request-tracing/README.md) | implemented 2026-11-16; Google Cloud setup by the owner pending |
+| Platform | [005 Read cache (HybridCache)](platform/005-read-cache/README.md) | implemented 2026-11-18 |
 
 When a specification's status changes, update its row here in the same change.
 

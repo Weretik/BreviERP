@@ -2,6 +2,10 @@
 
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\..\BuildingBlocks.Application\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
     </ItemGroup>
 

@@ -1,3 +1,4 @@
+using Content.Application.Features.Articles.Shared.Public.Snapshot;
 using Content.Domain.ProductPages;
 using Content.Application.Features.Articles.Shared;
 using Content.Application.Features.Articles.Shared.Public;

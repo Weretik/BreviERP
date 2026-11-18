@@ -1,31 +1,9 @@
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
-using Content.Domain.SiteCategories;
-using Microsoft.Extensions.Caching.Memory;
+using BuildingBlocks.Application.Caching;
+using Content.Application.Features.Catalog.Shared.Snapshot;
 
 namespace Content.Application.Features.Catalog.Shared;
-
-/// <summary>A product that the site shows: the Catalog product is active and its page is marked «Показувати на сайті».</summary>
-public sealed record PublicCatalogEntry(ContentCatalogProduct Product, ProductPage Page);
-
-/// <param name="Sections">Active sections with at least one product on the site, in the order of the reference.</param>
-/// <param name="Categories">Shown site categories in tree order: a category, then its subcategories.</param>
-public sealed record PublicCatalogSnapshot(
-    IReadOnlyList<PublicCatalogEntry> Products,
-    IReadOnlyList<PublicCatalogSnapshotSection> Sections,
-    IReadOnlyList<PublicCatalogSnapshotCategory> Categories);
-
-/// <param name="Products">
-/// Products on the site in the order of the category; a top-level category also has the products of its shown
-/// subcategories after its own, each once (CNT-003 R-03).
-/// </param>
-/// <param name="OwnProductIds">Products put into this very category.</param>
-public sealed record PublicCatalogSnapshotCategory(
-    SiteCategory Category,
-    IReadOnlyList<PublicCatalogEntry> Products,
-    IReadOnlySet<int> OwnProductIds);
-
-public sealed record PublicCatalogSnapshotSection(int Id, string Type, string Name, string Slug, int ProductCount);
 
 public interface IPublicCatalogSource
 {
@@ -33,25 +11,19 @@ public interface IPublicCatalogSource
 }
 
 /// <summary>
-/// What the public API answers from (CNT-002 R-02, R-09). Building it reads every Catalog product, so it is kept for
-/// <see cref="Lifetime"/>: an anonymous caller cannot make the server rebuild it on every request, and a change made
+/// What the public API answers from (CNT-002 R-02, R-09). Building it reads every Catalog product, so it is read through
+/// <see cref="PublicSiteCache"/>: an anonymous caller cannot make the server rebuild it on every request, and a change made
 /// in the Admin reaches the site within that time.
 /// </summary>
-public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogReader catalog, IMemoryCache cache)
+public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogReader catalog, IReadCache cache)
     : IPublicCatalogSource
 {
-    public static readonly TimeSpan Lifetime = TimeSpan.FromSeconds(60);
-    private const string Key = "content:public-catalog";
+    private static readonly ReadCacheEntry Entry = PublicSiteCache.Entry("public-catalog");
 
     public async Task<PublicCatalogSnapshot> GetAsync(CancellationToken cancellationToken)
-    {
-        if (cache.TryGetValue(Key, out PublicCatalogSnapshot? cached) && cached is not null) return cached;
-        var snapshot = await BuildAsync(cancellationToken);
-        cache.Set(Key, snapshot, Lifetime);
-        return snapshot;
-    }
+        => await cache.GetOrCreateAsync(Entry, BuildAsync, cancellationToken);
 
-    private async Task<PublicCatalogSnapshot> BuildAsync(CancellationToken cancellationToken)
+    private async ValueTask<PublicCatalogSnapshot> BuildAsync(CancellationToken cancellationToken)
     {
         var pages = await db.ProductPages.AsNoTracking().Include(x => x.Texts).Where(x => x.ShowOnSite)
             .ToDictionaryAsync(x => x.ProductId.Value, cancellationToken);
@@ -59,7 +31,7 @@ public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogRea
             ? []
             : (await catalog.GetAllAsync(cancellationToken))
             .Where(x => x.IsActive && pages.ContainsKey(x.Id))
-            .Select(x => new PublicCatalogEntry(x, pages[x.Id]))
+            .Select(x => new PublicCatalogEntry(x, PublicProductPageView.From(pages[x.Id])))
             .ToArray();
         var categories = await CategoriesAsync(products, cancellationToken);
         if (products.Length == 0) return new PublicCatalogSnapshot([], [], categories);
@@ -89,8 +61,9 @@ public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogRea
     private async Task<IReadOnlyList<PublicCatalogSnapshotCategory>> CategoriesAsync(
         IReadOnlyList<PublicCatalogEntry> products, CancellationToken cancellationToken)
     {
-        var shown = await db.SiteCategories.AsNoTracking().Include(x => x.Texts).Where(x => x.ShowOnSite)
-            .OrderBy(x => x.SortOrder).ThenBy(x => x.Id).ToListAsync(cancellationToken);
+        var shown = (await db.SiteCategories.AsNoTracking().Include(x => x.Texts).Where(x => x.ShowOnSite)
+                .OrderBy(x => x.SortOrder).ThenBy(x => x.Id).ToListAsync(cancellationToken))
+            .Select(PublicSiteCategoryView.From).ToList();
         if (shown.Count == 0) return [];
 
         var byProduct = products.ToDictionary(x => x.Product.Id);
@@ -112,7 +85,7 @@ public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogRea
         return result;
     }
 
-    private static PublicCatalogSnapshotCategory Category(SiteCategory category,
+    private static PublicCatalogSnapshotCategory Category(PublicSiteCategoryView category,
         IEnumerable<PublicCatalogEntry> products, IEnumerable<PublicCatalogEntry>? own = null)
     {
         var listed = products.DistinctBy(x => x.Product.Id).ToArray();

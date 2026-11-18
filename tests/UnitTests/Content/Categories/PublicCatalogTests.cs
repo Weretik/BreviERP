@@ -1,3 +1,4 @@
+using Content.Application;
 using Microsoft.AspNetCore.Routing;
 using UnitTests.TestSupport;
 using Content.Api.DependencyInjection;
@@ -6,7 +7,6 @@ using Ardalis.Result;
 using Content.Application.Abstractions;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Caching.Memory;
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategories;
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategory;
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogProduct;
@@ -220,18 +220,18 @@ public sealed class PublicCatalogTests
     }
 
     [Test]
-    public async Task Catalog_is_kept_for_a_short_time_so_a_change_reaches_the_site_after_it()
+    public async Task Catalog_is_kept_for_a_short_time_and_a_dropped_tag_reads_it_again()
     {
         using var h = Site();
         h.AddSewing();
         await ShowAsync(h, 1, "kostyum-lider");
-        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var cache = TestReadCache.Create();
 
         var before = await h.Site(cache).GetAsync(None);
         h.AddSewing(2, "Куртка Зима", "MOD-002");
         await ShowAsync(h, 2, "kurtka-zyma");
         var kept = await h.Site(cache).GetAsync(None);
-        cache.Compact(1);
+        await cache.InvalidateAsync(PublicSiteCache.Tag, None);
         var after = await h.Site(cache).GetAsync(None);
 
         Assert.Multiple(() =>
@@ -239,7 +239,7 @@ public sealed class PublicCatalogTests
             Assert.That(before.Products, Has.Count.EqualTo(1));
             Assert.That(kept, Is.SameAs(before));
             Assert.That(after.Products, Has.Count.EqualTo(2));
-            Assert.That(PublicCatalogSource.Lifetime, Is.LessThanOrEqualTo(TimeSpan.FromMinutes(5)));
+            Assert.That(PublicSiteCache.Lifetime, Is.LessThanOrEqualTo(TimeSpan.FromMinutes(5)));
         });
     }
 
