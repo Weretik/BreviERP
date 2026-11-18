@@ -25,7 +25,7 @@ src/Modules/Content/
       Commands/ImportOldSiteProductPages/  # one-time transfer: link matching, dry run, overwrite
       Shared/                              # responses, mapping, free slug, messages
     Features/Catalog/                      # public catalog: Queries/GetPublicCatalog{Tree,Categories,Category,CategorySlugs,Products,Product,ProductSlugs};
-                                           # Shared/ snapshot of what the site shows (kept for a minute), cards, addresses
+                                           # Shared/ snapshot of what the site shows (kept for a minute; `Snapshot/` read models, no entities), cards, addresses
   Content.Infrastructure/Content.Infrastructure/
     Persistence/       # ContentDbContext (schema content), configurations (jsonb lists), migrations
     DependencyInjection/

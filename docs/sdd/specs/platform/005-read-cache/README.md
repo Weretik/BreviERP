@@ -20,7 +20,7 @@ All eight were already cached with `IMemoryCache`; this spec moves them onto the
 ## Rules
 
 - R-01 Caching only through `IReadCache`; only `BuildingBlocks.Infrastructure/Caching` uses `HybridCache`, `IMemoryCache` or `IDistributedCache`.
-- R-02 A cached value is a sealed read snapshot with `[ImmutableObject(true)]`, never tracked, never handed to a command.
+- R-02 A cached value is a sealed read model with `[ImmutableObject(true)]`, never tracked, never handed to a command, and never holds a domain entity or aggregate; only immutable domain values (records, enums, typed ids) may appear in it, as in responses (`ArchitectureTests/Caching/CachedReadModelTests`).
 - R-03 Every cached read has a `ReadCacheEntry` (name, key, tag, lifetime).
 - R-04 Every Content command implements `IInvalidatesReadCache` with `PublicSiteCache.Tag`; the behavior drops it only after success.
 - R-05 Saving or deleting access rights drops `identity:role-access`.
@@ -53,8 +53,8 @@ All eight were already cached with `IMemoryCache`; this spec moves them onto the
 
 - Unit: [HybridReadCacheTests](../../../../../tests/UnitTests/Platform/Caching/HybridReadCacheTests.cs) (SC-01, R-07), [ReadCacheInvalidationBehaviorTests](../../../../../tests/UnitTests/Platform/Caching/ReadCacheInvalidationBehaviorTests.cs) (SC-03), Content public source tests (`UnitTests.Content`, SC-02).
 - Architecture: [ReadCacheLibraryTests](../../../../../tests/ArchitectureTests/Caching/ReadCacheLibraryTests.cs) (R-01), [ContentCacheInvalidationTests](../../../../../tests/ArchitectureTests/Caching/ContentCacheInvalidationTests.cs) (R-04).
-- 2026-11-18: `UnitTests` (Content, Identity, Platform.Caching: 205 passed), `ArchitectureTests` (130 passed), `HostApiTests` Access and endpoint inventory (27 passed); the OpenAPI contract is unchanged.
+- 2026-11-18: `UnitTests` (Content, Identity, Platform.Caching: 205 passed), `ArchitectureTests` (132 passed, with `CachedReadModelTests`), `HostApiTests` Access and endpoint inventory (27 passed); the OpenAPI contract is unchanged.
 
 ## Open items
 
-- The catalog and article snapshots hold untracked Content entities (`ProductPage`, `SiteCategory`, `Article`) instead of read models, as before this spec. Public reads should not go through aggregates (CQRS rule) and an L2 cannot serialize them; turning them into read models is proposed as the next change.
+- None. The catalog and article snapshots held untracked Content entities (`ProductPage`, `SiteCategory`, `Article`) before this spec; on owner review the same day (2026-11-18) they became read models (`PublicProductPageView`, `PublicSiteCategoryView`, `PublicArticleView` in the `Snapshot/` folders), and `CachedReadModelTests` keeps entities out of every cached type.

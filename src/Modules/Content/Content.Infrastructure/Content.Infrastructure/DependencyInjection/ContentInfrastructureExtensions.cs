@@ -1,3 +1,5 @@
+using Content.Application.Features.Articles.Shared.Public.Snapshot;
+using Content.Application.Features.Catalog.Shared.Snapshot;
 using BuildingBlocks.Infrastructure.Caching;
 using Content.Infrastructure.Adapters.Catalog;
 using Content.Infrastructure.Adapters.Media;

@@ -1,6 +1,6 @@
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
-using Content.Domain.SiteCategories;
+using Content.Application.Features.Catalog.Shared.Snapshot;
 using Content.Application.Features.ProductPages.Shared;
 using Content.Application.Features.Catalog.Shared.Links;
 using Content.Application.Features.Catalog.Shared.Products;
@@ -15,7 +15,7 @@ internal static class PublicCatalogMapping
     /// The texts for a language: its own when the language has a name or texts, otherwise the Ukrainian ones. Null
     /// when the page has no texts at all.
     /// </summary>
-    public static ProductPageText? TextFor(ProductPage page, string language)
+    public static PublicProductPageText? TextFor(PublicProductPageView page, string language)
     {
         var own = page.TextIn(language);
         return own is { IsEmpty: false } && (own.Name is not null || own.HasText)
@@ -23,7 +23,7 @@ internal static class PublicCatalogMapping
             : page.TextIn(ProductPageRules.Ukrainian);
     }
 
-    public static bool HasRussian(ProductPage page) =>
+    public static bool HasRussian(PublicProductPageView page) =>
         TextFor(page, ProductPageRules.Russian)?.Language == ProductPageRules.Russian;
 
     public static string Name(PublicCatalogEntry entry, string language) =>
@@ -50,7 +50,7 @@ internal static class PublicCatalogMapping
             .Select(x => x.FabricName!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 
     /// <summary>The texts of a category for a language, with the same fallback as a product page.</summary>
-    public static SiteCategoryText? TextFor(SiteCategory category, string language)
+    public static PublicSiteCategoryText? TextFor(PublicSiteCategoryView category, string language)
     {
         var own = category.TextIn(language);
         return own is not null && (own.Name is not null || own.Text.Count > 0)
@@ -58,15 +58,15 @@ internal static class PublicCatalogMapping
             : category.TextIn(ProductPageRules.Ukrainian);
     }
 
-    public static bool HasRussian(SiteCategory category) =>
+    public static bool HasRussian(PublicSiteCategoryView category) =>
         TextFor(category, ProductPageRules.Russian)?.Language == ProductPageRules.Russian;
 
-    public static string Name(SiteCategory category, string language) =>
+    public static string Name(PublicSiteCategoryView category, string language) =>
         TextFor(category, language)?.Name
         ?? category.TextIn(ProductPageRules.Ukrainian)?.Name
         ?? category.Slug;
 
-    public static PublicCatalogCategoryLink Link(SiteCategory category, string language) =>
+    public static PublicCatalogCategoryLink Link(PublicSiteCategoryView category, string language) =>
         new(category.Slug, Name(category, language));
 
     /// <summary>Shown categories the product was put into, in tree order, each with its top-level category.</summary>

@@ -1,5 +1,6 @@
 using Content.Application.Abstractions;
 using Content.Domain.Articles;
+using Content.Application.Features.Articles.Shared.Public.Snapshot;
 using Content.Domain.ProductPages;
 
 namespace Content.Application.Features.Articles.Shared.Public;
@@ -10,16 +11,16 @@ internal static class PublicArticleMapping
     /// The text for a language: its own when it has a title and a body, otherwise the Ukrainian one, which every
     /// article has (its title is required).
     /// </summary>
-    public static ArticleText TextFor(Article article, string language)
+    public static PublicArticleText TextFor(PublicArticleView article, string language)
     {
         var own = article.TextIn(language);
         return own is { Title: not null, Body.Count: > 0 } ? own : article.TextIn(ProductPageRules.Ukrainian)!;
     }
 
-    public static bool HasRussian(Article article) =>
+    public static bool HasRussian(PublicArticleView article) =>
         TextFor(article, ProductPageRules.Russian).Language == ProductPageRules.Russian;
 
-    public static PublicArticleCard Card(Article article, string language,
+    public static PublicArticleCard Card(PublicArticleView article, string language,
         IReadOnlyDictionary<int, ContentMediaPhoto> photos)
     {
         var text = TextFor(article, language);
@@ -27,7 +28,7 @@ internal static class PublicArticleMapping
             Cover(article, photos), HasRussian(article), article.UpdatedAtUtc);
     }
 
-    public static PublicArticle Page(Article article, string language,
+    public static PublicArticle Page(PublicArticleView article, string language,
         IReadOnlyDictionary<int, ContentMediaPhoto> photos)
     {
         var text = TextFor(article, language);
@@ -37,7 +38,7 @@ internal static class PublicArticleMapping
             article.UpdatedAtUtc);
     }
 
-    private static PublicArticlePhoto? Cover(Article article, IReadOnlyDictionary<int, ContentMediaPhoto> photos) =>
+    private static PublicArticlePhoto? Cover(PublicArticleView article, IReadOnlyDictionary<int, ContentMediaPhoto> photos) =>
         article.CoverPhotoId is { } id ? Photo(photos.GetValueOrDefault(id.Value)) : null;
 
     /// <summary>A block as the site shows it; an image whose photo the library no longer has is left out.</summary>

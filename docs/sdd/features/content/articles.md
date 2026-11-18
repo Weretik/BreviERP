@@ -24,7 +24,7 @@ src/Modules/Content/
       Commands/DeleteContentArticle/
       Commands/ImportOldSiteArticles/  # old-site transfer: file shape, allowed picture addresses, handler
       Queries/GetPublicArticles/, GetPublicArticle/  # public list and page, language fallback
-      Shared/                          # responses, mapping, free slug, photo read, messages, public source kept for a minute
+      Shared/                          # responses, mapping, free slug, photo read, messages, public source kept for a minute (`Public/Snapshot/`: `PublicArticleView` read model, no entity)
   Content.Infrastructure/Content.Infrastructure/
     Persistence/Configurations/Pages/ArticleConfiguration.cs
   Content.Api/Content.Api/

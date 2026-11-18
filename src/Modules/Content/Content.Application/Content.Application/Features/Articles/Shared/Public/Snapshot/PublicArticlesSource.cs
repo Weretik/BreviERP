@@ -2,13 +2,13 @@ using Content.Application.Abstractions;
 using Content.Domain.Articles;
 using BuildingBlocks.Application.Caching;
 
-namespace Content.Application.Features.Articles.Shared.Public;
+namespace Content.Application.Features.Articles.Shared.Public.Snapshot;
 
 /// <param name="Articles">Articles marked «Показувати на сайті», the newest first.</param>
 /// <param name="Photos">Library photos the articles use; a photo deleted from the library is missing.</param>
 [System.ComponentModel.ImmutableObject(true)]
 public sealed record PublicArticlesSnapshot(
-    IReadOnlyList<Article> Articles,
+    IReadOnlyList<PublicArticleView> Articles,
     IReadOnlyDictionary<int, ContentMediaPhoto> Photos);
 
 public interface IPublicArticlesSource
@@ -33,10 +33,11 @@ public sealed class PublicArticlesSource(IContentDbContext db, IContentMediaRead
     {
         var articles = await db.Articles.AsNoTracking().Include(x => x.Texts).Where(x => x.ShowOnSite)
             .OrderByDescending(x => x.PublishedOn).ThenByDescending(x => x.Id).ToListAsync(cancellationToken);
-        var ids = articles.SelectMany(x => x.PhotoIds()).Distinct().ToArray();
+        var views = articles.Select(PublicArticleView.From).ToArray();
+        var ids = views.SelectMany(x => x.PhotoIds).Distinct().ToArray();
         var photos = ids.Length == 0
             ? new Dictionary<int, ContentMediaPhoto>()
             : (await media.GetAsync(ids, cancellationToken)).ToDictionary(x => x.Id);
-        return new PublicArticlesSnapshot(articles, photos);
+        return new PublicArticlesSnapshot(views, photos);
     }
 }

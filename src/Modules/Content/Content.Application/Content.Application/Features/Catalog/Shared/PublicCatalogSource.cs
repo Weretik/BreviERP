@@ -1,32 +1,9 @@
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
-using Content.Domain.SiteCategories;
 using BuildingBlocks.Application.Caching;
+using Content.Application.Features.Catalog.Shared.Snapshot;
 
 namespace Content.Application.Features.Catalog.Shared;
-
-/// <summary>A product that the site shows: the Catalog product is active and its page is marked «Показувати на сайті».</summary>
-public sealed record PublicCatalogEntry(ContentCatalogProduct Product, ProductPage Page);
-
-/// <param name="Sections">Active sections with at least one product on the site, in the order of the reference.</param>
-/// <param name="Categories">Shown site categories in tree order: a category, then its subcategories.</param>
-[System.ComponentModel.ImmutableObject(true)]
-public sealed record PublicCatalogSnapshot(
-    IReadOnlyList<PublicCatalogEntry> Products,
-    IReadOnlyList<PublicCatalogSnapshotSection> Sections,
-    IReadOnlyList<PublicCatalogSnapshotCategory> Categories);
-
-/// <param name="Products">
-/// Products on the site in the order of the category; a top-level category also has the products of its shown
-/// subcategories after its own, each once (CNT-003 R-03).
-/// </param>
-/// <param name="OwnProductIds">Products put into this very category.</param>
-public sealed record PublicCatalogSnapshotCategory(
-    SiteCategory Category,
-    IReadOnlyList<PublicCatalogEntry> Products,
-    IReadOnlySet<int> OwnProductIds);
-
-public sealed record PublicCatalogSnapshotSection(int Id, string Type, string Name, string Slug, int ProductCount);
 
 public interface IPublicCatalogSource
 {
@@ -54,7 +31,7 @@ public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogRea
             ? []
             : (await catalog.GetAllAsync(cancellationToken))
             .Where(x => x.IsActive && pages.ContainsKey(x.Id))
-            .Select(x => new PublicCatalogEntry(x, pages[x.Id]))
+            .Select(x => new PublicCatalogEntry(x, PublicProductPageView.From(pages[x.Id])))
             .ToArray();
         var categories = await CategoriesAsync(products, cancellationToken);
         if (products.Length == 0) return new PublicCatalogSnapshot([], [], categories);
@@ -84,8 +61,9 @@ public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogRea
     private async Task<IReadOnlyList<PublicCatalogSnapshotCategory>> CategoriesAsync(
         IReadOnlyList<PublicCatalogEntry> products, CancellationToken cancellationToken)
     {
-        var shown = await db.SiteCategories.AsNoTracking().Include(x => x.Texts).Where(x => x.ShowOnSite)
-            .OrderBy(x => x.SortOrder).ThenBy(x => x.Id).ToListAsync(cancellationToken);
+        var shown = (await db.SiteCategories.AsNoTracking().Include(x => x.Texts).Where(x => x.ShowOnSite)
+                .OrderBy(x => x.SortOrder).ThenBy(x => x.Id).ToListAsync(cancellationToken))
+            .Select(PublicSiteCategoryView.From).ToList();
         if (shown.Count == 0) return [];
 
         var byProduct = products.ToDictionary(x => x.Product.Id);
@@ -107,7 +85,7 @@ public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogRea
         return result;
     }
 
-    private static PublicCatalogSnapshotCategory Category(SiteCategory category,
+    private static PublicCatalogSnapshotCategory Category(PublicSiteCategoryView category,
         IEnumerable<PublicCatalogEntry> products, IEnumerable<PublicCatalogEntry>? own = null)
     {
         var listed = products.DistinctBy(x => x.Product.Id).ToArray();

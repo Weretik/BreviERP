@@ -1,3 +1,4 @@
+using Content.Application.Features.Catalog.Shared.Snapshot;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.Catalog.Shared;

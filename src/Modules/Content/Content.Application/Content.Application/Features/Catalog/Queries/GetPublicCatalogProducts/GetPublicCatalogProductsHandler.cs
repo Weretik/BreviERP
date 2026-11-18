@@ -1,3 +1,4 @@
+using Content.Application.Features.Catalog.Shared.Snapshot;
 using Content.Domain.ProductPages;
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogTree;
 using Content.Application.Features.Catalog.Shared;

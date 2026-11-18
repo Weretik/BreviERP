@@ -21,7 +21,7 @@ The API runs on Cloud Run, which may start several instances; `Host.Seed` jobs r
 - One port `IReadCache` in `BuildingBlocks.Application/Caching` (`GetOrCreateAsync(ReadCacheEntry, read)`, `InvalidateAsync(tag)`). `ReadCacheEntry` (`readonly record struct`, built by `Create`) carries a stable name, the key, one tag and the lifetime.
 - One adapter `HybridReadCache` in `BuildingBlocks.Infrastructure/Caching` over .NET `HybridCache` (`Microsoft.Extensions.Caching.Hybrid`): one read per missing key (stampede protection), tags, and the tag `cache.<name> = hit | miss` on the request span in Cloud Trace. `AddReadCache()` registers it; Content and Identity Infrastructure call it (it is safe to call twice).
 - **L1 only.** No `IDistributedCache` is registered. Adding an L2 later is one host registration (for example `AddStackExchangeRedisCache`); no query or command changes.
-- **Queries cache, commands drop.** A cached value is a sealed, immutable read snapshot marked `[ImmutableObject(true)]`, so HybridCache hands out the same instance. A command whose data a cached read shows implements `IInvalidatesReadCache`; `ReadCacheInvalidationBehavior` drops its tags after success. A write outside Mediator (`AccessRightsService`) calls `InvalidateAsync`.
+- **Queries cache, commands drop.** A cached value is a sealed, immutable read snapshot marked `[ImmutableObject(true)]`, so HybridCache hands out the same instance; it holds read models only, never a domain entity (CQRS). A command whose data a cached read shows implements `IInvalidatesReadCache`; `ReadCacheInvalidationBehavior` drops its tags after success. A write outside Mediator (`AccessRightsService`) calls `InvalidateAsync`.
 - **Content:** all seven public sources share the tag `content:public-site` and 60 seconds (`PublicSiteCache`); every Content command drops that tag (an architecture test checks each one).
 - **Identity:** saved access rights, tag `identity:role-access`, 30 seconds, dropped by a save or a role delete.
 - Only `BuildingBlocks.Infrastructure/Caching` may use `HybridCache`, `IMemoryCache` or `IDistributedCache` (`ReadCacheLibraryTests`).
@@ -29,7 +29,7 @@ The API runs on Cloud Run, which may start several instances; `Host.Seed` jobs r
 ## Consequences
 
 - Invalidation is local: the instance that ran the command drops the tag at once; other instances, `Host.Seed` imports, and Catalog changes behind the public catalog show after the lifetime. Lifetimes stay short; money, stock, orders and pricing inputs are never cached.
-- The Content catalog and article snapshots still hold untracked Content entities (`ProductPage`, `SiteCategory`, `Article`) as they did before; they must become plain read models before an L2 is added, because an L2 serializes them ([PLT-005](../../specs/platform/005-read-cache/README.md#open-items)).
+- A cached value never holds a domain entity: the Content catalog and article snapshots carry read models (`PublicProductPageView`, `PublicSiteCategoryView`, `PublicArticleView`), so an L2 can serialize them; `CachedReadModelTests` fails when an entity or aggregate is reachable from any `[ImmutableObject(true)]` type.
 - A new cached read records in its spec why it is worth caching, its lifetime, its tag and the commands that drop it.
 
 ## Sources and checks
