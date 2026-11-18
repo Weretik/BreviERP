@@ -66,6 +66,10 @@ A use case that writes data and also has an external side effect (1C or another 
 
 **BreviERP today:** shared outbox in `BuildingBlocks.Application/Outbox` and `BuildingBlocks.Infrastructure/Outbox` (`modelBuilder.AddOutbox()`, `AddOutbox<TContext>()`, `AddOutboxHandler<T>()`; a row that gives up is reported once through every `IOutboxFailureNotifier`, today a Telegram post from Reminders), endpoint in `BuildingBlocks.Api/Outbox` ([PLT-003](../specs/platform/003-transactional-outbox/README.md), [runbook](../operations/jobs/outbox.md)). Consumers: site request Telegram post (Crm), «Надіслати в цех» (Production), «Параметри ціноутворення» → Catalog (Reference). Left outside on purpose, with the reason in PLT-003: `SendQuote` (Gmail, the manager waits for the answer), CDN uploads (the caller needs the URL), test messages, and scheduled runs that re-read their source (reminders, `brevierp-sync`).
 
+## Caching reads
+
+Cache a read only when it is expensive or needed on every request, the same for every caller, and may be a little stale; write why, its lifetime, its tag and the commands that drop it into its spec ([ADR-0021](../architecture/decisions/0021-read-cache-hybridcache.md), [read cache](../features/platform/read-cache.md)). Use the `IReadCache` port with a `ReadCacheEntry`; never `IMemoryCache`, `IDistributedCache` or `HybridCache` outside `BuildingBlocks.Infrastructure/Caching` (`ArchitectureTests/Caching`). Cache only sealed immutable snapshots marked `[ImmutableObject(true)]`; never money, stock, orders, prices or pricing inputs. A command that changes cached data implements `IInvalidatesReadCache`; every Content command drops `PublicSiteCache.Tag`. Invalidation reaches only the instance that ran the command, so lifetimes stay short.
+
 ## Communication between modules
 
 A module never reads another module's database, entities, `DbContext`, repositories, handlers, or Domain types. It uses only the other module's `Contracts` project.

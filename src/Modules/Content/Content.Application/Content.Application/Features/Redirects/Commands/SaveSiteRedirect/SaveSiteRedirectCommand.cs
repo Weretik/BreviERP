@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.Redirects;
 using Content.Application.Features.Redirects.Shared;
@@ -9,4 +10,7 @@ namespace Content.Application.Features.Redirects.Commands.SaveSiteRedirect;
 /// links; they are normalized. A redirect edited by staff becomes <see cref="SiteRedirectSource.Manual"/>.
 /// </summary>
 public sealed record SaveSiteRedirectCommand(int? Id, string? FromPath, string? ToPath, string? Note, string UpdatedBy)
-    : ICommand<Result<SiteRedirectResponse>>;
+    : ICommand<Result<SiteRedirectResponse>>, IInvalidatesReadCache
+{
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+}

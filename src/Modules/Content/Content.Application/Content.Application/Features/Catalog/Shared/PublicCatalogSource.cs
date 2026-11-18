@@ -1,7 +1,7 @@
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
-using Microsoft.Extensions.Caching.Memory;
+using BuildingBlocks.Application.Caching;
 
 namespace Content.Application.Features.Catalog.Shared;
 
@@ -10,6 +10,7 @@ public sealed record PublicCatalogEntry(ContentCatalogProduct Product, ProductPa
 
 /// <param name="Sections">Active sections with at least one product on the site, in the order of the reference.</param>
 /// <param name="Categories">Shown site categories in tree order: a category, then its subcategories.</param>
+[System.ComponentModel.ImmutableObject(true)]
 public sealed record PublicCatalogSnapshot(
     IReadOnlyList<PublicCatalogEntry> Products,
     IReadOnlyList<PublicCatalogSnapshotSection> Sections,
@@ -33,25 +34,19 @@ public interface IPublicCatalogSource
 }
 
 /// <summary>
-/// What the public API answers from (CNT-002 R-02, R-09). Building it reads every Catalog product, so it is kept for
-/// <see cref="Lifetime"/>: an anonymous caller cannot make the server rebuild it on every request, and a change made
+/// What the public API answers from (CNT-002 R-02, R-09). Building it reads every Catalog product, so it is read through
+/// <see cref="PublicSiteCache"/>: an anonymous caller cannot make the server rebuild it on every request, and a change made
 /// in the Admin reaches the site within that time.
 /// </summary>
-public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogReader catalog, IMemoryCache cache)
+public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogReader catalog, IReadCache cache)
     : IPublicCatalogSource
 {
-    public static readonly TimeSpan Lifetime = TimeSpan.FromSeconds(60);
-    private const string Key = "content:public-catalog";
+    private static readonly ReadCacheEntry Entry = PublicSiteCache.Entry("public-catalog");
 
     public async Task<PublicCatalogSnapshot> GetAsync(CancellationToken cancellationToken)
-    {
-        if (cache.TryGetValue(Key, out PublicCatalogSnapshot? cached) && cached is not null) return cached;
-        var snapshot = await BuildAsync(cancellationToken);
-        cache.Set(Key, snapshot, Lifetime);
-        return snapshot;
-    }
+        => await cache.GetOrCreateAsync(Entry, BuildAsync, cancellationToken);
 
-    private async Task<PublicCatalogSnapshot> BuildAsync(CancellationToken cancellationToken)
+    private async ValueTask<PublicCatalogSnapshot> BuildAsync(CancellationToken cancellationToken)
     {
         var pages = await db.ProductPages.AsNoTracking().Include(x => x.Texts).Where(x => x.ShowOnSite)
             .ToDictionaryAsync(x => x.ProductId, cancellationToken);

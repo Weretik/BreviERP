@@ -1,18 +1,20 @@
 using Identity.Application.Security.Access;
 using Identity.Domain.Authorization;
-using Microsoft.Extensions.Caching.Memory;
+using System.ComponentModel;
+using BuildingBlocks.Application.Caching;
 using Identity.Infrastructure.Persistence;
 
 namespace Identity.Infrastructure.Integrations.AspNetIdentity.Access;
 
 /// <summary>
-/// Rights from <c>identity.role_access</c>, kept in memory for a short while: a save on this instance drops them at
-/// once, other instances see it within <see cref="CacheFor"/>.
+/// Rights from <c>identity.role_access</c>, read on every admin request, so kept in the read cache (ADR-0021): a save on
+/// this instance drops <see cref="CacheTag"/> at once, other instances see it within 30 seconds.
 /// </summary>
-public sealed class AccessGrantSource(AppIdentityDbContext dbContext, IMemoryCache cache) : IAccessGrantSource
+public sealed class AccessGrantSource(AppIdentityDbContext dbContext, IReadCache cache) : IAccessGrantSource
 {
-    internal const string CacheKey = "identity:role-access";
-    private static readonly TimeSpan CacheFor = TimeSpan.FromSeconds(30);
+    internal const string CacheTag = "identity:role-access";
+    private static readonly ReadCacheEntry Entry =
+        ReadCacheEntry.Create("identity.role-access", CacheTag, TimeSpan.FromSeconds(30));
 
     public async Task<IReadOnlyDictionary<string, AccessAction>> GrantsOfAsync(
         IReadOnlyCollection<string> roles,
@@ -27,21 +29,21 @@ public sealed class AccessGrantSource(AppIdentityDbContext dbContext, IMemoryCac
     /// <summary>Saved rights by role name.</summary>
     internal async Task<IReadOnlyDictionary<string, IReadOnlyDictionary<string, AccessAction>>> SavedAsync(
         CancellationToken cancellationToken)
-    {
-        if (cache.TryGetValue(CacheKey, out IReadOnlyDictionary<string, IReadOnlyDictionary<string, AccessAction>>? cached)
-            && cached is not null)
-        {
-            return cached;
-        }
+        => (await cache.GetOrCreateAsync(Entry, ReadSavedAsync, cancellationToken)).ByRole;
 
+    private async ValueTask<SavedRoleAccess> ReadSavedAsync(CancellationToken cancellationToken)
+    {
         var rows = await dbContext.RoleAccess.AsNoTracking()
             .Select(x => new { x.Role.Name, x.Grants })
             .ToListAsync(cancellationToken);
         var saved = rows.Where(x => x.Name is not null)
             .ToDictionary(x => x.Name!, x => Parse(x.Grants, x.Name!), StringComparer.Ordinal);
-        cache.Set(CacheKey, (IReadOnlyDictionary<string, IReadOnlyDictionary<string, AccessAction>>)saved, CacheFor);
-        return saved;
+        return new SavedRoleAccess(saved);
     }
+
+    /// <summary>The cached rights by role name; built once and never changed.</summary>
+    [ImmutableObject(true)]
+    private sealed record SavedRoleAccess(IReadOnlyDictionary<string, IReadOnlyDictionary<string, AccessAction>> ByRole);
 
     /// <summary>
     /// Reads stored JSON of <paramref name="role"/>; pages the catalogue no longer has and actions a page lacks are dropped.

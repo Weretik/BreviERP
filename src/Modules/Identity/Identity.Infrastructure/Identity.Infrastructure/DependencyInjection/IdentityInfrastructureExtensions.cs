@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Caching;
 using ActivityLog.Contracts.Actors;
 using Identity.Infrastructure.Adapters.ActivityLog;
 using Identity.Application.Security.Access;
@@ -31,7 +32,7 @@ public static class IdentityInfrastructureExtensions
         services.AddScoped<IStaffAccountService, StaffAccountService>();
         services.AddScoped<IProfileService, ProfileService>();
         // «Права доступу»: replaces the defaults-only source Host.Api registers for its authorization handler.
-        services.AddMemoryCache();
+        services.AddReadCache();
         services.AddScoped<IAccessGrantSource, AccessGrantSource>();
         services.AddScoped<IAccessRightsService, AccessRightsService>();
         services.AddSingleton<AvatarImageProcessor>();

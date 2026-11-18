@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.Articles.Shared;
@@ -16,8 +17,10 @@ public sealed record ImportOldSiteProductPagesCommand(
     bool ShowOnSite,
     bool Overwrite,
     IReadOnlyList<OldSiteProductPage> Items,
-    string UpdatedBy) : ICommand<Result<OldSiteImportResponse>>
+    string UpdatedBy) : ICommand<Result<OldSiteImportResponse>>, IInvalidatesReadCache
 {
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+
     public const int MaxItems = 500;
     public const int UrlMaxLength = 500;
 }

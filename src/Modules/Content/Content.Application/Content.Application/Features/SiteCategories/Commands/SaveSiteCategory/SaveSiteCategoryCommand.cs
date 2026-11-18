@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
@@ -19,4 +20,7 @@ public sealed record SaveSiteCategoryCommand(
     bool ShowOnSite,
     SiteCategoryTextInput? Uk,
     SiteCategoryTextInput? Ru,
-    string UpdatedBy) : ICommand<Result<SiteCategoryResponse>>;
+    string UpdatedBy) : ICommand<Result<SiteCategoryResponse>>, IInvalidatesReadCache
+{
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+}

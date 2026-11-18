@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.ProductPages.Shared;
@@ -9,4 +10,7 @@ namespace Content.Application.Features.ProductPages.Commands.SetContentProductVi
 /// built from its name.
 /// </summary>
 public sealed record SetContentProductVisibilityCommand(int ProductId, bool ShowOnSite, string UpdatedBy)
-    : ICommand<Result<ContentProductVisibilityResponse>>;
+    : ICommand<Result<ContentProductVisibilityResponse>>, IInvalidatesReadCache
+{
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+}

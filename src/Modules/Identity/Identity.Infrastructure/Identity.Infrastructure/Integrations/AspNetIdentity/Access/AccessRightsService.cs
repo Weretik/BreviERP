@@ -2,7 +2,7 @@ using Ardalis.Result;
 using Identity.Application.Features.Access.Shared;
 using Identity.Application.Security.Access;
 using Identity.Domain.Authorization;
-using Microsoft.Extensions.Caching.Memory;
+using BuildingBlocks.Application.Caching;
 using Identity.Application.Abstractions;
 using Identity.Infrastructure.Persistence;
 using Identity.Domain.Authorization.Roles;
@@ -21,7 +21,7 @@ public sealed class AccessRightsService(
     UserManager<AppUser> userManager,
     IHttpContextAccessor httpContextAccessor,
     IAccessGrantSource grantSource,
-    IMemoryCache cache,
+    IReadCache cache,
     ILogger<AccessRightsService> logger) : IAccessRightsService
 {
     public const string StaleMessage = "Someone else changed this role's rights. Reload the page.";
@@ -89,7 +89,7 @@ public sealed class AccessRightsService(
             return Result.Conflict(StaleMessage);
         }
 
-        cache.Remove(AccessGrantSource.CacheKey);
+        await cache.InvalidateAsync(AccessGrantSource.CacheTag, CancellationToken.None);
         logger.LogInformation("AUDIT: Access rights of role {Role} saved (version {Version}) by {Actor}", role, row.Version, row.UpdatedByName);
         var counts = await UserCountsAsync([appRole.Name!], cancellationToken);
         return Result.Success(ToDto(appRole, counts.GetValueOrDefault(appRole.Name!), row));
@@ -145,7 +145,7 @@ public sealed class AccessRightsService(
             return Result.Invalid(deleted.Errors.Select(x => new ValidationError(x.Description)).ToList());
         }
 
-        cache.Remove(AccessGrantSource.CacheKey);
+        await cache.InvalidateAsync(AccessGrantSource.CacheTag, CancellationToken.None);
         logger.LogInformation("AUDIT: Role {Role} «{Title}» deleted by {Actor}", role, appRole.Description, await ActorNameAsync());
         return Result.Success();
     }

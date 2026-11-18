@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.SiteCompany;
 using Content.Domain.SiteGalleries;
@@ -14,4 +15,7 @@ public sealed record SaveSiteGalleryCommand(
     string Key,
     int Revision,
     IReadOnlyList<SiteGalleryItemInput> Items,
-    string UpdatedBy) : ICommand<Result<SiteGalleryResponse>>;
+    string UpdatedBy) : ICommand<Result<SiteGalleryResponse>>, IInvalidatesReadCache
+{
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+}

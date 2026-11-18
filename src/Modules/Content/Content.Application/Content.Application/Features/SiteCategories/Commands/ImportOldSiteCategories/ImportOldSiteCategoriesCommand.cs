@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
@@ -20,8 +21,10 @@ public sealed record ImportOldSiteCategoriesCommand(
     bool ShowOnSite,
     bool Overwrite,
     IReadOnlyList<OldSiteCategory> Items,
-    string UpdatedBy) : ICommand<Result<OldSiteCategoryImportResponse>>
+    string UpdatedBy) : ICommand<Result<OldSiteCategoryImportResponse>>, IInvalidatesReadCache
 {
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+
     public const int MaxItems = 300;
     public const int MaxProducts = 1_000;
     public const int UrlMaxLength = 500;

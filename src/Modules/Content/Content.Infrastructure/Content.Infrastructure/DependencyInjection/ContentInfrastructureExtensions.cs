@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Caching;
 using Content.Infrastructure.Adapters.Catalog;
 using Content.Infrastructure.Adapters.Media;
 using Content.Application.Abstractions;
@@ -30,7 +31,7 @@ public static class ContentInfrastructureExtensions
             x => x.MigrationsHistoryTable("__EFMigrationsHistory", ContentDbContext.Schema)));
         services.AddScoped<IContentDbContext>(sp => sp.GetRequiredService<ContentDbContext>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<ContentDbContext>>();
-        services.AddMemoryCache();
+        services.AddReadCache();
         services.AddScoped<IPublicCatalogSource, PublicCatalogSource>();
         services.AddScoped<IPublicArticlesSource, PublicArticlesSource>();
         services.AddScoped<IPublicRedirectsSource, PublicRedirectsSource>();

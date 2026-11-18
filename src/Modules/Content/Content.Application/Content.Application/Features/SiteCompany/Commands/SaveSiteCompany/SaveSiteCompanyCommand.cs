@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Caching;
 using Content.Application.Abstractions;
 using Content.Domain.SiteCompany;
 using Content.Application.Features.SiteCompany.Shared;
@@ -17,4 +18,7 @@ public sealed record SaveSiteCompanyCommand(
     IReadOnlyList<CompanyManager> Managers,
     CompanyBankDetails BankDetails,
     CompanySocials Socials,
-    string UpdatedBy) : ICommand<Result<SiteCompanyResponse>>;
+    string UpdatedBy) : ICommand<Result<SiteCompanyResponse>>, IInvalidatesReadCache
+{
+    public IReadOnlyCollection<string> InvalidatedCacheTags => [PublicSiteCache.Tag];
+}
