@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Ardalis.Result;
 using Production.Domain.Payroll;
 using Production.Domain.Staff;
@@ -179,8 +180,8 @@ public sealed class ProductionPayrollHandlerTests
     private static ProductionTestHarness Workshop(out int seamstress, out int master)
     {
         var workshop = ProductionOrderHandlerTests.Workshop();
-        var a = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
-        var b = WorkshopEmployee.Create("Витковська", "Майстер цеху", 1, workshop.Time.GetUtcNow()).Value;
+        var a = WorkshopEmployee.Create("Андреева", "Швачка", new UserId(1), workshop.Time.GetUtcNow()).Value;
+        var b = WorkshopEmployee.Create("Витковська", "Майстер цеху", new UserId(1), workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.AddRange(a, b);
         workshop.Db.SaveChanges();
         seamstress = a.Id.Value;
@@ -201,7 +202,7 @@ public sealed class ProductionPayrollHandlerTests
     public async Task The_year_reads_its_months_in_a_handful_of_queries()
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
-        var employee = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
+        var employee = WorkshopEmployee.Create("Андреева", "Швачка", new UserId(1), workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.Add(employee);
         await workshop.Db.SaveChangesAsync();
         foreach (var (month, amount) in new[] { ("2026-03", 300m), ("2026-10", 100m), (Month, 250m) })

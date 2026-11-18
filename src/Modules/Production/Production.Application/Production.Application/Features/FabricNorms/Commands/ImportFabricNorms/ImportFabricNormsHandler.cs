@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Application.DomainEvents;
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
@@ -36,7 +37,7 @@ public sealed class ImportFabricNormsHandler(IProductionDbContext db, IProductio
 
             if (!existing.TryGetValue(code, out var norm))
             {
-                var created = ModelFabricNorm.Create(code, values, command.UserId, now);
+                var created = ModelFabricNorm.Create(code, values, UserId.FromNullable(command.UserId), now);
                 if (created.IsFailure)
                 {
                     lines.Add(new(code, model.Name, "error", created.Error!.Message));
@@ -54,7 +55,7 @@ public sealed class ImportFabricNormsHandler(IProductionDbContext db, IProductio
                     continue;
                 }
 
-                changes.Add(() => _ = norm.Set(values, command.UserId, now));
+                changes.Add(() => _ = norm.Set(values, UserId.FromNullable(command.UserId), now));
                 lines.Add(new(code, model.Name, "updated", null));
             }
             else lines.Add(new(code, model.Name, "unchanged", null));

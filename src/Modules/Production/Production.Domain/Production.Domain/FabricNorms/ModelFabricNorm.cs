@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
@@ -14,7 +15,7 @@ public sealed class ModelFabricNorm : DomainEventSource, IAggregateRoot
 
     private ModelFabricNorm() { }
 
-    public static DomainResult<ModelFabricNorm> Create(string modelCode, FabricNormValues values, int? userId,
+    public static DomainResult<ModelFabricNorm> Create(string modelCode, FabricNormValues values, UserId? userId,
         DateTimeOffset now)
     {
         var code = CheckCode(modelCode);
@@ -33,13 +34,13 @@ public sealed class ModelFabricNorm : DomainEventSource, IAggregateRoot
     public decimal? ThreeColorsAdditional1 { get; private set; }
     public decimal? ThreeColorsAdditional2 { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public int? UpdatedByUserId { get; private set; }
+    public UserId? UpdatedByUserId { get; private set; }
 
     public FabricNormValues Values => new(OneColor, TwoColorsMain, TwoColorsAdditional, ThreeColorsMain,
         ThreeColorsAdditional1, ThreeColorsAdditional2);
 
     /// <summary>False when nothing changed, so the change time stays.</summary>
-    public DomainResult<bool> Set(FabricNormValues values, int? userId, DateTimeOffset now)
+    public DomainResult<bool> Set(FabricNormValues values, UserId? userId, DateTimeOffset now)
     {
         var check = CheckValues(values);
         if (check.IsFailure) return check.Error!;

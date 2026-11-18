@@ -1,4 +1,5 @@
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -20,7 +21,7 @@ internal static class CrmKeepinCrmExtensions
         services.Configure<KeepinCrmClientOptions>(configuration.GetSection(KeepinCrmClientOptions.Section));
         services.AddHttpClient<IKeepinCrmClientSource, KeepinCrmClientHttpSource>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddSingleton(provider => new KeepinCrmClientSyncSettings(
-            new CrmUserId(provider.GetRequiredService<IOptions<KeepinCrmClientOptions>>().Value.ClientOwnerUserId)));
+            new UserId(provider.GetRequiredService<IOptions<KeepinCrmClientOptions>>().Value.ClientOwnerUserId)));
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<ICustomerKeepinSyncStore, CustomerKeepinSyncStore>();
         services.AddScoped<KeepinCrmClientSync>();

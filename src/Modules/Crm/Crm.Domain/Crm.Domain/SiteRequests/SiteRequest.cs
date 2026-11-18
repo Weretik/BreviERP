@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 
@@ -64,7 +65,7 @@ public sealed class SiteRequest : IAggregateRoot
     public string? FileUrl { get; private set; }
 
     public SiteRequestStatus Status { get; private set; }
-    public int? OwnerUserId { get; private set; }
+    public UserId? OwnerUserId { get; private set; }
     public string? OwnerName { get; private set; }
     public DateTimeOffset? TakenAt { get; private set; }
     public DateTimeOffset? ClosedAt { get; private set; }
@@ -89,7 +90,7 @@ public sealed class SiteRequest : IAggregateRoot
     }
 
     /// <summary>«Беру»: false when another manager already holds it.</summary>
-    public bool Take(int userId, string name, DateTimeOffset now)
+    public bool Take(UserId userId, string name, DateTimeOffset now)
     {
         if (!IsOpen) return false;
         if (OwnerUserId is not null && OwnerUserId != userId) return false;
@@ -102,7 +103,7 @@ public sealed class SiteRequest : IAggregateRoot
     }
 
     /// <summary>«Готово» or «Не заявка» with what came of it; the closer becomes the owner when nobody was.</summary>
-    public DomainResult Close(SiteRequestStatus status, int userId, string name, string? note, DateTimeOffset now)
+    public DomainResult Close(SiteRequestStatus status, UserId userId, string name, string? note, DateTimeOffset now)
     {
         if (status is not (SiteRequestStatus.Done or SiteRequestStatus.Spam)) return SiteRequestErrors.CloseStatusInvalid();
         if (OwnerUserId is null)

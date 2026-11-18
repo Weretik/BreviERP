@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
 using Crm.Application.Features.Quotes.Queries.GetQuotePdf;
@@ -31,8 +32,8 @@ public sealed class QuotePdfComposer(IQuoteStore store, IQuoteStaffReader staff,
     public async Task<QuotePdfFile> ComposeAsync(Quote quote, QuoteDocumentContext context,
         CancellationToken cancellationToken)
     {
-        var responsible = await MemberAsync(quote.ResponsibleUserId, quote.ResponsibleName, cancellationToken);
-        var saved = context.Saved?.ContactOf(responsible.UserId);
+        var responsible = await MemberAsync(quote.ResponsibleUserId.Value, quote.ResponsibleName, cancellationToken);
+        var saved = context.Saved?.ContactOf(new UserId(responsible.UserId));
         var manager = QuoteSettingsMapper.ContactOrAccount(responsible, saved);
         var photos = await QuoteItemPhotos.CatalogPhotosAsync(quote, catalog, cancellationToken);
         var content = quote.Kind == QuoteKind.Introduction

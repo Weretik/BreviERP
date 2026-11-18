@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -15,7 +16,7 @@ namespace UnitTests.Crm.Quotes.Sending;
 [TestFixture]
 public sealed class QuoteIntroductionTests
 {
-    private static readonly QuoteStaffContact Manager = new(5, "Олена Петренко", "+38 050 000 00 00", "office@brevi.test");
+    private static readonly QuoteStaffContact Manager = new(new UserId(5), "Олена Петренко", "+38 050 000 00 00", "office@brevi.test");
 
     private static QuoteIntroPageInput Page(string season, params int[] products) =>
         new(season, products.Select(x => new QuoteIntroModelInput(null, x, x * 100L)).ToArray());
@@ -65,7 +66,7 @@ public sealed class QuoteIntroductionTests
                     new QuotePrice(1500m, null, false), new QuotePrice(1400m, null, false),
                     new QuotePrice(1300.2m + index, null, true), DateTimeOffset.UnixEpoch),
             ])).ToArray();
-        var quote = Quote.Create(new QuoteNumber(2026, 11, 7), QuoteKind.Introduction, new QuotePerson(5, "Юлія"),
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 7), QuoteKind.Introduction, new QuotePerson(new UserId(5), "Юлія"),
             new QuoteHeader("Агро — знайомство", null, "Іван", "ТОВ «Агро»", null, "Передзвонити у вівторок"),
             items, new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero)).Value;
         quote.SetIntroduction(new QuoteIntroduction(QuoteIntroLayout.General, "office@agro.ua", "Після розмови"));

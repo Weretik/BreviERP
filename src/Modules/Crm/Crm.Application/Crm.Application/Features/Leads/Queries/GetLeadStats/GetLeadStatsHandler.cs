@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Application.Features.Leads.Shared;
@@ -39,12 +40,12 @@ public sealed class GetLeadStatsHandler(ILeadStore store, TimeProvider clock)
             .Select(x => (Id: x.OwnerUserId!.Value, Name: x.OwnerName!))
             .Concat(calls.Select(x => (Id: x.ByUserId, Name: x.ByName)))
             .GroupBy(x => x.Id)
-            .Select(g => new LeadPersonResponse(g.Key, g.Last().Name));
+            .Select(g => new LeadPersonResponse(g.Key.Value, g.Last().Name));
 
         var managers = people.Select(person =>
             {
-                var own = open.Where(x => x.OwnerUserId == person.UserId).ToList();
-                var made = calls.Where(x => x.ByUserId == person.UserId).ToList();
+                var own = open.Where(x => x.OwnerUserId == new UserId(person.UserId)).ToList();
+                var made = calls.Where(x => x.ByUserId == new UserId(person.UserId)).ToList();
                 return new LeadManagerStatsResponse(
                     person,
                     own.Count,

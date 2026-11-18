@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Leads.Shared.Mapping;
@@ -20,7 +21,7 @@ public sealed class GetMyDayHandler(ILeadStore store, TimeProvider clock)
         var userId = query.Actor.UserId;
 
         var mine = store.Leads.AsNoTracking()
-            .Where(x => x.OwnerUserId == userId && x.Stage != LeadStage.Client && x.Stage != LeadStage.Closed);
+            .Where(x => x.OwnerUserId == new UserId(userId) && x.Stage != LeadStage.Client && x.Stage != LeadStage.Closed);
 
         var queue = await mine
             .Where(x => x.NextContactAt == null || x.NextContactAt < endOfDay)
@@ -39,7 +40,7 @@ public sealed class GetMyDayHandler(ILeadStore store, TimeProvider clock)
             .ToListAsync(cancellationToken);
 
         var callsToday = await store.LeadCalls.AsNoTracking()
-            .CountAsync(x => x.ByUserId == userId && x.At >= startOfDay, cancellationToken);
+            .CountAsync(x => x.ByUserId == new UserId(userId) && x.At >= startOfDay, cancellationToken);
         var free = await store.Leads.AsNoTracking()
             .CountAsync(x => x.OwnerUserId == null && x.Stage != LeadStage.Client && x.Stage != LeadStage.Closed,
                 cancellationToken);

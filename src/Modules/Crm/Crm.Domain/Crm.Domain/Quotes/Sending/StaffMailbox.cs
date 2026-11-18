@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Domain.Entity;
 namespace Crm.Domain.Quotes.Sending;
 
@@ -9,16 +10,16 @@ public sealed class StaffMailbox : IAggregateRoot
 {
     private StaffMailbox() { }
 
-    private StaffMailbox(int userId, string email, string protectedRefreshToken, string connectedByName, DateTimeOffset now)
+    private StaffMailbox(UserId userId, string email, string protectedRefreshToken, string connectedByName, DateTimeOffset now)
     {
         UserId = userId;
         Connect(email, protectedRefreshToken, connectedByName, now);
     }
 
-    public static StaffMailbox Create(int userId, string email, string protectedRefreshToken, string connectedByName, DateTimeOffset now) =>
+    public static StaffMailbox Create(UserId userId, string email, string protectedRefreshToken, string connectedByName, DateTimeOffset now) =>
         new(userId, email, protectedRefreshToken, connectedByName, now);
 
-    public int UserId { get; private set; }
+    public UserId UserId { get; private set; }
     public string Email { get; private set; } = null!;
     public string ProtectedRefreshToken { get; private set; } = null!;
     public string ConnectedByName { get; private set; } = null!;

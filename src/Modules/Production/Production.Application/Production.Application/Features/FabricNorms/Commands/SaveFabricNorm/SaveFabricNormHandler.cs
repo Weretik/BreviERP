@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Application.Features.FabricNorms.Shared;
@@ -23,11 +24,11 @@ public sealed class SaveFabricNormHandler(IProductionDbContext db, IProductionMo
         var norm = await db.FabricNorms.FirstOrDefaultAsync(x => x.ModelCode == code, cancellationToken);
         if (norm is null)
         {
-            var created = ModelFabricNorm.Create(code, values, command.UserId, now);
+            var created = ModelFabricNorm.Create(code, values, UserId.FromNullable(command.UserId), now);
             if (created.IsFailure) return created.Error!.ToResult<FabricNormRowResponse>();
             db.FabricNorms.Add(norm = created.Value);
         }
-        else if (norm.Set(values, command.UserId, now) is { IsFailure: true } set)
+        else if (norm.Set(values, UserId.FromNullable(command.UserId), now) is { IsFailure: true } set)
             return set.Error!.ToResult<FabricNormRowResponse>();
         await db.SaveChangesAsync(cancellationToken);
 

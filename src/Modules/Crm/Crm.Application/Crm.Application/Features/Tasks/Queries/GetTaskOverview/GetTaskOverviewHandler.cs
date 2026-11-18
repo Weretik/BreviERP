@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Shared;
 using Crm.Application.Features.Tasks.Shared.Persistence;
@@ -74,15 +75,15 @@ public sealed class GetTaskOverviewHandler(ITaskStore store, ITaskStaffReader st
             int? onTime = doneLastMonth > 0
                 ? (int)Math.Round(100.0 * g.Sum(x => x.OnTimeLastMonth) / doneLastMonth)
                 : null;
-            return new TaskLoadResponse(g.Key, g.First().AssigneeName, g.Sum(x => x.Open), g.Sum(x => x.Overdue),
+            return new TaskLoadResponse(g.Key.Value, g.First().AssigneeName, g.Sum(x => x.Open), g.Sum(x => x.Overdue),
                 g.Sum(x => x.Urgent), g.Sum(x => x.InProgress), g.Sum(x => x.DoneLastWeek), onTime);
         });
 
         if (!query.Actor.IsAdmin)
-            return byUser.TryGetValue(query.Actor.UserId, out var own) ? [own] : [];
+            return byUser.TryGetValue(new UserId(query.Actor.UserId), out var own) ? [own] : [];
 
         var managers = await staff.ListAssigneesAsync(cancellationToken);
-        var result = managers.Select(m => byUser.TryGetValue(m.UserId, out var row)
+        var result = managers.Select(m => byUser.TryGetValue(new UserId(m.UserId), out var row)
             ? row with { Name = m.Name }
             : new TaskLoadResponse(m.UserId, m.Name, 0, 0, 0, 0, 0, null)).ToList();
         // Tasks of a blocked or demoted manager stay visible until they are given to someone else.

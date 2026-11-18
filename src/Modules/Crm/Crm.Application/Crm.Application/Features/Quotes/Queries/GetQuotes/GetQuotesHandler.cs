@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Persistence;
@@ -14,9 +15,9 @@ public sealed class GetQuotesHandler(IQuoteStore store) : IQueryHandler<GetQuote
         if (query.CustomerId is { } customerId)
             quotes = quotes.Where(x => x.CustomerId == customerId);
         if (!query.Actor.CanSeeAll)
-            quotes = quotes.Where(x => x.ResponsibleUserId == query.Actor.UserId);
+            quotes = quotes.Where(x => x.ResponsibleUserId == new UserId(query.Actor.UserId));
         else if (query.ResponsibleUserId is { } responsible)
-            quotes = quotes.Where(x => x.ResponsibleUserId == responsible);
+            quotes = quotes.Where(x => x.ResponsibleUserId == new UserId(responsible));
 
         if (!string.IsNullOrEmpty(query.Status))
         {
@@ -31,7 +32,7 @@ public sealed class GetQuotesHandler(IQuoteStore store) : IQueryHandler<GetQuote
             .OrderByDescending(x => x.UpdatedAt).ThenByDescending(x => x.Id)
             .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
             .Select(x => new QuoteSummaryResponse(x.Id.Value, x.Number, x.Kind.ToString(), x.Status.ToString(),
-                x.InternalName, x.CompanyName, new QuotePersonResponse(x.ResponsibleUserId, x.ResponsibleName),
+                x.InternalName, x.CompanyName, new QuotePersonResponse(x.ResponsibleUserId.Value, x.ResponsibleName),
                 x.Items.Count, x.UpdatedAt, x.LastSentAt, x.Version))
             .ToListAsync(cancellationToken);
         return Result.Success(new QuotePageResponse(rows, query.Page, query.PageSize, total));

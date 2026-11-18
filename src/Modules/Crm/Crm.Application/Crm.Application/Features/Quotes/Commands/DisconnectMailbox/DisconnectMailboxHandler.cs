@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Application.Features.Quotes.Shared.Persistence;
 using Crm.Application.Features.Quotes.Shared.Sending;
 using Crm.Application.Abstractions.Quotes;
@@ -10,7 +11,7 @@ public sealed class DisconnectMailboxHandler(IQuoteStore store) : ICommandHandle
     {
         if (!command.Actor.CanSeeAll && command.Actor.UserId != command.UserId)
             return Result.Forbidden(QuoteSendingMessages.ConnectForbidden);
-        var mailbox = await store.StaffMailboxes.SingleOrDefaultAsync(x => x.UserId == command.UserId, cancellationToken);
+        var mailbox = await store.StaffMailboxes.SingleOrDefaultAsync(x => x.UserId == new UserId(command.UserId), cancellationToken);
         if (mailbox is null) return Result.NoContent();
         store.StaffMailboxes.Remove(mailbox);
         await store.SaveChangesAsync(cancellationToken);

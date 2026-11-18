@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Building;
@@ -10,7 +11,7 @@ namespace UnitTests.Crm.Quotes.Items;
 /// <summary>«Виріб з нуля» (R-20): priced by the Catalog formula, kept on save while its composition stays.</summary>
 public sealed class QuoteCustomSewingTests
 {
-    private static readonly QuotePerson Manager = new(17, "Олена");
+    private static readonly QuotePerson Manager = new(new UserId(17), "Олена");
     private static readonly DateTimeOffset Now = new(2026, 11, 4, 10, 0, 0, TimeSpan.Zero);
 
     private static QuoteOptionInput Fabric(int fabricId, decimal meters, long? id = null, bool recommended = false) =>

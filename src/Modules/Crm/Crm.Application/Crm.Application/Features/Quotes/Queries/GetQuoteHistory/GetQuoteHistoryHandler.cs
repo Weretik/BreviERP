@@ -15,14 +15,14 @@ public sealed class GetQuoteHistoryHandler(IQuoteStore store)
         CancellationToken cancellationToken)
     {
         var responsible = await store.Quotes.AsNoTracking().Where(x => x.Id == new QuoteId(query.Id))
-            .Select(x => (int?)x.ResponsibleUserId).SingleOrDefaultAsync(cancellationToken);
+            .Select(x => (int?)x.ResponsibleUserId.Value).SingleOrDefaultAsync(cancellationToken);
         if (responsible is null || !(query.Actor.CanSeeAll || responsible == query.Actor.UserId))
             return Result.NotFound(QuoteMessages.NotFound);
 
         var events = await store.QuoteEvents.AsNoTracking().Where(x => x.QuoteId == new QuoteId(query.Id))
             .OrderByDescending(x => x.At).ThenByDescending(x => x.Id).Take(MaxEvents)
             .Select(x => new QuoteEventResponse(x.Id, x.Kind.ToString(), x.At,
-                new QuotePersonResponse(x.ActorUserId, x.ActorName), x.Details))
+                new QuotePersonResponse(x.ActorUserId.Value, x.ActorName), x.Details))
             .ToListAsync(cancellationToken);
         return Result.Success<IReadOnlyList<QuoteEventResponse>>(events);
     }

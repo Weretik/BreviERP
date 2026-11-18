@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using System.Globalization;
@@ -22,7 +23,7 @@ public sealed class EmbroiderySavedCalculation : DomainEventSource, IAggregateRo
 
     public static DomainResult<EmbroiderySavedCalculation> Create(string? name, Guid? customerPublicId,
         string? customerName, EmbroideryInput input, EmbroideryRateSnapshot snapshot, EmbroideryResult result,
-        int createdByUserId, string createdByName, DateTimeOffset now, string? category = null) =>
+        UserId createdByUserId, string createdByName, DateTimeOffset now, string? category = null) =>
         category is not null && result.Prices.All(x => x.Name != category)
             ? Settings.EmbroiderySettingsErrors.CategoryNotInResult()
             : Saved(new EmbroiderySavedCalculation(name, customerPublicId, customerName, input, snapshot, result,
@@ -35,7 +36,7 @@ public sealed class EmbroiderySavedCalculation : DomainEventSource, IAggregateRo
     }
 
     private EmbroiderySavedCalculation(string? name, Guid? customerPublicId, string? customerName, EmbroideryInput input,
-        EmbroideryRateSnapshot snapshot, EmbroideryResult result, int createdByUserId, string createdByName,
+        EmbroideryRateSnapshot snapshot, EmbroideryResult result, UserId createdByUserId, string createdByName,
         DateTimeOffset now, string? category)
     {
         Category = category;
@@ -86,7 +87,7 @@ public sealed class EmbroiderySavedCalculation : DomainEventSource, IAggregateRo
     /// <summary>A photo or mockup of the design from the Media library, for the workshop; null when none.</summary>
     public int? MockupMediaFileId { get; private set; }
 
-    public int CreatedByUserId { get; private set; }
+    public UserId CreatedByUserId { get; private set; }
     public string CreatedByName { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; private set; }
 
@@ -95,7 +96,7 @@ public sealed class EmbroiderySavedCalculation : DomainEventSource, IAggregateRo
     /// result those rates give, which the import checked against the old saved prices.
     /// </summary>
     public static EmbroiderySavedCalculation Transferred(string legacyId, string? name, EmbroideryInput input,
-        EmbroideryRateSnapshot snapshot, EmbroideryResult result, int createdByUserId, string createdByName,
+        EmbroideryRateSnapshot snapshot, EmbroideryResult result, UserId createdByUserId, string createdByName,
         DateTimeOffset createdAt) =>
         new(name, null, null, input, snapshot, result, createdByUserId, createdByName, createdAt, null)
         {

@@ -22,5 +22,5 @@ internal static class QuoteSettingsQueries
     /// <summary>Connected Gmail addresses by staff member.</summary>
     public static async Task<IReadOnlyDictionary<int, string>> MailboxEmailsAsync(this IQuoteStore store,
         CancellationToken cancellationToken) =>
-        await store.StaffMailboxes.AsNoTracking().ToDictionaryAsync(x => x.UserId, x => x.Email, cancellationToken);
+        await store.StaffMailboxes.AsNoTracking().ToDictionaryAsync(x => x.UserId.Value, x => x.Email, cancellationToken);
 }

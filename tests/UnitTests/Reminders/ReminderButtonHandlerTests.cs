@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Reminders.Domain.Occurrences;
@@ -53,7 +54,7 @@ public sealed class ReminderButtonHandlerTests
         Assert.Multiple(() =>
         {
             Assert.That(admin.Closed, Is.True);
-            Assert.That(occurrence.ClosedBy, Is.EqualTo(ReminderActor.Admin(7, "Марія")));
+            Assert.That(occurrence.ClosedBy, Is.EqualTo(ReminderActor.Admin(new UserId(7), "Марія")));
             Assert.That(occurrence.Actions, Has.Count.EqualTo(1), "the second close is not recorded");
             Assert.That(h.Telegram.Answers.Single().Text, Does.StartWith("Вже закрито: Марія"));
         });
@@ -71,7 +72,7 @@ public sealed class ReminderButtonHandlerTests
             Closed = true;
             await using var other = h.OtherRequest();
             var occurrence = await other.Occurrences.Include(x => x.Actions).SingleAsync(cancellationToken);
-            occurrence.Close(ReminderActor.Admin(7, "Марія"), h.Clock.Now);
+            occurrence.Close(ReminderActor.Admin(new UserId(7), "Марія"), h.Clock.Now);
             await other.SaveChangesAsync(cancellationToken);
             return result;
         }

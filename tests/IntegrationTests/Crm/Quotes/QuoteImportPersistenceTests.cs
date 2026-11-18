@@ -1,5 +1,6 @@
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Microsoft.EntityFrameworkCore;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
@@ -54,7 +55,7 @@ public sealed class QuoteImportPersistenceTests : CrmDatabaseFixture
     {
         await using (var db = Context())
         {
-            var customer = Customer.Create("organization", "ТОВ «Агро»", null, null, new CrmUserId(1)).Value;
+            var customer = Customer.Create("organization", "ТОВ «Агро»", null, null, new UserId(1)).Value;
             customer.AddExternalIdentity(KeepinCrmClientIdentity.Create("18701991").Value);
             db.Customers.Add(customer);
             await db.SaveChangesAsync();

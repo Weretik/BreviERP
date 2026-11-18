@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Shared.Access;
 using Crm.Application.Abstractions.Tasks;
@@ -15,8 +16,8 @@ internal static class TaskQueries
     public static IQueryable<ManagerTask> Visible(this ITaskStore store, TaskActor actor, int? assigneeUserId)
     {
         var tasks = store.ManagerTasks.AsNoTracking();
-        if (!actor.IsAdmin) return tasks.Where(x => x.AssigneeUserId == actor.UserId);
-        return assigneeUserId is { } assignee ? tasks.Where(x => x.AssigneeUserId == assignee) : tasks;
+        if (!actor.IsAdmin) return tasks.Where(x => x.AssigneeUserId == new UserId(actor.UserId));
+        return assigneeUserId is { } assignee ? tasks.Where(x => x.AssigneeUserId == new UserId(assignee)) : tasks;
     }
 
     /// <summary>Saves and maps a stale version to 409.</summary>

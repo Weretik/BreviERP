@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
 using Crm.Application.Features.Activity.EventHandlers;
@@ -11,7 +12,7 @@ namespace UnitTests.Crm.Activity;
 public sealed class QuoteActivityTests
 {
     private static readonly DateTimeOffset Now = new(2026, 11, 16, 10, 0, 0, TimeSpan.Zero);
-    private static readonly QuotePerson Manager = new(5, "Юлія");
+    private static readonly QuotePerson Manager = new(new UserId(5), "Юлія");
     private readonly QuoteActivity _describer = new();
 
     private static Quote NewQuote() =>

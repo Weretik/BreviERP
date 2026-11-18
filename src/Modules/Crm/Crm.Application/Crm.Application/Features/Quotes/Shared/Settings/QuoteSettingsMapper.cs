@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
 using Crm.Application.Abstractions.Quotes;
@@ -21,13 +22,13 @@ public static class QuoteSettingsMapper
             ToDto(content.Pdf),
             ToDto(content.Introduction),
             content.LetterVariants.Select(x => new QuoteLetterVariantDto(x.Name, x.Subject, x.Body)).ToArray(),
-            staff.Select(member => ToResponse(member, saved?.ContactOf(member.UserId), mailboxes.GetValueOrDefault(member.UserId)))
+            staff.Select(member => ToResponse(member, saved?.ContactOf(new UserId(member.UserId)), mailboxes.GetValueOrDefault(member.UserId)))
                 .ToArray());
     }
 
     /// <summary>The contact a client sees: the saved one; its empty phone or email, or a missing contact, use the account.</summary>
     public static QuoteStaffContact ContactOrAccount(QuoteStaffMember member, QuoteStaffContact? saved) =>
-        new(member.UserId,
+        new(new UserId(member.UserId),
             saved?.Name ?? member.Name,
             saved?.Phone ?? member.Phone,
             saved?.Email ?? member.Email);
@@ -54,14 +55,14 @@ public static class QuoteSettingsMapper
             input.LetterVariants.Select(x => new QuoteLetterVariant(x.Name.Trim(), x.Subject.Trim(), x.Body.Trim()))
                 .ToArray(),
             input.StaffContacts
-                .Select(x => new QuoteStaffContact(x.UserId, Text(x.Name) ?? "", Text(x.Phone), Text(x.Email)))
+                .Select(x => new QuoteStaffContact(new UserId(x.UserId), Text(x.Name) ?? "", Text(x.Phone), Text(x.Email)))
                 .ToArray());
 
     /// <summary>The page edits what was saved; before that it starts from the account.</summary>
     private static QuoteStaffContactResponse ToResponse(QuoteStaffMember member, QuoteStaffContact? saved,
         string? mailbox)
     {
-        var contact = saved ?? new QuoteStaffContact(member.UserId, member.Name, member.Phone, member.Email);
+        var contact = saved ?? new QuoteStaffContact(new UserId(member.UserId), member.Name, member.Phone, member.Email);
         return new QuoteStaffContactResponse(member.UserId, member.Name, member.Email, contact.Name, contact.Phone,
             contact.Email, mailbox);
     }

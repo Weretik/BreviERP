@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Ardalis.Result;
 using Production.Domain.Staff;
 using UnitTests.Warehouse;
@@ -151,8 +152,8 @@ public sealed class WorkshopReportHandlerTests
         var workshop = ProductionOrderHandlerTests.Workshop();
         workshop.Fabrics.Fabrics.Clear();
         workshop.Fabrics.Fabrics.Add(new(23, "FAB-023", "Тканина «Грета»", 120m));
-        var a = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
-        var b = WorkshopEmployee.Create("Витковська", "Майстер цеху", 1, workshop.Time.GetUtcNow()).Value;
+        var a = WorkshopEmployee.Create("Андреева", "Швачка", new UserId(1), workshop.Time.GetUtcNow()).Value;
+        var b = WorkshopEmployee.Create("Витковська", "Майстер цеху", new UserId(1), workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.AddRange(a, b);
         workshop.Db.SaveChanges();
         seamstress = a.Id.Value;

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Domain.Orders.Enums;
@@ -22,7 +23,7 @@ public sealed record ProductionActor(int UserId, bool IsAdmin, bool IsManager, b
 
     public bool CanEdit(ProductionOrder order) =>
         order is { IsDeleted: false, Status: ProductionOrderStatus.New } &&
-        (IsAdmin || IsWorkshopChief || IsManager && order.ManagerUserId == UserId);
+        (IsAdmin || IsWorkshopChief || IsManager && order.ManagerUserId == new UserId(UserId));
 
     /// <summary>Етапи and shipments: Admin and the head of the workshop on a «Нове» order.</summary>
     public bool CanTrack(ProductionOrder order) =>

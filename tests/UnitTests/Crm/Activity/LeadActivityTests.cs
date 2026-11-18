@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
 using Crm.Application.Features.Activity.EventHandlers;
@@ -12,7 +13,7 @@ namespace UnitTests.Crm.Activity;
 public sealed class LeadActivityTests
 {
     private static readonly DateTimeOffset Now = new(2026, 11, 16, 8, 0, 0, TimeSpan.Zero);
-    private static readonly LeadPerson Anastasia = new(17, "Анастасія");
+    private static readonly LeadPerson Anastasia = new(new UserId(17), "Анастасія");
     private readonly LeadActivity _describer = new();
 
     private static readonly string?[] Header =

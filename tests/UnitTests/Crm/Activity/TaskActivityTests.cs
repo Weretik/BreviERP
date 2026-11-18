@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
 using Crm.Application.Features.Activity.EventHandlers;
@@ -11,11 +12,11 @@ namespace UnitTests.Crm.Activity;
 public sealed class TaskActivityTests
 {
     private static readonly DateTimeOffset Now = new(2026, 11, 16, 10, 0, 0, TimeSpan.Zero);
-    private static readonly ManagerTaskPerson Director = new(1, "Директор");
+    private static readonly ManagerTaskPerson Director = new(new UserId(1), "Директор");
     private readonly TaskActivity _describer = new();
 
     private static ManagerTaskDraft Draft(string title = "Передзвонити", int assignee = 17, string name = "Ольга") =>
-        new(title, null, new ManagerTaskPerson(assignee, name), Now.AddDays(1), false, null, null, []);
+        new(title, null, new ManagerTaskPerson(new UserId(assignee), name), Now.AddDays(1), false, null, null, []);
 
     private static ManagerTask CleanTask()
     {

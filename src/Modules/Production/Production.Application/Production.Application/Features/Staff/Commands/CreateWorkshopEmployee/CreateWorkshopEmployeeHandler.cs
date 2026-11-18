@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Production.Application.Abstractions;
 using Production.Domain.Staff;
 using Production.Application.Features.Orders.Shared;
@@ -15,7 +16,7 @@ public sealed class CreateWorkshopEmployeeHandler(IProductionDbContext db, TimeP
         if (await EmployeeLookup.ActiveNameTakenAsync(db, command.Input.FullName, null, cancellationToken))
             return Result<WorkshopEmployeeResponse>.Conflict(StaffMessages.DuplicateName);
 
-        var created = WorkshopEmployee.Create(command.Input.FullName, command.Input.Position, command.UserId,
+        var created = WorkshopEmployee.Create(command.Input.FullName, command.Input.Position, UserId.FromNullable(command.UserId),
             clock.GetUtcNow());
         if (created.IsFailure) return created.Error!.ToResult<WorkshopEmployeeResponse>();
         var employee = created.Value;

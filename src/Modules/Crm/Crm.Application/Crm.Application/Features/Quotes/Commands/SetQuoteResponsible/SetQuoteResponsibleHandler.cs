@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Access;
@@ -26,7 +27,7 @@ public sealed class SetQuoteResponsibleHandler(IQuoteStore store, IQuoteStaffRea
         var actor = await staff.PersonAsync(command.Actor, cancellationToken);
         if (actor is null) return Result.Forbidden(QuoteMessages.ActorUnknown);
 
-        quote.AssignResponsible(new QuotePerson(member.UserId, member.Name), actor, clock.GetUtcNow());
+        quote.AssignResponsible(new QuotePerson(new UserId(member.UserId), member.Name), actor, clock.GetUtcNow());
         try
         {
             await store.SaveChangesAsync(cancellationToken);

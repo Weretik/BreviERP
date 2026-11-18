@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
@@ -121,7 +122,7 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
         var ids = lines.Select(x => x.Id).ToArray();
         var savedMovements = await db.FabricMovements.Where(x => ids.Contains(x.StockId)).ToListAsync(cancellationToken);
         foreach (var line in lines) line.Restate(savedMovements.Where(x => x.StockId == line.Id).Concat(line.Movements));
-        db.StockOperations.Add(StockOperation.Create(operationId, Kind, hash, actor.UserId, first.Code, first.ColorKey,
+        db.StockOperations.Add(StockOperation.Create(operationId, Kind, hash, new UserId(actor.UserId), first.Code, first.ColorKey,
             first.Lines[0].Color, first.Meters, pairs.Now));
         try
         {

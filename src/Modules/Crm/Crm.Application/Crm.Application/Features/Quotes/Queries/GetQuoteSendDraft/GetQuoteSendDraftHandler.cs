@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared.Access;
 using Crm.Application.Features.Quotes.Shared.Pdf.Composing;
@@ -24,7 +25,7 @@ public sealed class GetQuoteSendDraftHandler(IQuoteStore store, QuotePdfComposer
         var context = await composer.LoadContextAsync(cancellationToken);
         var sender = context.ContactOf(await composer.MemberAsync(query.Actor.UserId, "", cancellationToken));
         var mailbox = await store.StaffMailboxes.AsNoTracking()
-            .Where(x => x.UserId == query.Actor.UserId).Select(x => x.Email).SingleOrDefaultAsync(cancellationToken);
+            .Where(x => x.UserId == new UserId(query.Actor.UserId)).Select(x => x.Email).SingleOrDefaultAsync(cancellationToken);
         var site = context.Settings.Company.Site;
         string Fill(string text) => QuoteMarks.Fill(text, sender, site, quote.Number, quote.RecipientName, quote.CompanyName);
 

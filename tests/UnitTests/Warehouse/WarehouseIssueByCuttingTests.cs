@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using UnitTests.Production;
@@ -183,7 +184,7 @@ public sealed class WarehouseIssueByCuttingTests
     private static async Task SetNorm(WarehouseTestHarness workshop, decimal main)
     {
         var norm = await workshop.Workshop.Db.FabricNorms.SingleAsync();
-        norm.Set(norm.Values with { TwoColorsMain = main }, 1, workshop.Workshop.Time.GetUtcNow());
+        norm.Set(norm.Values with { TwoColorsMain = main }, new UserId(1), workshop.Workshop.Time.GetUtcNow());
         await workshop.Workshop.Db.SaveChangesAsync();
     }
 

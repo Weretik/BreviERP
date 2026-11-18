@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using System.Globalization;
@@ -37,9 +38,9 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
     public ManagerTaskId Id { get; private set; }
     public string Title { get; private set; } = null!;
     public string? Description { get; private set; }
-    public int AssigneeUserId { get; private set; }
+    public UserId AssigneeUserId { get; private set; }
     public string AssigneeName { get; private set; } = null!;
-    public int AuthorUserId { get; private set; }
+    public UserId AuthorUserId { get; private set; }
     public string AuthorName { get; private set; } = null!;
     public DateTimeOffset DueAt { get; private set; }
     public bool IsUrgent { get; private set; }

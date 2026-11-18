@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Application.DomainEvents;
 using Production.Application.Abstractions;
 using Production.Domain.Staff;
@@ -18,7 +19,7 @@ public sealed class ImportWorkshopStaffHandler(IProductionDbContext db, TimeProv
         var lines = new List<WorkshopStaffImportLine>(command.Rows.Count);
         foreach (var row in command.Rows)
         {
-            var checkedRow = WorkshopEmployee.Create(row.FullName, row.Position, command.UserId, now);
+            var checkedRow = WorkshopEmployee.Create(row.FullName, row.Position, UserId.FromNullable(command.UserId), now);
             if (checkedRow.IsFailure) return checkedRow.Error!.ToResult<WorkshopStaffImportResult>();
             var created = checkedRow.Value;
             if (!active.TryGetValue(created.NameKey, out var employee))
@@ -29,7 +30,7 @@ public sealed class ImportWorkshopStaffHandler(IProductionDbContext db, TimeProv
             else if (employee.Position != created.Position)
             {
                 if (!command.DryRun
-                    && employee.Update(employee.FullName, created.Position, command.UserId, now) is { IsFailure: true } bad)
+                    && employee.Update(employee.FullName, created.Position, UserId.FromNullable(command.UserId), now) is { IsFailure: true } bad)
                     return bad.Error!.ToResult<WorkshopStaffImportResult>();
                 lines.Add(new(employee.FullName, created.Position, "updated"));
             }

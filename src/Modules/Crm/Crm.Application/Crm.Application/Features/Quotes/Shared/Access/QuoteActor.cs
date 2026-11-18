@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 
 namespace Crm.Application.Features.Quotes.Shared.Access;
@@ -9,5 +10,5 @@ namespace Crm.Application.Features.Quotes.Shared.Access;
 /// <param name="CanDelete">«КП: видалення»: the «Видаляти» right of «Права доступу», checked by the API (R-33).</param>
 public sealed record QuoteActor(int UserId, bool CanSeeAll, bool CanDelete = false)
 {
-    public bool CanAccess(Quote quote) => CanSeeAll || quote.ResponsibleUserId == UserId;
+    public bool CanAccess(Quote quote) => CanSeeAll || quote.ResponsibleUserId == new UserId(UserId);
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Commands.CreateQuote;
 using Crm.Application.Features.Quotes.Queries.GetQuotes;
@@ -91,7 +92,7 @@ public sealed class QuoteRulesTests
     [Test]
     public void ManagerAccessesOnlyOwnQuote()
     {
-        var quote = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(5, "Інший"),
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(new UserId(5), "Інший"),
             new QuoteHeader("Клієнт", null, null, null, null, null), [], DateTimeOffset.UnixEpoch).Value;
         Assert.That(Manager.CanAccess(quote), Is.False);
         Assert.That(new QuoteActor(1, true).CanAccess(quote), Is.True);
@@ -103,14 +104,14 @@ public sealed class QuoteRulesTests
     {
         var option = QuoteItemOption.Create(0, null, 5, "Саржа", null, true, new QuotePrice(100m, 120m, true),
             QuotePrice.Empty, QuotePrice.Empty, DateTimeOffset.UnixEpoch).WithFabrics([QuoteItemOptionFabric.Create(0, 5, "Саржа", 1.5m)]);
-        option.SetManualAudit("Знижка", new QuotePerson(5, "Олена"), DateTimeOffset.UnixEpoch);
+        option.SetManualAudit("Знижка", new QuotePerson(new UserId(5), "Олена"), DateTimeOffset.UnixEpoch);
         var item = QuoteItem.Create(0, QuoteItemKind.CustomSewing, null, new QuoteItemTexts(null, "Фартух", null, null,
             null, null, null, null), [option], [QuoteItemLine.Create(0, QuoteItemLineKind.Operation, 155, "Шов", "хв", 1m, 12m)]);
-        var source = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(5, "Олена"),
+        var source = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(new UserId(5), "Олена"),
             new QuoteHeader("Клієнт", 7, "Іван", "Агро", null, null), [item], DateTimeOffset.UnixEpoch).Value;
         source.MarkSent(DateTimeOffset.UnixEpoch);
 
-        var copy = source.CopyAs(new QuoteNumber(2026, 11, 2), new QuotePerson(1, "Директор"), DateTimeOffset.UnixEpoch);
+        var copy = source.CopyAs(new QuoteNumber(2026, 11, 2), new QuotePerson(new UserId(1), "Директор"), DateTimeOffset.UnixEpoch);
 
         var copied = copy.Items.Single();
         Assert.Multiple(() =>

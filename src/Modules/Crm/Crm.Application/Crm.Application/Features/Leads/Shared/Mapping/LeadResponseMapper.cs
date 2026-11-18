@@ -17,7 +17,7 @@ internal static class LeadResponseMapper
             x.Industry,
             x.CallReason,
             x.Stage.ToString(),
-            x.OwnerUserId == null ? null : new LeadPersonResponse(x.OwnerUserId.Value, x.OwnerName!),
+            x.OwnerUserId == null ? null : new LeadPersonResponse(x.OwnerUserId.Value.Value, x.OwnerName!),
             x.LastResultName,
             x.LastCallAt,
             x.NextContactAt,
@@ -54,7 +54,7 @@ internal static class LeadResponseMapper
             lead.SheetNotes,
             lead.InSheet,
             lead.Stage.ToString(),
-            lead.OwnerUserId is { } owner ? new LeadPersonResponse(owner, lead.OwnerName!) : null,
+            lead.OwnerUserId is { } owner ? new LeadPersonResponse(owner.Value, lead.OwnerName!) : null,
             lead.TakenAt,
             lead.LastResultName,
             lead.LastCallAt,
@@ -63,7 +63,7 @@ internal static class LeadResponseMapper
             lead.CallCount,
             openTaskId,
             lead.Calls.OrderByDescending(x => x.At).ThenByDescending(x => x.Id)
-                .Select(x => new LeadCallResponse(x.Id, new LeadPersonResponse(x.ByUserId, x.ByName), x.At, x.ResultId.Value,
+                .Select(x => new LeadCallResponse(x.Id, new LeadPersonResponse(x.ByUserId.Value, x.ByName), x.At, x.ResultId.Value,
                     x.ResultName, x.Outcome.ToString(), x.Comment, x.NextContactAt))
                 .ToArray(),
             lead.Version);

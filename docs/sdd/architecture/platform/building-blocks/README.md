@@ -6,7 +6,7 @@ BuildingBlocks is the shared technical foundation. It defines primitives and imp
 
 ```text
 src/BuildingBlocks/
-├── BuildingBlocks.Domain/            entity, audit, error, and event primitives
+├── BuildingBlocks.Domain/            entity, audit, error, and event primitives; ids shared by modules
 ├── BuildingBlocks.Application/       Mediator behaviors, contracts, notifications, and logging
 ├── BuildingBlocks.Infrastructure/    shared adapter implementations, migrations, and seeding
 └── BuildingBlocks.Api/               Ardalis.Result → MVC mapping

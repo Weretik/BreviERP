@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads.Enums;
 using Crm.Domain.Leads.ValueObjects;
@@ -28,7 +29,7 @@ public sealed class LeadCall
     /// <summary>The «Зберегти» attempt; a repeat with the same id records nothing new (unique).</summary>
     public Guid? RequestId { get; private set; }
     public LeadId LeadId { get; private set; }
-    public int ByUserId { get; private set; }
+    public UserId ByUserId { get; private set; }
     public string ByName { get; private set; } = null!;
     public LeadCallResultId ResultId { get; private set; }
     public string ResultName { get; private set; } = null!;

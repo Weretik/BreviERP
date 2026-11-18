@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
@@ -15,13 +16,13 @@ public sealed class WorkshopEmployee : DomainEventSource, IAggregateRoot
 
     private WorkshopEmployee() { }
 
-    public static DomainResult<WorkshopEmployee> Create(string fullName, string position, int? userId, DateTimeOffset now)
+    public static DomainResult<WorkshopEmployee> Create(string fullName, string position, UserId? userId, DateTimeOffset now)
     {
         var valid = Check(fullName, position);
         return valid.IsFailure ? valid.Error! : new WorkshopEmployee(fullName, position, userId, now);
     }
 
-    private WorkshopEmployee(string fullName, string position, int? userId, DateTimeOffset now)
+    private WorkshopEmployee(string fullName, string position, UserId? userId, DateTimeOffset now)
     {
         SetDetails(fullName, position);
         IsActive = true;
@@ -40,9 +41,9 @@ public sealed class WorkshopEmployee : DomainEventSource, IAggregateRoot
     public bool IsActive { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
-    public int? UpdatedByUserId { get; private set; }
+    public UserId? UpdatedByUserId { get; private set; }
 
-    public DomainResult Update(string fullName, string position, int? userId, DateTimeOffset now)
+    public DomainResult Update(string fullName, string position, UserId? userId, DateTimeOffset now)
     {
         var valid = Check(fullName, position);
         if (valid.IsFailure) return valid;
@@ -57,7 +58,7 @@ public sealed class WorkshopEmployee : DomainEventSource, IAggregateRoot
         ProductionText.Check(fullName, FullNameMaxLength, "fullName"),
         ProductionText.Check(position, PositionMaxLength, "position"));
 
-    public void SetActive(bool isActive, int? userId, DateTimeOffset now)
+    public void SetActive(bool isActive, UserId? userId, DateTimeOffset now)
     {
         if (IsActive == isActive) return;
         IsActive = isActive;
@@ -72,7 +73,7 @@ public sealed class WorkshopEmployee : DomainEventSource, IAggregateRoot
         Position = ProductionText.Clean(position, PositionMaxLength);
     }
 
-    private void Touch(int? userId, DateTimeOffset now)
+    private void Touch(UserId? userId, DateTimeOffset now)
     {
         UpdatedAt = now;
         UpdatedByUserId = userId;

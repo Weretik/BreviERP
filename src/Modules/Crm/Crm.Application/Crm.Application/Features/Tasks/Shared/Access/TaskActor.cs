@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Tasks;
 
 namespace Crm.Application.Features.Tasks.Shared.Access;
@@ -8,5 +9,5 @@ namespace Crm.Application.Features.Tasks.Shared.Access;
 /// </summary>
 public sealed record TaskActor(int UserId, bool IsAdmin)
 {
-    public bool CanAccess(ManagerTask task) => IsAdmin || task.AssigneeUserId == UserId;
+    public bool CanAccess(ManagerTask task) => IsAdmin || task.AssigneeUserId == new UserId(UserId);
 }

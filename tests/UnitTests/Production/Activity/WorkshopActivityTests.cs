@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Production.Domain.Orders.ValueObjects;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
@@ -37,11 +38,11 @@ public sealed class WorkshopActivityTests
     [Test]
     public void Renaming_an_employee_lists_the_change()
     {
-        var employee = WorkshopEmployee.Create("Олена Коваль", "Швачка", 1, Now).Value;
+        var employee = WorkshopEmployee.Create("Олена Коваль", "Швачка", new UserId(1), Now).Value;
         var describer = new WorkshopActivity();
         Assert.That(Last(describer, employee)!.Action, Is.EqualTo(ActivityActions.Created));
 
-        employee.Update("Олена Коваль", "Майстер цеху", 1, Now);
+        employee.Update("Олена Коваль", "Майстер цеху", new UserId(1), Now);
 
         Assert.That(Last(describer, employee)!.Changes,
             Is.EqualTo(new[] { new ActivityChangeItem("Посада", "Швачка", "Майстер цеху") }));
@@ -50,10 +51,10 @@ public sealed class WorkshopActivityTests
     [Test]
     public void A_changed_norm_lists_meters()
     {
-        var norm = ModelFabricNorm.Create("MOD-1", new FabricNormValues(1.5m, null, null, null, null, null), 1, Now).Value;
+        var norm = ModelFabricNorm.Create("MOD-1", new FabricNormValues(1.5m, null, null, null, null, null), new UserId(1), Now).Value;
         ((IHasDomainEvents)norm).ClearDomainEvents();
 
-        norm.Set(new FabricNormValues(1.75m, null, null, null, null, null), 1, Now.AddMinutes(1));
+        norm.Set(new FabricNormValues(1.75m, null, null, null, null, null), new UserId(1), Now.AddMinutes(1));
 
         Assert.That(Last(new FabricNormActivity(), norm)!.Changes,
             Is.EqualTo(new[] { new ActivityChangeItem("Один колір", "1,50 м", "1,75 м") }));

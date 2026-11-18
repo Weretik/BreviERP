@@ -1,6 +1,7 @@
 using BuildingBlocks.Domain.Results;
 using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 
 namespace Crm.Domain.Customers.Contacts;
 

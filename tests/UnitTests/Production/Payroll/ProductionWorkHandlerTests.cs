@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Production.Domain.Orders.ValueObjects;
 using Ardalis.Result;
 using Production.Application.Abstractions;
@@ -218,7 +219,7 @@ public sealed class ProductionWorkHandlerTests
     private static ProductionTestHarness Workshop(out int employeeId)
     {
         var workshop = ProductionOrderHandlerTests.Workshop();
-        var employee = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
+        var employee = WorkshopEmployee.Create("Андреева", "Швачка", new UserId(1), workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.Add(employee);
         workshop.Db.SaveChanges();
         employeeId = employee.Id.Value;

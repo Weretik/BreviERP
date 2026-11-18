@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads;
 using Identity.Domain.Authorization;
 using Crm.Application.Features.Leads.Shared.Sheet;
@@ -12,8 +13,8 @@ namespace UnitTests.Crm.Leads;
 public sealed class LeadRulesTests
 {
     private static readonly DateTimeOffset Now = new(2026, 11, 9, 8, 0, 0, TimeSpan.Zero);
-    private static readonly LeadPerson Anastasia = new(17, "Анастасія");
-    private static readonly LeadPerson Vadym = new(18, "Вадим");
+    private static readonly LeadPerson Anastasia = new(new UserId(17), "Анастасія");
+    private static readonly LeadPerson Vadym = new(new UserId(18), "Вадим");
 
     private static readonly string?[] Header =
     [
@@ -86,8 +87,8 @@ public sealed class LeadRulesTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(LeadSheetOwners.Find("Анастасия", managers), Is.EqualTo(new LeadPerson(17, "Анастасія Петренко")));
-            Assert.That(LeadSheetOwners.Find("анастасія (з понеділка)", managers)?.UserId, Is.EqualTo(17));
+            Assert.That(LeadSheetOwners.Find("Анастасия", managers), Is.EqualTo(new LeadPerson(new UserId(17), "Анастасія Петренко")));
+            Assert.That(LeadSheetOwners.Find("анастасія (з понеділка)", managers)?.UserId, Is.EqualTo(new UserId(17)));
             Assert.That(LeadSheetOwners.Find("Вадим", managers), Is.Null, "two managers match");
             Assert.That(LeadSheetOwners.Find("Олег", managers), Is.Null);
             Assert.That(LeadSheetOwners.Find(null, managers), Is.Null);
@@ -102,7 +103,7 @@ public sealed class LeadRulesTests
         Assert.That(lead.ApplySheetOwner("Олег", null, Now), Is.False, "no manager: not remembered");
         Assert.That(lead.SheetOwner, Is.Null);
         Assert.That(lead.ApplySheetOwner("Анастасия", Anastasia, Now), Is.True);
-        Assert.That((lead.OwnerUserId, lead.Stage), Is.EqualTo(((int?)Anastasia.UserId, LeadStage.InWork)));
+        Assert.That((lead.OwnerUserId, lead.Stage), Is.EqualTo(((UserId?)Anastasia.UserId, LeadStage.InWork)));
 
         lead.Release(Now);
         Assert.That(lead.ApplySheetOwner("Анастасия", Anastasia, Now), Is.False, "same sheet value");

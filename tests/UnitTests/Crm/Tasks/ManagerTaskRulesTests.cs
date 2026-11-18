@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Commands.ChangeTaskStatus;
 using Crm.Application.Features.Tasks.Commands.CreateTask;
@@ -14,11 +15,11 @@ namespace UnitTests.Crm.Tasks;
 public sealed class ManagerTaskRulesTests
 {
     private static readonly DateTimeOffset Now = new(2026, 11, 4, 10, 0, 0, TimeSpan.Zero);
-    private static readonly ManagerTaskPerson Director = new(1, "Директор");
+    private static readonly ManagerTaskPerson Director = new(new UserId(1), "Директор");
     private static readonly TaskActor Admin = new(1, true);
 
     private static ManagerTask Task(int dueInHours = 24, bool urgent = false) =>
-        ManagerTask.Create(new ManagerTaskDraft(" Передзвонити ", "  ", new ManagerTaskPerson(17, "Ольга"), Now.AddHours(dueInHours),
+        ManagerTask.Create(new ManagerTaskDraft(" Передзвонити ", "  ", new ManagerTaskPerson(new UserId(17), "Ольга"), Now.AddHours(dueInHours),
             urgent, null, "ignored", [new ManagerTaskStepDraft(" Крок ", false)]), Director, Now);
 
     private static SaveTaskInput Input(string title = "Передзвонити", int assignee = 17, int steps = 1) =>

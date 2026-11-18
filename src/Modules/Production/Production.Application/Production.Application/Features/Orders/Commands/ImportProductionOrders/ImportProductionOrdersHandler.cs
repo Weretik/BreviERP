@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Application.DomainEvents;
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
@@ -67,7 +68,7 @@ public sealed class ImportProductionOrdersHandler(IProductionDbContext db, IProd
             var created = items.FirstOrDefault(x => x.IsFailure)?.Error is { } itemError
                 ? DomainResult<ProductionOrder>.Failure(itemError)
                 : ProductionOrder.Create(row.Number,
-                    new OrderOrigin(null, row.QuoteNumber, null, manager?.UserId, row.ManagerName, null, row.LegacyId),
+                    new OrderOrigin(null, row.QuoteNumber, null, UserId.FromNullable(manager?.UserId), row.ManagerName, null, row.LegacyId),
                     new OrderHeader(row.ClientName, row.OrderDate, row.Comment), null, items.Select(x => x.Value),
                     actorName, now);
             if (created.IsFailure)

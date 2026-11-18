@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using Production.Application.Features.Orders.Shared.Access;
@@ -84,7 +85,7 @@ public sealed class PayrollMonthRaceTests
 
     private static int Employee(ProductionTestHarness workshop)
     {
-        var employee = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
+        var employee = WorkshopEmployee.Create("Андреева", "Швачка", new UserId(1), workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.Add(employee);
         workshop.Db.SaveChanges();
         return employee.Id.Value;

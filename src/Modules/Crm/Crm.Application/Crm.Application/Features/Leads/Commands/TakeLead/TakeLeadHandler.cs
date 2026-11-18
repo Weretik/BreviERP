@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Application.Features.Leads.Shared;
@@ -23,7 +24,7 @@ public sealed class TakeLeadHandler(ILeadStore store, ITaskStaffReader staff, Ti
         if (member is null) return Result.Forbidden(LeadMessages.ActorUnknown);
 
         var now = clock.GetUtcNow();
-        if (!lead.Take(new LeadPerson(member.UserId, member.Name), now))
+        if (!lead.Take(new LeadPerson(new UserId(member.UserId), member.Name), now))
             return Result.Conflict(LeadMessages.TakenBy(lead.OwnerName));
         if (!await store.TrySaveAsync(cancellationToken))
         {

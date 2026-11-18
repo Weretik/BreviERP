@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes.Settings;
 using Crm.Application.Features.Quotes.Commands.SaveQuoteSettings;
 using Crm.Application.Features.Quotes.Shared.Access;
@@ -55,7 +56,7 @@ public sealed class QuoteSettingsTests
     {
         var settings = QuoteSettings.Create(DefaultInput().ToContent() with
         {
-            StaffContacts = [new QuoteStaffContact(5, "Олена Петренко", "+38 050 000 00 00", "office@brevi.test")],
+            StaffContacts = [new QuoteStaffContact(new UserId(5), "Олена Петренко", "+38 050 000 00 00", "office@brevi.test")],
         }, "Директор", DateTimeOffset.UnixEpoch).Value;
 
         var response = settings.ToResponse([new QuoteStaffMember(5, "Юлія", "julia@brevi.test"), new QuoteStaffMember(6, "Вадим", "v@brevi.test", "+381")],
