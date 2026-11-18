@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Reference.Application.Features.ProductSection.Shared;
 using Reference.Domain.ProductSections;
 using ProductSectionEntity = Reference.Domain.ProductSections.ProductSection;
@@ -18,7 +19,7 @@ public sealed class CreateProductSectionHandler(IReferenceRepository<ProductSect
         var existing = await repository.ListAsync(cancellationToken);
         var nextId = existing.Count == 0 ? 1 : existing.Max(x => x.Id.Value) + 1;
 
-        var created = ProductSectionEntity.Create(ProductSectionId.From(nextId),
+        var created = ProductSectionEntity.Create(new ProductSectionId(nextId),
             ProductSectionDetailsFactory.From(command.Request));
         if (created.IsFailure) return created.Error!.ToResult<int>();
         var entity = created.Value;

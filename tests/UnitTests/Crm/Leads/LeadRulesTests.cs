@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Leads;
 using Identity.Domain.Authorization;
 using Crm.Application.Features.Leads.Shared.Sheet;

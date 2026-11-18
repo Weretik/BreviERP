@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Documents;
 using Purchasing.Domain.Ingestion;
@@ -39,7 +40,7 @@ public sealed class GetPurchaseInvoicesHandler(IPurchasingDbContext db, IPurchas
             cards = cards.Where(x => x.Message.SupplierId == null);
 
         if (query.SupplierId is { } supplierId)
-            cards = cards.Where(x => x.Message.SupplierId == supplierId);
+            cards = cards.Where(x => x.Message.SupplierId == new SupplierId(supplierId));
 
         if (query.DocumentFrom is not null || query.DocumentTo is not null || query.Vat is not null)
         {
@@ -120,8 +121,8 @@ public sealed class GetPurchaseInvoicesHandler(IPurchasingDbContext db, IPurchas
                 x.Message.Id.Value, x.Message.TelegramKey, x.Row.SourceUid, x.Row.RowNumber, x.RowCount,
                 raw.ChatName, raw.FromUser, x.Message.MessageAt, x.Message.Text, x.Message.StatusOriginal,
                 x.Message.MarkAt, x.Message.MarkBy, x.Message.PaymentState == PaymentState.MarkedPaid,
-                x.Message.SupplierId,
-                x.Message.SupplierId is { } supplierId ? supplierNames.GetValueOrDefault(supplierId) : null,
+                x.Message.SupplierId?.Value,
+                x.Message.SupplierId is { } supplierId ? supplierNames.GetValueOrDefault(supplierId.Value) : null,
                 x.Message.ReviewNote, x.Message.ReviewVersion, x.Message.ReviewedBy, x.Message.ReviewedAt,
                 state,
                 issues,

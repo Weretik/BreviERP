@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
 using Moq;
@@ -131,16 +132,16 @@ public sealed class SewingArticleSummaryTests
     {
         var productId = ProductId.Create(7);
         var operation = SewingOperationLine.Create(CompositionLineId.Create(1), productId, null,
-            OperationReferenceId.Create(3), 1, null, 0, comment: "  Комір  ").Value;
+            new GarmentPartOperationId(3), 1, null, 0, comment: "  Комір  ").Value;
         var empty = SewingMaterialLine.Create(CompositionLineId.Create(2), productId, null, SewingMaterialKind.Fabric,
-            FabricReferenceId.Create(4), null, null, 1.4m, SewingMaterialUnit.Metre, 0, comment: " ").Value;
+            new FabricId(4), null, null, 1.4m, SewingMaterialUnit.Metre, 0, comment: " ").Value;
 
         Assert.Multiple(() =>
         {
             Assert.That(operation.Comment, Is.EqualTo("Комір"));
             Assert.That(empty.Comment, Is.Null);
             Assert.That(SewingOperationLine.Create(CompositionLineId.Create(1), productId,
-                null, OperationReferenceId.Create(3), 1, null, 0, comment: new string('я', 501)).IsFailure, Is.True);
+                null, new GarmentPartOperationId(3), 1, null, 0, comment: new string('я', 501)).IsFailure, Is.True);
         });
     }
 }

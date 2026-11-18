@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Domain.FabricPlans;

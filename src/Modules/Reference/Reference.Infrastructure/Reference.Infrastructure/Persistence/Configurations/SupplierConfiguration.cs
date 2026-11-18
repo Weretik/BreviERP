@@ -15,7 +15,6 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .HasConversion(ReferenceConverters.SupplierIdConvert)
             .ValueGeneratedNever();
 
         builder.HasIndex(x => x.Name)

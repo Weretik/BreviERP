@@ -1,5 +1,5 @@
 using Crm.Domain.Customers.Identifiers;
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 
 namespace Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients.Results;
 

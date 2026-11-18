@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
 using Reference.Application.Features.Activity.EventHandlers;
@@ -11,7 +12,7 @@ namespace UnitTests.Reference;
 public sealed class ReferenceActivityTests
 {
     private static Fabric NewFabric() =>
-        Fabric.Create(FabricId.From(3), "Сантана", MoneyAmount.From(50m), SupplierId.From(5)).Value;
+        Fabric.Create(new FabricId(3), "Сантана", MoneyAmount.From(50m), new SupplierId(5)).Value;
 
     private static ActivityDescription? Last(IHasDomainEvents source) =>
         new ReferenceActivity().Describe(source.DomainEvents.Last());
@@ -35,7 +36,7 @@ public sealed class ReferenceActivityTests
         var fabric = NewFabric();
         ((IHasDomainEvents)fabric).ClearDomainEvents();
 
-        fabric.Update("Сантана люкс", MoneyAmount.From(50m), SupplierId.From(5));
+        fabric.Update("Сантана люкс", MoneyAmount.From(50m), new SupplierId(5));
 
         var entry = Last(fabric);
         Assert.That(entry!.Action, Is.EqualTo(ActivityActions.Changed));
@@ -61,7 +62,7 @@ public sealed class ReferenceActivityTests
     [Test]
     public void Deleting_an_entry_is_listed_with_its_name()
     {
-        var supplier = Supplier.Create(SupplierId.From(7), "Спецтекстиль, ТОВ").Value;
+        var supplier = Supplier.Create(new SupplierId(7), "Спецтекстиль, ТОВ").Value;
 
         supplier.MarkDeleted();
 

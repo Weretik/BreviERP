@@ -15,7 +15,6 @@ public sealed class GarmentAccessoryConfiguration : IEntityTypeConfiguration<Gar
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .HasConversion(ReferenceConverters.GarmentAccessoryIdConvert)
             .ValueGeneratedNever();
 
         builder.HasIndex(x => x.Name);
@@ -43,7 +42,6 @@ public sealed class GarmentAccessoryConfiguration : IEntityTypeConfiguration<Gar
             .IsRequired();
 
         builder.Property(x => x.SupplierId)
-            .HasConversion(ReferenceConverters.SupplierIdConvert)
             .HasDefaultValueSql("1")
             .IsRequired();
 

@@ -1,5 +1,5 @@
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
-using GarmentPartOperationId = Reference.Domain.GarmentPartOperations.GarmentPartOperationId;
+using GarmentPartOperationId = BuildingBlocks.Domain.Identifiers.ReferenceData.GarmentPartOperationId;
 
 namespace Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds.Specs;
 
@@ -7,7 +7,7 @@ internal sealed class PricingGarmentPartOperationsByIdsSpec : Specification<Garm
 {
     public PricingGarmentPartOperationsByIdsSpec(IReadOnlyCollection<int> ids)
     {
-        var garmentPartOperationIds = ids.Select(GarmentPartOperationId.From).ToArray();
+        var garmentPartOperationIds = ids.Select(x => new GarmentPartOperationId(x)).ToArray();
 
         Query.AsNoTracking()
             .Where(x => garmentPartOperationIds.Contains(x.Id))

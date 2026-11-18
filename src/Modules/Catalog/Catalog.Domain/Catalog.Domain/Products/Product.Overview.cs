@@ -32,7 +32,7 @@ public partial class Product
     public DomainResult SetOverview(ProductOverviewDetails details, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(details);
-        if (details.SectionId is <= 0)
+        if (details.SectionId?.Value is <= 0)
             return ProductErrors.OverviewInvalid("Розділ вказано неправильно.");
         var season = Normalize(details.Season);
         if (season is not null && (Type != ProductType.Sewing || !Seasons.Contains(season)))

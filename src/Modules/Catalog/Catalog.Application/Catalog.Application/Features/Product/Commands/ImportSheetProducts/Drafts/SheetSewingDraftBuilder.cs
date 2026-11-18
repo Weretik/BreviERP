@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Sewing.Enums;
@@ -73,7 +74,7 @@ public sealed class SheetSewingDraftBuilder(SheetReferenceResolver references, S
         }
         materials = FabricPerVariant(materials, articles.Select(x => x.SaleSku).ToList());
         return new SheetProductDraft(row.RowNumber, ProductType.Sewing, code, row.Name.Trim(),
-            new ProductOverviewDetails(sectionId, Trim(row.Season), row.IsActive,
+            new ProductOverviewDetails(ProductSectionId.FromNullable(sectionId), Trim(row.Season), row.IsActive,
                 Trim(row.CurrentSiteUrl), Trim(row.QuoteDescription)),
             null, new SewingCompositionDraft(articles, materials, operations));
     }

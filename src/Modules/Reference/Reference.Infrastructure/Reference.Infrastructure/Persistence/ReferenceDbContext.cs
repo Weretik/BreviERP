@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using BuildingBlocks.Infrastructure.Outbox;
 using Reference.Domain.FabricColors;
 using Reference.Domain.PpeMarkupRules;
@@ -26,6 +27,9 @@ public partial class ReferenceDbContext(DbContextOptions<ReferenceDbContext> opt
     public DbSet<Supplier> Suppliers => Set<Supplier>();
 
     public void DiscardChanges() => ChangeTracker.Clear();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(Fabric).Assembly);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

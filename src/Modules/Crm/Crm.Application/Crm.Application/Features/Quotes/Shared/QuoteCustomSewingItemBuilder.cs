@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared.Catalog;
 using Crm.Application.Abstractions.Quotes;
@@ -66,12 +67,12 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         if (variant.Title is not { } title) return Result.Conflict($"«{itemName}»: тканину не знайдено в довіднику.");
         if (variant.Prices is not { } prices)
             return Result.Conflict($"«{itemName}», «{title}»: не вдалося порахувати ціну ({string.Join("; ", variant.Problems)}).");
-        return Result.Success(QuoteItemOption.Create(position, null, variant.Fabrics[0].FabricId, Shorten(title),
+        return Result.Success(QuoteItemOption.Create(position, null, new FabricId(variant.Fabrics[0].FabricId), Shorten(title),
                 variant.Details, input.IsRecommended,
                 new QuotePrice(prices.Retail, null, input.Retail.Shown),
                 new QuotePrice(prices.Wholesale, null, input.Wholesale.Shown),
                 new QuotePrice(prices.Large, null, input.Large.Shown), now)
-            .WithFabrics(variant.Fabrics.Select((x, i) => QuoteItemOptionFabric.Create(i, x.FabricId, x.Name!, x.Meters))));
+            .WithFabrics(variant.Fabrics.Select((x, i) => QuoteItemOptionFabric.Create(i, new FabricId(x.FabricId), x.Name!, x.Meters))));
     }
 
     private static string Shorten(string title) =>
@@ -106,7 +107,7 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         {
             var optionInput = input.Options[index];
             var saved = previous.Options.FirstOrDefault(x => x.Id == optionInput.Id);
-            if (saved is null || !saved.HasFabrics(optionInput.Fabrics!.Select(x => (x.FabricId, x.Meters)).ToArray()))
+            if (saved is null || !saved.HasFabrics(optionInput.Fabrics!.Select(x => (new FabricId(x.FabricId), x.Meters)).ToArray()))
                 return null;
             options.Add(QuoteItemOption.Create(index, null, saved.FabricId, saved.Title, saved.Details,
                     optionInput.IsRecommended, saved.Retail with { Shown = optionInput.Retail.Shown },

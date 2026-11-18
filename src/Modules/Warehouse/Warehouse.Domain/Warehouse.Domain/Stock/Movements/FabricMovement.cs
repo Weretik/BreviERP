@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Warehouse.Domain.Stock;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using BuildingBlocks.Domain.Entity;
@@ -27,7 +28,7 @@ public enum FabricMovementKind
 public sealed record FabricMovementDetails(
     DateOnly OperationDate,
     string? Note,
-    int? SupplierId = null,
+    SupplierId? SupplierId = null,
     string? SupplierName = null,
     string? Document = null,
     FabricMovementTarget? Target = null,
@@ -100,7 +101,7 @@ public sealed class FabricMovement : DomainEventSource, IAggregateRoot
     public string? Note { get; private set; }
 
     /// <summary>«Постачальники» (Reference) of a receipt; null for the old app's typed names.</summary>
-    public int? SupplierId { get; private set; }
+    public SupplierId? SupplierId { get; private set; }
 
     public string? SupplierName { get; private set; }
 

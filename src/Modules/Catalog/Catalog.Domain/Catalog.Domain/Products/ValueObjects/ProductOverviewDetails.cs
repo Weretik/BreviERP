@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 namespace Catalog.Domain.Products.ValueObjects;
 
 /// <summary>
@@ -5,7 +6,7 @@ namespace Catalog.Domain.Products.ValueObjects;
 /// Reference «Типи і розділи», season «Літо»/«Зима» (sewing only), activity, the link to the product page on the current public site, and the short description for a quote (КП).
 /// </summary>
 public sealed record ProductOverviewDetails(
-    int? SectionId,
+    ProductSectionId? SectionId,
     string? Season,
     bool IsActive,
     string? CurrentSiteUrl,

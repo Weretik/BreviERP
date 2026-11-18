@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Catalog.Domain.Products.Sewing.Composition;
@@ -22,8 +23,6 @@ public sealed class SewingMaterialLineConfiguration : IEntityTypeConfiguration<S
         builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => ProductId.Create(x)).IsRequired();
         builder.Property(x => x.ArticleId).HasConversion(new ValueConverter<ArticleId?, long?>(x => x.HasValue ? x.Value.Value : null, x => x.HasValue ? ArticleId.Create(x.Value) : null));
         builder.Property(x => x.Kind).HasConversion<int>().IsRequired();
-        builder.Property(x => x.FabricId).HasConversion(x => x.HasValue ? x.Value.Value : (int?)null, x => x.HasValue ? FabricReferenceId.Create(x.Value) : null);
-        builder.Property(x => x.AccessoryId).HasConversion(x => x.HasValue ? x.Value.Value : (int?)null, x => x.HasValue ? AccessoryReferenceId.Create(x.Value) : null);
         builder.Ignore(x => x.ReferenceKey);
         builder.Property(x => x.CostCode).HasMaxLength(80);
         builder.Property(x => x.Quantity).HasPrecision(18, 6).IsRequired();

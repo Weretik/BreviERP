@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using Ardalis.Specification;
 using Catalog.Application.Features.Product.Shared;
@@ -109,7 +110,7 @@ public sealed class SewingCompositionHandlerTests
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Conflict));
         fixture.Store.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
         fixture.Store.Verify(x => x.AddArticleAsync(It.IsAny<Product>(), It.IsAny<SewingArticle>(),
-            It.IsAny<FabricReferenceId>(), It.IsAny<decimal>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()), Times.Never);
+            It.IsAny<FabricId>(), It.IsAny<decimal>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
@@ -117,7 +118,7 @@ public sealed class SewingCompositionHandlerTests
     {
         var fixture = new Fixture();
         fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
-        fixture.Store.Setup(x => x.AddArticleAsync(fixture.Product, It.IsAny<SewingArticle>(), FabricReferenceId.Create(10),
+        fixture.Store.Setup(x => x.AddArticleAsync(fixture.Product, It.IsAny<SewingArticle>(), new FabricId(10),
             3.6m, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var result = await fixture.ArticleHandler.Handle(new CreateSewingArticleCommand(101,
@@ -145,7 +146,7 @@ public sealed class SewingCompositionHandlerTests
         var fixture = new Fixture();
         var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21").Value;
         fixture.Product.AddArticle(article, DateTimeOffset.UtcNow);
-        fixture.Product.SetArticleFabric(article.Id, FabricReferenceId.Create(10), 2m, DateTimeOffset.UtcNow);
+        fixture.Product.SetArticleFabric(article.Id, new FabricId(10), 2m, DateTimeOffset.UtcNow);
         fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
         fixture.Store.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
@@ -157,7 +158,7 @@ public sealed class SewingCompositionHandlerTests
         Assert.That(article.IsActive, Is.False);
         var fabric = fixture.Product.MaterialLines.Single();
         Assert.That((fabric.ArticleId, fabric.FabricId, fabric.Quantity),
-            Is.EqualTo(((ArticleId?)article.Id, (FabricReferenceId?)FabricReferenceId.Create(11), 3.6m)));
+            Is.EqualTo(((ArticleId?)article.Id, (FabricId?)new FabricId(11), 3.6m)));
     }
 
     [Test]
@@ -182,7 +183,7 @@ public sealed class SewingCompositionHandlerTests
         var fixture = new Fixture();
         var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21").Value;
         fixture.Product.AddArticle(article, DateTimeOffset.UtcNow);
-        fixture.Product.SetArticleFabric(article.Id, FabricReferenceId.Create(10), 2m, DateTimeOffset.UtcNow);
+        fixture.Product.SetArticleFabric(article.Id, new FabricId(10), 2m, DateTimeOffset.UtcNow);
         fixture.Store.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var result = await fixture.DeleteHandler.Handle(new DeleteSewingArticleCommand(101, 21,
@@ -214,7 +215,7 @@ public sealed class SewingCompositionHandlerTests
         var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21").Value;
         fixture.Product.AddArticle(article, DateTimeOffset.UtcNow);
         var existing = SewingMaterialLine.Create(CompositionLineId.Create(4), fixture.Product.Id, article.Id,
-            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 1m, SewingMaterialUnit.Metre, 0).Value;
+            SewingMaterialKind.Fabric, new FabricId(10), null, null, 1m, SewingMaterialUnit.Metre, 0).Value;
         fixture.Product.ReplaceComposition([existing], [], DateTimeOffset.UtcNow);
         fixture.Store.Setup(x => x.LoadAsync(101, It.IsAny<CancellationToken>())).ReturnsAsync(fixture.Product);
         fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
@@ -251,12 +252,12 @@ public sealed class SewingCompositionHandlerTests
     {
         var fixture = new ReplaceFixture();
         var product = Fixture.NewSewingProduct();
-        var legacy = SewingProductDetails.Create(product.Id, 1m, [ProductFabric.Create(product.Id, 10, true, 0).Value], [], []).Value;
+        var legacy = SewingProductDetails.Create(product.Id, 1m, [ProductFabric.Create(product.Id, new FabricId(10), true, 0).Value], [], []).Value;
         product.ConfigureSewing(legacy, DateTimeOffset.UtcNow);
         var article = SewingArticle.Create(ArticleId.Create(24), product.Id, "SKU-24").Value;
         product.AddArticle(article, DateTimeOffset.UtcNow);
         product.ReplaceComposition([SewingMaterialLine.Create(CompositionLineId.Create(10), product.Id, null,
-            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 2m, SewingMaterialUnit.Metre, 0).Value], [], DateTimeOffset.UtcNow);
+            SewingMaterialKind.Fabric, new FabricId(10), null, null, 2m, SewingMaterialUnit.Metre, 0).Value], [], DateTimeOffset.UtcNow);
         fixture.LoadProduct(product);
 
         var changedNorm = await fixture.Handler.Handle(new ReplaceProductCommand(101,

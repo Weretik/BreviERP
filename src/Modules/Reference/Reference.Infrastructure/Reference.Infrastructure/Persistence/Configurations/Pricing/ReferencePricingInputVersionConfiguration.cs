@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
@@ -20,12 +21,6 @@ public sealed class ReferencePricingInputVersionConfiguration : IEntityTypeConfi
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasConversion(x => x.Value, x => ReferencePricingInputVersionId.Create(x))
             .ValueGeneratedOnAdd().HasValueGenerator<ReferencePricingInputVersionIdGenerator>();
-        builder.Property(x => x.FabricId).HasConversion(new ValueConverter<FabricId?, int?>(
-            x => x.HasValue ? x.Value.Value : null, x => x.HasValue ? FabricId.From(x.Value) : null));
-        builder.Property(x => x.AccessoryId).HasConversion(new ValueConverter<GarmentAccessoryId?, int?>(
-            x => x.HasValue ? x.Value.Value : null, x => x.HasValue ? GarmentAccessoryId.From(x.Value) : null));
-        builder.Property(x => x.OperationId).HasConversion(new ValueConverter<GarmentPartOperationId?, int?>(
-            x => x.HasValue ? x.Value.Value : null, x => x.HasValue ? GarmentPartOperationId.From(x.Value) : null));
         builder.Property(x => x.OtherCostCode).HasMaxLength(80);
         builder.Property(x => x.Value).HasPrecision(20, 8);
         builder.Property(x => x.SourceCode).HasMaxLength(200).IsRequired();

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using IntegrationTests.TestSupport;
 using Microsoft.EntityFrameworkCore;
@@ -84,7 +85,7 @@ public sealed class PpeSupplierFileImportTests : SewingPricingDatabaseFixture
         var product = Product.Create(ProductId.Create(id), "Черевики " + sku, "Черевики " + sku,
             ProductSlug.Create("cherevyky-" + sku).Value, ProductType.Ppe, Now).Value;
         product.SetCode(code, Now);
-        product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(1), sku, null, price, manual, "Взуття", "пара"), Now);
+        product.SetPpeSupplier(new PpeSupplierDetails(new SupplierId(1), sku, null, price, manual, "Взуття", "пара"), Now);
         return product;
     }
 

@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Embroidery.Calculation;
 using Crm.Domain.Embroidery.Saved;
 using Crm.Domain.Embroidery.Settings;

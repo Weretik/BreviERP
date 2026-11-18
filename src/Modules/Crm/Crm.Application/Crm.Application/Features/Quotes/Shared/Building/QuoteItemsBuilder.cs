@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Catalog;
@@ -98,7 +99,7 @@ public sealed class QuoteItemsBuilder(
         var saved = previous?.Options.FirstOrDefault(x => x.Id == input.Id && x.ArticleId is null);
         if (saved is null) return null;
         if (input.Fabrics is not { Count: > 0 } fabrics) return saved;
-        return saved.HasFabrics(fabrics.Select(x => (x.FabricId, x.Meters)).ToArray()) ? saved : null;
+        return saved.HasFabrics(fabrics.Select(x => (new FabricId(x.FabricId), x.Meters)).ToArray()) ? saved : null;
     }
 
     private static Result<QuoteItem> BuildCatalogItem(
@@ -161,7 +162,7 @@ public sealed class QuoteItemsBuilder(
         if (variant.Prices is not { } prices)
             return Result.Conflict($"«{itemName}», «{variant.Title}»: немає опублікованої ціни ({string.Join(", ", variant.Problems)}).");
 
-        return Result.Success(QuoteItemOption.Create(position, variant.ArticleId, variant.FabricId, variant.Title,
+        return Result.Success(QuoteItemOption.Create(position, variant.ArticleId, FabricId.FromNullable(variant.FabricId), variant.Title,
             variant.Details, input.IsRecommended,
             new QuotePrice(prices.Retail, null, input.Retail.Shown),
             new QuotePrice(prices.Wholesale, null, input.Wholesale.Shown),

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Application.DomainEvents;
 using Reference.Domain.Suppliers;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
@@ -60,7 +61,7 @@ public sealed class KeepinCrmSupplierSync(IDomainEventSuppression domainEvents,
             else
             {
                 var supplier = SupplierEntity.CreateFromKeepinCrm(
-                    SupplierId.From(nextId++), WithFreeName(snapshot, null, suppliers, created), syncedAt).Value;
+                    new SupplierId(nextId++), WithFreeName(snapshot, null, suppliers, created), syncedAt).Value;
                 created.Add(supplier);
             }
         }

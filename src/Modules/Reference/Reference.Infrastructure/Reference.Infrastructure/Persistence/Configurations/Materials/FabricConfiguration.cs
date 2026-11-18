@@ -16,7 +16,6 @@ public sealed class FabricConfiguration : IEntityTypeConfiguration<Fabric>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .HasConversion(ReferenceConverters.FabricIdConvert)
             .ValueGeneratedNever();
 
         // The Calculator sheet has fabrics with the same name; the code is the unique key.
@@ -46,7 +45,6 @@ public sealed class FabricConfiguration : IEntityTypeConfiguration<Fabric>
             .IsRequired();
 
         builder.Property(x => x.ProviderId)
-            .HasConversion(ReferenceConverters.SupplierIdConvert)
             .IsRequired();
 
         builder.HasOne<Supplier>()

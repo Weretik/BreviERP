@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Purchasing.Domain.Messages.Identifiers;
 using Ardalis.Result;
 using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
@@ -61,7 +62,7 @@ public sealed class PurchaseInvoiceReviewTests
         var change = db.ReviewChanges.Single();
         Assert.That((change.MessageId.Value, change.Reviewer), Is.EqualTo((messageId, "buh@brevi.com.ua")));
         Assert.That(change.Before, Is.EqualTo(new global::Purchasing.Domain.Messages.PurchaseReview(null, null, 0)));
-        Assert.That(change.After, Is.EqualTo(new global::Purchasing.Domain.Messages.PurchaseReview(7, "Тканина на березень", 1)));
+        Assert.That(change.After, Is.EqualTo(new global::Purchasing.Domain.Messages.PurchaseReview(new SupplierId(7), "Тканина на березень", 1)));
     }
 
     [Test]

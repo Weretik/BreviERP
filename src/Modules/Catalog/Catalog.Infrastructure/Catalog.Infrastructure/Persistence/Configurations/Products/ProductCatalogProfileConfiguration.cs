@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Catalog.Domain.Products.Ppe;
@@ -27,9 +28,5 @@ public sealed class ProductCatalogProfileConfiguration : IEntityTypeConfiguratio
         builder.Property(x => x.ShortDescription).HasMaxLength(4000);
         builder.Property(x => x.SectionId);
         builder.HasIndex(x => x.SectionId);
-        builder.Property(x => x.SupplierId).HasConversion(
-            new ValueConverter<SupplierReferenceId?, int?>(
-                x => x.HasValue ? x.Value.Value : null,
-                x => x.HasValue ? SupplierReferenceId.Create(x.Value) : null));
     }
 }

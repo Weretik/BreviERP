@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders.Enums;
 using Production.Domain.Orders.Errors;
@@ -80,7 +81,7 @@ public sealed class ProductionItem
     public string? ModelCode { get; private set; }
 
     public string ModelName { get; private set; } = null!;
-    public int? FabricId { get; private set; }
+    public FabricId? FabricId { get; private set; }
 
     /// <summary>Reference fabric code (FAB-…).</summary>
     public string? FabricCode { get; private set; }
@@ -186,7 +187,7 @@ public sealed record ItemSource(
     long? ArticleId,
     string? ModelCode,
     string ModelName,
-    int? FabricId,
+    FabricId? FabricId,
     string? FabricCode,
     string? FabricName,
     decimal? SewingRate,

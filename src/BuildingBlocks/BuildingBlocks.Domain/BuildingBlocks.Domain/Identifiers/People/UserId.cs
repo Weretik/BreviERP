@@ -1,4 +1,4 @@
-namespace BuildingBlocks.Domain.Identifiers;
+namespace BuildingBlocks.Domain.Identifiers.People;
 
 /// <summary>
 /// A staff account of Identity (an ASP.NET Identity user). Identity keeps no aggregate of its own, so the id lives in

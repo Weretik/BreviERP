@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using CatalogImport.Execution;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,7 @@ public sealed class AccessoryCatalogImporter(
             var cost = row.Decimal(3)!.Value;
             if (entity is null)
             {
-                entity = GarmentAccessory.Create(GarmentAccessoryId.From(++nextId), row.Text(1), MoneyAmount.From(cost), supplierId)
+                entity = GarmentAccessory.Create(new GarmentAccessoryId(++nextId), row.Text(1), MoneyAmount.From(cost), supplierId)
                     .Require(row.Key);
                 accessories.Add(entity);
                 db.GarmentAccessories.Add(entity);

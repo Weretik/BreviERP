@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using CatalogImport.Execution;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ public sealed class SupplierCatalogImporter(
         var supplier = suppliers.SingleOrDefault(x => x.Name == name);
         if (supplier is null)
         {
-            supplier = Supplier.Create(SupplierId.From(++_nextId), name).Require($"Supplier «{name}»");
+            supplier = Supplier.Create(new SupplierId(++_nextId), name).Require($"Supplier «{name}»");
             suppliers.Add(supplier);
             db.Suppliers.Add(supplier);
             report.ReferenceChanges.Add($"Supplier created: {name} -> {supplier.Id.Value}.");

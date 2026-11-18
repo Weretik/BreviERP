@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Ardalis.Result;
 using Crm.Domain.Customers.Identifiers;
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Microsoft.EntityFrameworkCore;
 using Crm.Application.Abstractions.Customers;
 using Crm.Infrastructure.Persistence;

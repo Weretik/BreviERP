@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
@@ -39,7 +40,7 @@ public sealed class SupplierSeeder(
             var notes = string.IsNullOrWhiteSpace(row.Notes) ? null : row.Notes.Trim();
 
             var created = Supplier.Create(
-                SupplierId.From(row.Id),
+                new SupplierId(row.Id),
                 name,
                 link,
                 contactPerson,

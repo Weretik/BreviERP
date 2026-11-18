@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.Products.Sewing.ValueObjects;
@@ -18,7 +19,7 @@ public interface ISewingCompositionStore
     /// Adds a fabric variant and its fabric line in one transaction: the article gets its ID first, then the line.
     /// False when the composition or the SKU changed meanwhile; a failure when a rule refuses the variant.
     /// </summary>
-    Task<DomainResult<bool>> AddArticleAsync(ProductEntity product, SewingArticle article, FabricReferenceId fabricId,
+    Task<DomainResult<bool>> AddArticleAsync(ProductEntity product, SewingArticle article, FabricId fabricId,
         decimal fabricQuantity, DateTimeOffset now, CancellationToken cancellationToken);
 
     Task<bool> SaveAsync(CancellationToken cancellationToken);

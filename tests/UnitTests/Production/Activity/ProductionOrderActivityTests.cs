@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
 using Production.Application.Features.Activity.EventHandlers;

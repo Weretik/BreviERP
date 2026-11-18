@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Application.Features.Quotes.Shared.Persistence;
 using Crm.Application.Features.Quotes.Shared.Sending;
 using Crm.Application.Abstractions.Quotes;

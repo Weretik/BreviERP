@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using System.Globalization;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
@@ -70,10 +71,10 @@ public sealed class CreateCatalogProductHandler(
         var product = created.Value;
         var card = product.SetCode(code, now);
         if (card.IsSuccess)
-            card = product.SetOverview(new ProductOverviewDetails(command.SectionId, command.Season, command.IsActive,
+            card = product.SetOverview(new ProductOverviewDetails(new ProductSectionId(command.SectionId), command.Season, command.IsActive,
                 command.CurrentSiteUrl, command.QuoteDescription), now);
         if (card.IsSuccess && command.Ppe is { } supplier)
-            card = product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(supplier.SupplierId),
+            card = product.SetPpeSupplier(new PpeSupplierDetails(new SupplierId(supplier.SupplierId),
                 supplier.SupplierSku, supplier.SupplierUrl, supplier.SupplierPrice, supplier.AllowManualPrice,
                 supplier.RuleCode.Trim(), supplier.Unit), now);
         if (card.IsFailure) return card.Error!.ToResult<CreatedCatalogProduct>();

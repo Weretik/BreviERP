@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using CatalogImport.Execution;
 using CatalogImport.Planning;
 using CatalogImport.Source;
@@ -31,7 +32,7 @@ public sealed class FabricCatalogImporter(
             var cost = row.Decimal(5)!.Value;
             if (entity is null)
             {
-                entity = Fabric.Create(FabricId.From(++nextId), name, MoneyAmount.From(cost), SupplierId.From(supplierId))
+                entity = Fabric.Create(new FabricId(++nextId), name, MoneyAmount.From(cost), new SupplierId(supplierId))
                     .Require(row.Key);
                 fabrics.Add(entity);
                 db.Fabrics.Add(entity);
@@ -40,7 +41,7 @@ public sealed class FabricCatalogImporter(
             else if (entity.Price.Value != cost || entity.ProviderId.Value != supplierId)
             {
                 report.ReferenceChanges.Add($"Fabric {row.Text(0)} ID {entity.Id.Value}: cost {entity.Price.Value} -> {cost}; supplier {entity.ProviderId.Value} -> {supplierId}.");
-                entity.Update(entity.Name, MoneyAmount.From(cost), SupplierId.From(supplierId)).Require(row.Key);
+                entity.Update(entity.Name, MoneyAmount.From(cost), new SupplierId(supplierId)).Require(row.Key);
             }
             entity.SetPresentationMetadata(row.Text(3), row.Text(4)).Require(row.Key);
             result.Add(row.Text(0), entity.Id.Value);

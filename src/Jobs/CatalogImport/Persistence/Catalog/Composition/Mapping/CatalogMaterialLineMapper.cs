@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using CatalogImport.Source;
 using Catalog.Domain.Products.Sewing.Composition;
@@ -16,8 +17,8 @@ public static class CatalogMaterialLineMapper
         return SewingMaterialLine.Create(CompositionLineId.Create(0), product.Id,
             row.Text(1).Length == 0 ? null : articles[row.Text(1)].Id,
             isFabric ? SewingMaterialKind.Fabric : isService ? SewingMaterialKind.OtherCost : SewingMaterialKind.Accessory,
-            isFabric ? FabricReferenceId.Create(references.Fabrics[row.Text(6)]) : null,
-            !isFabric && !isService ? AccessoryReferenceId.Create(references.Accessories[row.Text(6)]) : null,
+            isFabric ? new FabricId(references.Fabrics[row.Text(6)]) : null,
+            !isFabric && !isService ? new GarmentAccessoryId(references.Accessories[row.Text(6)]) : null,
             isService ? row.Text(6) : null, row.Decimal(8)!.Value,
             row.Text(9) == "м" ? SewingMaterialUnit.Metre : isService ? SewingMaterialUnit.Service : SewingMaterialUnit.Piece,
             index).Require($"Material line {index + 1} of {product.Name}");

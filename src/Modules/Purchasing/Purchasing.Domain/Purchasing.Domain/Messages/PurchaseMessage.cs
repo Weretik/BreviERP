@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Purchasing.Domain.Messages.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
@@ -52,7 +53,7 @@ public sealed class PurchaseMessage : IAggregateRoot
     public PaymentState PaymentState { get; private set; }
 
     /// <summary>Brevi supplier linked by hand (Reference module id, no database link across modules).</summary>
-    public int? SupplierId { get; private set; }
+    public SupplierId? SupplierId { get; private set; }
 
     public string? ReviewNote { get; private set; }
 
@@ -122,7 +123,7 @@ public sealed class PurchaseMessage : IAggregateRoot
     /// Sets the supplier link and note by hand. The note is trimmed and an empty one is removed. Returns the history entry,
     /// or null when nothing changed (the version stays). The caller checks the expected version first.
     /// </summary>
-    public DomainResult<PurchaseReviewChange?> Review(int? supplierId, string? note, string reviewer, DateTimeOffset now)
+    public DomainResult<PurchaseReviewChange?> Review(SupplierId? supplierId, string? note, string reviewer, DateTimeOffset now)
     {
         var cleanNote = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
         if (cleanNote is { Length: > ReviewNoteMaxLength })

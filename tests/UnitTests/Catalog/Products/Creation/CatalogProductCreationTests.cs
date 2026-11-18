@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using Ardalis.Specification;
 using Catalog.Domain.Pricing.Ppe;
@@ -40,7 +41,7 @@ public sealed class CatalogProductCreationTests
             Assert.That(product.RuName, Is.EqualTo(product.Name));
             Assert.That(product.Slug.Value, Is.EqualTo("kurtka-verde"));
             Assert.That(product.CatalogProfile!.IsActive, Is.False);
-            Assert.That(product.CatalogProfile.SectionId, Is.EqualTo(2));
+            Assert.That(product.CatalogProfile.SectionId, Is.EqualTo(new ProductSectionId(2)));
             Assert.That(product.CatalogProfile.Season, Is.EqualTo("Літо"));
         });
         setup.Offers.VerifyNoOtherCalls();

@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Building;
@@ -175,7 +176,7 @@ public sealed class QuoteImportMapper(
                 warn($"Тканини {option.FabricCode} немає в довіднику: ціну збережено.");
             var row = Option(index, option, null, fabric?.Id, takenAt);
             return fabric is not null && option.FabricMeters is > 0
-                ? row.WithFabrics([QuoteItemOptionFabric.Create(0, fabric.Id, fabric.Name, option.FabricMeters.Value)])
+                ? row.WithFabrics([QuoteItemOptionFabric.Create(0, new FabricId(fabric.Id), fabric.Name, option.FabricMeters.Value)])
                 : row;
         });
         return QuoteItem.Create(position, QuoteItemKind.CustomSewing, null,
@@ -195,7 +196,7 @@ public sealed class QuoteImportMapper(
 
     private static QuoteItemOption Option(int position, ImportOptionInput input, long? articleId, int? fabricId,
         DateTimeOffset takenAt, string? title = null, bool? recommended = null) =>
-        QuoteItemOption.Create(position, articleId, fabricId, title ?? input.Title, input.Details, recommended ?? input.IsRecommended,
+        QuoteItemOption.Create(position, articleId, FabricId.FromNullable(fabricId), title ?? input.Title, input.Details, recommended ?? input.IsRecommended,
             Price(input.Prices.Retail), Price(input.Prices.Wholesale), Price(input.Prices.Large), takenAt);
 
     private static QuotePrice Price(ImportPriceInput price) => new(price.Source, price.Manual, price.Shown);

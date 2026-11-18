@@ -1,9 +1,10 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Purchasing.Domain.Messages.Identifiers;
 using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Messages;
 
 /// <summary>The manual supplier link and note of a message at one version.</summary>
-public sealed record PurchaseReview(int? SupplierId, string? Note, int Version);
+public sealed record PurchaseReview(SupplierId? SupplierId, string? Note, int Version);
 
 /// <summary>
 /// History of the manual supplier link and note: one entry per saved change, never edited. It does not replace the

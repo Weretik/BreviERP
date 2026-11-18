@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Application.DomainEvents;
 using Reference.Domain.GarmentPartOperations;
 using GarmentPartEntity = Reference.Domain.GarmentParts.GarmentPart;
@@ -140,7 +141,7 @@ public sealed class ImportGarmentPartOperationsHandler(IDomainEventSuppression d
         {
             // Every planned row passed Validate, so these changes cannot fail.
             if (target is null)
-                created.Add(GarmentPartOperationEntity.Create(GarmentPartOperationId.From(nextId++), details).Value);
+                created.Add(GarmentPartOperationEntity.Create(new GarmentPartOperationId(nextId++), details).Value);
             else
                 target.ApplyDetails(details).ThrowIfFailure();
         }
@@ -162,7 +163,7 @@ public sealed class ImportGarmentPartOperationsHandler(IDomainEventSuppression d
             return "Немає назви операції.";
         if (!details.MinutesPerProduct && details.Min <= 0)
             return "Немає норми часу.";
-        return GarmentPartOperationEntity.Create(GarmentPartOperationId.From(1), details).Error?.Message;
+        return GarmentPartOperationEntity.Create(new GarmentPartOperationId(1), details).Error?.Message;
     }
 
     private static List<string> Diff(

@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Domain.Entity;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Reference.Domain.Suppliers;
 using BuildingBlocks.Domain;
@@ -144,7 +145,7 @@ public class GarmentAccessory : ReferenceEntity<GarmentAccessoryId>, IAggregateR
     {
         Name = ReferenceText.Optional(name)!;
         Price = price;
-        SupplierId = Reference.Domain.Suppliers.SupplierId.From(supplierId);
+        SupplierId = new SupplierId(supplierId);
     }
 
     private void SetDetails(GarmentAccessoryDetails details)

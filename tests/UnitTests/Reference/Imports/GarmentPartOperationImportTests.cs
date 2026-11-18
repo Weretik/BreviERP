@@ -1,4 +1,5 @@
-﻿using Moq;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using Moq;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.GarmentPartOperation.Commands.ImportGarmentPartOperations;
@@ -35,11 +36,11 @@ public sealed class GarmentPartOperationImportTests
         var sleeve = GarmentPart.Create(GarmentPartId.From(1), "Рукав").Value;
         var oldGroup = GarmentPart.Create(GarmentPartId.From(2), "Рукава (старе)").Value;
         var usedGroup = GarmentPart.Create(GarmentPartId.From(3), "Спинка (старе)").Value;
-        var coded = GarmentPartOperation.Create(GarmentPartOperationId.From(5),
+        var coded = GarmentPartOperation.Create(new GarmentPartOperationId(5),
             new GarmentPartOperationDetails("OP-001", sleeve.Id, "Рукав", "Прямий", "Рукав куртки: прямий", 5m, false,
                 true, null)).Value;
-        var stale = GarmentPartOperation.Create(GarmentPartOperationId.From(6), oldGroup.Id, "Втачать рукав", 4m).Value;
-        var used = GarmentPartOperation.Create(GarmentPartOperationId.From(7), usedGroup.Id, "Стачать спинку", 3m).Value;
+        var stale = GarmentPartOperation.Create(new GarmentPartOperationId(6), oldGroup.Id, "Втачать рукав", 4m).Value;
+        var used = GarmentPartOperation.Create(new GarmentPartOperationId(7), usedGroup.Id, "Стачать спинку", 3m).Value;
 
         var addedOperations = new List<GarmentPartOperation>();
         var deletedOperations = new List<GarmentPartOperation>();
@@ -67,7 +68,7 @@ public sealed class GarmentPartOperationImportTests
             Assert.That(value.NewGroups, Is.EqualTo(new[] { "Інше" }));
             var created = addedOperations.Single();
             Assert.That((created.Id, created.Code, created.MinutesPerProduct, created.Min),
-                Is.EqualTo((GarmentPartOperationId.From(8), "OP-155", true, 0m)));
+                Is.EqualTo((new GarmentPartOperationId(8), "OP-155", true, 0m)));
             Assert.That(created.GarmentPartId, Is.EqualTo(addedGroups.Single().Id));
             Assert.That(deletedOperations, Is.EqualTo(new[] { stale }));
             Assert.That(used.IsActive, Is.False);
@@ -81,7 +82,7 @@ public sealed class GarmentPartOperationImportTests
     public async Task Preview_and_rows_with_errors_change_nothing()
     {
         var sleeve = GarmentPart.Create(GarmentPartId.From(1), "Рукав").Value;
-        var stale = GarmentPartOperation.Create(GarmentPartOperationId.From(6), sleeve.Id, "Втачать рукав", 4m).Value;
+        var stale = GarmentPartOperation.Create(new GarmentPartOperationId(6), sleeve.Id, "Втачать рукав", 4m).Value;
         var added = new List<GarmentPartOperation>();
         var deleted = new List<GarmentPartOperation>();
         var operations = Repository([stale], added, deleted);
@@ -112,7 +113,7 @@ public sealed class GarmentPartOperationImportTests
     [Test]
     public void Operation_with_time_per_product_stores_no_norm_and_codes_are_normalized()
     {
-        var operation = GarmentPartOperation.Create(GarmentPartOperationId.From(1),
+        var operation = GarmentPartOperation.Create(new GarmentPartOperationId(1),
             new GarmentPartOperationDetails(" op-155 ", GarmentPartId.From(1), null, null, "Нестандартна операція", 12m,
                 true, true, null)).Value;
 

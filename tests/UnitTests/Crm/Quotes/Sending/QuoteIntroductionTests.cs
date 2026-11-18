@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -61,7 +62,7 @@ public sealed class QuoteIntroductionTests
             new QuoteItemTexts($"MOD-{index + 1}", $"Модель {index + 1}", null, null, $"https://brevi.com.ua/m{index}", null,
                 index < 4 ? "Літо" : "Зима", "https://supplier.test"),
             [
-                QuoteItemOption.Create(0, index * 100 + 100, index, $"Тканина {index + 1}",
+                QuoteItemOption.Create(0, index * 100 + 100, new FabricId(index), $"Тканина {index + 1}",
                     "60% бавовна, 40% поліестер, щільність 235 г/м²", false,
                     new QuotePrice(1500m, null, false), new QuotePrice(1400m, null, false),
                     new QuotePrice(1300.2m + index, null, true), DateTimeOffset.UnixEpoch),

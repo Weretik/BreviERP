@@ -1,4 +1,4 @@
-namespace BuildingBlocks.Domain.Identifiers;
+namespace BuildingBlocks.Domain.Identifiers.People;
 
 /// <summary>
 /// A client of Crm. Crm owns the customer; Production keeps it on an order. Shared kernel (ADR-0020).

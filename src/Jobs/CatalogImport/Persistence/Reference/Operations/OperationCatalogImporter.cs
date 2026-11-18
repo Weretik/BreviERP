@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using CatalogImport.Source;
 using CatalogImport.Execution;
 using CatalogImport.Planning;
@@ -35,7 +36,7 @@ public sealed class OperationCatalogImporter(ReferenceDbContext db, SourceMappin
             var entity = operations.SingleOrDefault(x => x.Name == name && x.GarmentPartId == part.Id);
             if (entity is null)
             {
-                entity = GarmentPartOperation.Create(GarmentPartOperationId.From(++nextOperation), part.Id, name, minutes)
+                entity = GarmentPartOperation.Create(new GarmentPartOperationId(++nextOperation), part.Id, name, minutes)
                     .Require(sourceKey);
                 operations.Add(entity);
                 db.GarmentPartOperations.Add(entity);

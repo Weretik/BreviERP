@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Reference.Application.Features.GarmentPartOperation.Shared;
 using Reference.Domain.GarmentPartOperations;
 using GarmentPartEntity = Reference.Domain.GarmentParts.GarmentPart;
@@ -37,7 +38,7 @@ public sealed class CreateGarmentPartOperationHandler(
             return Result.Invalid(errors);
 
         var created = GarmentPartOperationEntity.Create(
-            GarmentPartOperationId.From(request.Id),
+            new GarmentPartOperationId(request.Id),
             GarmentPartOperationDetailsFactory.From(request, garmentPart!.Id));
         if (created.IsFailure) return created.Error!.ToResult<int>();
         var entity = created.Value;

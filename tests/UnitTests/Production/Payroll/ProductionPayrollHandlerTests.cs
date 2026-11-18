@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Ardalis.Result;
 using Production.Domain.Payroll;
 using Production.Domain.Staff;

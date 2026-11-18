@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Commands.ImportQuotes;
 using Crm.Application.Features.Quotes.Shared.Access;
@@ -102,7 +103,7 @@ public sealed class QuoteImportTests
             Assert.That(item.Options[0].Retail, Is.EqualTo(new QuotePrice(2507.73m, null, true)));
             Assert.That(item.Options[0].Wholesale.Shown, Is.False);
             Assert.That(item.Options[1].ArticleId, Is.Null);
-            Assert.That(item.Options[1].FabricId, Is.EqualTo(7));
+            Assert.That(item.Options[1].FabricId, Is.EqualTo(new FabricId(7)));
             Assert.That(warnings.Single().Message, Does.Contain("Варіанта «Фліс» немає в каталозі"));
         });
     }
@@ -162,7 +163,7 @@ public sealed class QuoteImportTests
                 (QuoteItemLineKind.Fabric, 8, "м"), (QuoteItemLineKind.Accessory, 30, "шт."),
                 (QuoteItemLineKind.Operation, 40, "хв"),
             }));
-            Assert.That(item.Options.Single().FabricId, Is.EqualTo(7));
+            Assert.That(item.Options.Single().FabricId, Is.EqualTo(new FabricId(7)));
             Assert.That(item.Options.Single().FabricMeters, Is.EqualTo(2.1m));
         });
 

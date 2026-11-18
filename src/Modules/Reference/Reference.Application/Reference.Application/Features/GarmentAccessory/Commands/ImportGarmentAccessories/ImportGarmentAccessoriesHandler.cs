@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Application.DomainEvents;
 using Reference.Domain.GarmentAccessories;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
@@ -79,7 +80,7 @@ public sealed class ImportGarmentAccessoriesHandler(IDomainEventSuppression doma
                 {
                     // Every planned row passed Validate, so these changes cannot fail.
                     created.Add(GarmentAccessoryEntity.Create(
-                        GarmentAccessoryId.From(nextId++), details!, price, row.PriceUpdatedAt).Value);
+                        new GarmentAccessoryId(nextId++), details!, price, row.PriceUpdatedAt).Value);
                     continue;
                 }
 
@@ -126,7 +127,7 @@ public sealed class ImportGarmentAccessoriesHandler(IDomainEventSuppression doma
         if (GarmentAccessoryEntity.NormalizeUnit(details.Unit) is null)
             return $"Невідома одиниця «{details.Unit}». Можна: {string.Join(", ", GarmentAccessoryEntity.Units)}.";
         return GarmentAccessoryEntity.Create(
-                GarmentAccessoryId.From(1), details, MoneyAmount.From(row.Price), row.PriceUpdatedAt)
+                new GarmentAccessoryId(1), details, MoneyAmount.From(row.Price), row.PriceUpdatedAt)
             .Error?.Message;
     }
 

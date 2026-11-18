@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using System.Text.Json;
 using Warehouse.Application.Abstractions;
@@ -38,7 +39,7 @@ internal sealed class V133Writer(
                     $"Тканини {code} немає в «Тканини»: її рядки перенесено з назвою старого «Цеху», без ціни.");
             var first = source.Movements.Where(x => x.Original.StockId == row.Id).Select(x => (DateTimeOffset?)x.At)
                 .Min();
-            var line = FabricStock.Create(new StockFabric(fabric?.Id, code, fabric?.Name ?? row.FabricName ?? code),
+            var line = FabricStock.Create(new StockFabric(FabricId.FromNullable(fabric?.Id), code, fabric?.Name ?? row.FabricName ?? code),
                 row.Color, first ?? now, row.Id);
             _lines[row.Id] = line;
             db.FabricStocks.Add(line);

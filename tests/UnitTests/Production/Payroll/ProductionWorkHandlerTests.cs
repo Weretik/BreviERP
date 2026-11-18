@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Production.Domain.Orders.ValueObjects;
 using Ardalis.Result;
 using Production.Application.Abstractions;

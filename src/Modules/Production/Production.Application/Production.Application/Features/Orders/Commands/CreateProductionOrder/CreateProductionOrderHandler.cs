@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Identifiers.People;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Colors.Shared;
@@ -60,7 +61,7 @@ public sealed class CreateProductionOrderHandler(
             var variant = resolved.Options.Single(x => x.Option.Id == option.Id);
             var details = line.Details.ToDetails(numbers.Value);
             var source = new ItemSource(quoteItem.Id, option.Id, quoteItem.ProductId, option.ArticleId,
-                resolved.ModelCode, quoteItem.Name, option.FabricId, variant.FabricCode, variant.FabricName,
+                resolved.ModelCode, quoteItem.Name, FabricId.FromNullable(option.FabricId), variant.FabricCode, variant.FabricName,
                 variant.SewingRate, variant.Price(tier));
             var colors = 1 + details.AdditionalColors.Count(x => !string.IsNullOrWhiteSpace(x));
             var item = ProductionItem.Create(items.Count + 1, source, details,

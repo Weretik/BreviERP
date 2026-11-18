@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using BuildingBlocks.Domain.Results;
 using System.Globalization;
 using Production.Domain.Orders.Enums;

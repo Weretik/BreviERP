@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Text.Json.Nodes;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;

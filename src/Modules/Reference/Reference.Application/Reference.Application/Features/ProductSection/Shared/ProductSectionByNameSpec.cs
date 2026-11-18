@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Reference.Domain.ProductSections;
 using ProductSectionEntity = Reference.Domain.ProductSections.ProductSection;
 
@@ -10,6 +11,6 @@ public sealed class ProductSectionByNameSpec : Specification<ProductSectionEntit
     {
         Query.Where(x => x.Name == name);
         if (exceptId is { } id)
-            Query.Where(x => x.Id != ProductSectionId.From(id));
+            Query.Where(x => x.Id != new ProductSectionId(id));
     }
 }

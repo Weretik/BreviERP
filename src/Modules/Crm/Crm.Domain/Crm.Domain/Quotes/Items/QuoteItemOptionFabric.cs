@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 namespace Crm.Domain.Quotes.Items;
 
 /// <summary>
@@ -8,7 +9,7 @@ public sealed class QuoteItemOptionFabric
 {
     private QuoteItemOptionFabric() { }
 
-    private QuoteItemOptionFabric(int position, int fabricId, string name, decimal meters)
+    private QuoteItemOptionFabric(int position, FabricId fabricId, string name, decimal meters)
     {
         Position = position;
         FabricId = fabricId;
@@ -16,7 +17,7 @@ public sealed class QuoteItemOptionFabric
         Meters = meters;
     }
 
-    public static QuoteItemOptionFabric Create(int position, int fabricId, string name, decimal meters) =>
+    public static QuoteItemOptionFabric Create(int position, FabricId fabricId, string name, decimal meters) =>
         new(position, fabricId, name, meters);
 
     public long Id { get; private set; }
@@ -24,7 +25,7 @@ public sealed class QuoteItemOptionFabric
     public int Position { get; private set; }
 
     /// <summary>Reference fabric; no foreign key, Reference owns it.</summary>
-    public int FabricId { get; private set; }
+    public FabricId FabricId { get; private set; }
 
     public string Name { get; private set; } = null!;
 

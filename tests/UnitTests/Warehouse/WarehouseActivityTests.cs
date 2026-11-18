@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
@@ -13,7 +14,7 @@ public sealed class WarehouseActivityTests
     private static readonly DateTimeOffset Now = new(2026, 11, 16, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateOnly Today = new(2026, 11, 16);
 
-    private static FabricStock Line() => FabricStock.Create(new StockFabric(1, "tk-12", "Грета"), "Синій", Now);
+    private static FabricStock Line() => FabricStock.Create(new StockFabric(new FabricId(1), "tk-12", "Грета"), "Синій", Now);
 
     [Test]
     public void A_receipt_names_the_line_metres_and_supplier()
