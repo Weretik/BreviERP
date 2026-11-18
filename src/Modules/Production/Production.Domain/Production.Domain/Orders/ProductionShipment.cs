@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Production.Domain.Orders.ValueObjects;
 using Production.Domain.Orders.Rules;
 
@@ -10,7 +11,7 @@ public sealed class ProductionShipment
 
     private ProductionShipment() { }
 
-    internal ProductionShipment(int itemId, int quantity, DateOnly shippedOn, string? comment, string actorName,
+    internal ProductionShipment(ProductionItemId itemId, int quantity, DateOnly shippedOn, string? comment, string actorName,
         DateTimeOffset now)
     {
         if (quantity is <= 0 or > ProductionItem.MaxQuantity)
@@ -25,7 +26,7 @@ public sealed class ProductionShipment
 
     public int Id { get; private set; }
     public ProductionOrderId OrderId { get; private set; }
-    public int ItemId { get; private set; }
+    public ProductionItemId ItemId { get; private set; }
     public int Quantity { get; private set; }
     public DateOnly ShippedOn { get; private set; }
     public string? Comment { get; private set; }

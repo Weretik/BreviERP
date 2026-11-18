@@ -9,6 +9,7 @@ BuildingBlocks.Domain/
 │   ├── BaseEntity
 │   └── BaseAuditableEntity
 ├── Identifiers/                ids that several modules store
+│   ├── Orders/                 QuoteId, QuoteItemId, QuoteOptionId, ProductionOrderId, ProductionItemId
 │   ├── People/                 UserId, CustomerId
 │   ├── Products/               ProductId, ArticleId, MediaFileId
 │   └── ReferenceData/          FabricId, SupplierId, GarmentAccessoryId, GarmentPartOperationId, ProductSectionId

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 namespace Crm.Domain.Quotes.Items;
 
@@ -21,7 +22,7 @@ public sealed class QuoteItemOptionFabric
         new(position, fabricId, name, meters);
 
     public long Id { get; private set; }
-    public long OptionId { get; private set; }
+    public QuoteOptionId OptionId { get; private set; }
     public int Position { get; private set; }
 
     /// <summary>Reference fabric; no foreign key, Reference owns it.</summary>

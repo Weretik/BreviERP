@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Warehouse.Domain.Stock;
 using Warehouse.Domain.Stock.Movements;
 using Warehouse.Domain.Stock.Plans;
@@ -61,7 +62,7 @@ public sealed record WarehousePlanItem(
     DateTimeOffset OrderCreatedAt = default,
     DateOnly? DueDate = null)
 {
-    public FabricMovementTarget Target => new(OrderId, ItemId, OrderNumber, ModelName);
+    public FabricMovementTarget Target => new(new ProductionOrderId(OrderId), new ProductionItemId(ItemId), OrderNumber, ModelName);
 }
 
 public sealed record WarehouseLegacyOrder(string LegacyId, int OrderId, int Number,

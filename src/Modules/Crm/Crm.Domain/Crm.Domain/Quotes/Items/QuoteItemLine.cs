@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Domain.Quotes.Items;
@@ -31,7 +32,7 @@ public sealed class QuoteItemLine
         new(position, kind, referenceId, name, unit, quantity, manualMinutes, costCode);
 
     public long Id { get; private set; }
-    public long ItemId { get; private set; }
+    public QuoteItemId ItemId { get; private set; }
     public int Position { get; private set; }
     public QuoteItemLineKind Kind { get; private set; }
 

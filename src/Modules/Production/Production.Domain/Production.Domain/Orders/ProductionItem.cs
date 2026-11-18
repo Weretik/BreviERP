@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Results;
@@ -70,11 +71,11 @@ public sealed class ProductionItem
         PlannedFabricMeters = plannedFabricMeters;
     }
 
-    public int Id { get; private set; }
+    public ProductionItemId Id { get; private set; }
     public ProductionOrderId OrderId { get; private set; }
     public int Position { get; private set; }
-    public long? QuoteItemId { get; private set; }
-    public long? QuoteOptionId { get; private set; }
+    public QuoteItemId? QuoteItemId { get; private set; }
+    public QuoteOptionId? QuoteOptionId { get; private set; }
     public ProductId? ProductId { get; private set; }
     public ArticleId? ArticleId { get; private set; }
 
@@ -182,8 +183,8 @@ public sealed class ProductionItem
 
 /// <summary>What the КП and Catalog gave the item when the order was created.</summary>
 public sealed record ItemSource(
-    long? QuoteItemId,
-    long? QuoteOptionId,
+    QuoteItemId? QuoteItemId,
+    QuoteOptionId? QuoteOptionId,
     ProductId? ProductId,
     ArticleId? ArticleId,
     string? ModelCode,

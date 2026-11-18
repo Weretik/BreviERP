@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using UnitTests.Production;
@@ -284,7 +285,7 @@ public sealed class WarehouseStockHandlerTests
         WarehouseActor actor, int orderId, int itemId, int version, int cut, FabricIssueLineInput[] lines,
         Guid? operationId = null, int? planVersion = null)
     {
-        var saved = planVersion ?? await workshop.Db.FabricItemPlans.AsNoTracking().Where(x => x.ItemId == itemId)
+        var saved = planVersion ?? await workshop.Db.FabricItemPlans.AsNoTracking().Where(x => x.ItemId == new ProductionItemId(itemId))
             .Select(x => x.Version).SingleOrDefaultAsync();
         return await new CreateFabricIssueHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
                 workshop.Pairs(), workshop.Operations(), workshop.Plans(), workshop.ItemFabric(), workshop.History())

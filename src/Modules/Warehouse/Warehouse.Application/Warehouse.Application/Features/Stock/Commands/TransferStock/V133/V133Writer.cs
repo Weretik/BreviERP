@@ -174,7 +174,7 @@ internal sealed class V133Writer(
             var movements = rows.ToDictionary(x => x.Id,
                 x => source.LineMovements[x.Id].Select(id => _movements[id]).ToList());
             int? version = null;
-            if (planned.Add(target.Target.ItemId) && Plan(batch.ItemId, target) is { } plan)
+            if (planned.Add(target.Target.ItemId.Value) && Plan(batch.ItemId, target) is { } plan)
             {
                 db.FabricItemPlans.Add(plan);
                 planCount++;

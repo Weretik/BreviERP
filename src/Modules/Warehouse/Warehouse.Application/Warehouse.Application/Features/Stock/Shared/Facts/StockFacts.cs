@@ -19,7 +19,7 @@ public sealed class StockFacts(IWarehouseDbContext db) : IStockFacts
             .OrderBy(x => x.OperationDate).ThenBy(x => x.Id)
             .ToListAsync(cancellationToken))
         .Select(x => new StockIssueFact(x.Id.Value, x.OperationDate, x.Stock.FabricCode, x.Stock.FabricName, x.Stock.Color,
-            x.OrderId, x.OrderNumber, x.ModelName, -x.Delta))
+            x.OrderId?.Value, x.OrderNumber, x.ModelName, -x.Delta))
         .ToList();
 
     public async Task<IReadOnlyList<StockBalanceFact>> BalancesAsync(DateOnly before,

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Application.DomainEvents;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
@@ -74,7 +75,7 @@ public sealed class ImportProductionProgressHandler(IProductionDbContext db, Tim
                 foreach (var (item, stages) in stageChanges) _ = order.SetItemStages(item.Id, stages, Transfer, now).Value;
                 foreach (var file in newFiles)
                 {
-                    var itemId = file.Position is { } position ? byPosition[position].Id : (int?)null;
+                    var itemId = file.Position is { } position ? byPosition[position].Id : (ProductionItemId?)null;
                     // The item comes from the order itself, so the file cannot miss it.
                     _ = order.AddMovedFile(itemId, Enum.Parse<ProductionFileKind>(file.Kind, ignoreCase: true),
                         file.Name.Trim(), file.ContentType.Trim(), file.Bytes, file.Url.Trim(), null,

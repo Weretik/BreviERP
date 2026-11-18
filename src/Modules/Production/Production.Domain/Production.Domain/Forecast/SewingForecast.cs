@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Production.Domain.Orders.ValueObjects;
 namespace Production.Domain.Forecast;
 

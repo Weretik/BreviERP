@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Responses;
@@ -15,7 +16,7 @@ public sealed class CreateProductionShipmentHandler(OrderTracking tracking)
         return await tracking.ChangeAsync(command.Actor, command.OrderId, input.Version,
             order => command.Actor.CanTrack(order) ? null : OrderMessages.CannotTrack,
             (order, actorName, now) =>
-                order.Ship(command.ItemId, input.Quantity, input.ShippedOn, input.Comment, actorName, now).WithoutValue(),
+                order.Ship(new ProductionItemId(command.ItemId), input.Quantity, input.ShippedOn, input.Comment, actorName, now).WithoutValue(),
             cancellationToken);
     }
 }

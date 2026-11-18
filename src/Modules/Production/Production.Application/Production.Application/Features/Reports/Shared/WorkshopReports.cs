@@ -91,7 +91,7 @@ public sealed class WorkshopReports(IProductionDbContext db, PayrollSheets sheet
                 {
                     var quantity = sewn[(order.Id, item.Id)];
                     var price = item.ReportUnitPrice is > 0 ? item.ReportUnitPrice : null;
-                    return new ReportOutputRowResponse(order.Id.Value, order.Number, order.ClientName, item.Id,
+                    return new ReportOutputRowResponse(order.Id.Value, order.Number, order.ClientName, item.Id.Value,
                         item.ModelName, quantity, price, price is { } p ? Money(quantity * p) : null);
                 }))
             .OrderBy(x => x.OrderNumber).ThenBy(x => x.ItemId)

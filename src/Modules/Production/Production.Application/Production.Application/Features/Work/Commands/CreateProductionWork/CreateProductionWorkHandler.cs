@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Production.Domain.Staff;
 using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
@@ -18,7 +19,7 @@ public sealed class CreateProductionWorkHandler(IProductionDbContext db, IProduc
         var input = command.Input;
         var order = await db.Orders.Include(x => x.Items)
             .SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(command.OrderId) && x.DeletedAt == null, cancellationToken);
-        var item = order?.Items.FirstOrDefault(x => x.Id == command.ItemId);
+        var item = order?.Items.FirstOrDefault(x => x.Id == new ProductionItemId(command.ItemId));
         if (order is null || item is null) return Result<ProductionItemWorkResponse>.NotFound(OrderMessages.NotFound);
         if (!command.Actor.CanRecordWork(order)) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
         if (await RecordedAsync(input.RequestId, cancellationToken))

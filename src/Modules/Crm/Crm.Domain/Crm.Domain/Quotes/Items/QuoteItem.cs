@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.Products;
 using Crm.Domain.Embroidery.Saved;
 using Crm.Domain.Quotes;
@@ -37,7 +38,7 @@ public sealed class QuoteItem
         IEnumerable<QuoteItemLine>? lines = null) =>
         new(position, kind, productId, texts, options, lines);
 
-    public long Id { get; private set; }
+    public QuoteItemId Id { get; private set; }
     public QuoteId QuoteId { get; private set; }
     public int Position { get; private set; }
     public QuoteItemKind Kind { get; private set; }

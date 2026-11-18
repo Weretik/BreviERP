@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
@@ -25,11 +26,11 @@ public sealed class UpdateProductionOrderHandler(IProductionDbContext db, IProdu
         if (order is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.NotFound);
         if (!actor.CanEdit(order)) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotEdit);
         if (order.Version != input.Version) return Result<ProductionOrderResponse>.Conflict(OrderMessages.Stale);
-        if (input.Items.Any(x => order.Items.All(item => item.Id != x.Id)) ||
+        if (input.Items.Any(x => order.Items.All(item => item.Id != new ProductionItemId(x.Id))) ||
             input.Items.Select(x => x.Id).Distinct().Count() != input.Items.Count)
             return Result<ProductionOrderResponse>.Invalid(new ValidationError(OrderMessages.ItemNotInOrder));
 
-        if (input.Items.Any(x => x.Details.Quantity < order.ShippedQuantity(x.Id)))
+        if (input.Items.Any(x => x.Details.Quantity < order.ShippedQuantity(new ProductionItemId(x.Id))))
             return Result<ProductionOrderResponse>.Invalid(new ValidationError(OrderMessages.QuantityBelowShipped));
 
         var actorName = await OrderActors.NameAsync(staff, actor.UserId, cancellationToken);
@@ -45,7 +46,7 @@ public sealed class UpdateProductionOrderHandler(IProductionDbContext db, IProdu
         var norms = await OrderNorms.ReadAsync(db, order.Items.Select(x => x.ModelCode), cancellationToken);
         var updates = input.Items.ToDictionary(x => x.Id, x =>
         {
-            var item = order.Items.Single(i => i.Id == x.Id);
+            var item = order.Items.Single(i => i.Id == new ProductionItemId(x.Id));
             var details = x.Details.ToDetails(numbers.Value);
             var colors = 1 + details.AdditionalColors.Count(c => !string.IsNullOrWhiteSpace(c));
             var plan = FabricPlan.Meters(item.ModelCode is null ? null : norms.GetValueOrDefault(item.ModelCode),

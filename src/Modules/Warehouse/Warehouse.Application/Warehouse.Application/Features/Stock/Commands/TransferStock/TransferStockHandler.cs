@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using BuildingBlocks.Application.DomainEvents;
 using System.Security.Cryptography;
@@ -99,7 +100,7 @@ public sealed class TransferStockHandler(IWarehouseDbContext db, IWarehouseRefer
                 source.Error("production_items", id,
                     $"Позиція {position} завдання №{order.Number}: у старому «Цеху» {code ?? item.ModelName}, у Brevi {match.ModelCode ?? match.ModelName}.");
             else
-                result[id] = new V133Target(new FabricMovementTarget(order.OrderId, match.ItemId, order.Number,
+                result[id] = new V133Target(new FabricMovementTarget(new ProductionOrderId(order.OrderId), new ProductionItemId(match.ItemId), order.Number,
                     match.ModelName), match.Quantity);
         }
 

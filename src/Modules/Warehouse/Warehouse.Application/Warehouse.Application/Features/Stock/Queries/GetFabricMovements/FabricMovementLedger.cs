@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using System.Linq.Expressions;
 using BuildingBlocks.Application;
 using Warehouse.Application.Abstractions;
@@ -47,7 +48,7 @@ internal static class FabricMovementLedger
             movements = movements.Where(x => lines.Contains(x.StockId));
         }
 
-        if (query.ItemId is { } itemId) movements = movements.Where(x => x.ItemId == itemId);
+        if (query.ItemId is { } itemId) movements = movements.Where(x => x.ItemId == new ProductionItemId(itemId));
         if (query.From is { } from) movements = movements.Where(x => x.OperationDate >= from);
         if (query.To is { } to) movements = movements.Where(x => x.OperationDate <= to);
         foreach (var word in SearchWords.Words(query.Search)) movements = movements.Where(Matches(word, shelf));

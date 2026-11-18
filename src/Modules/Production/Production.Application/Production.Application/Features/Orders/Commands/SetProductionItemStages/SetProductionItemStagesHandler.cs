@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Access;
@@ -17,7 +18,7 @@ public sealed class SetProductionItemStagesHandler(OrderTracking tracking)
         var stages = command.Input.Stages.Select(x => Enum.Parse<ProductionStage>(x, ignoreCase: true)).ToArray();
         return await tracking.ChangeAsync(command.Actor, command.OrderId, command.Input.Version,
             order => command.Actor.CanTrack(order) ? null : OrderMessages.CannotTrack,
-            (order, actorName, now) => order.SetItemStages(command.ItemId, stages, actorName, now).WithoutValue(),
+            (order, actorName, now) => order.SetItemStages(new ProductionItemId(command.ItemId), stages, actorName, now).WithoutValue(),
             cancellationToken);
     }
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 namespace Production.Application.Features.Orders.Queries.GetQuotesWithOrders;
 
 public sealed class GetQuotesWithOrdersHandler(Abstractions.IProductionDbContext db)
@@ -7,10 +8,10 @@ public sealed class GetQuotesWithOrdersHandler(Abstractions.IProductionDbContext
         CancellationToken cancellationToken)
     {
         if (query.QuoteIds.Count == 0) return Result.Success<IReadOnlyList<long>>([]);
-        var ids = query.QuoteIds.Select(x => (long?)x).ToArray();
+        var ids = query.QuoteIds.Select(x => (QuoteId?)new QuoteId(x)).ToArray();
         var found = await db.Orders.AsNoTracking()
             .Where(x => x.DeletedAt == null && ids.Contains(x.QuoteId))
-            .Select(x => x.QuoteId!.Value).Distinct()
+            .Select(x => x.QuoteId!.Value.Value).Distinct()
             .ToListAsync(cancellationToken);
         return Result.Success<IReadOnlyList<long>>(found);
     }

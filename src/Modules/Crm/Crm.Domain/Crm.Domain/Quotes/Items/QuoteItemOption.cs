@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Identifiers.People;
@@ -36,8 +37,8 @@ public sealed class QuoteItemOption
         QuotePrice retail, QuotePrice wholesale, QuotePrice large, DateTimeOffset? pricesTakenAt) =>
         new(position, articleId, fabricId, title, details, isRecommended, retail, wholesale, large, pricesTakenAt);
 
-    public long Id { get; private set; }
-    public long ItemId { get; private set; }
+    public QuoteOptionId Id { get; private set; }
+    public QuoteItemId ItemId { get; private set; }
     public int Position { get; private set; }
 
     /// <summary>Catalog Article (fabric variant) of a sewing model; null for PPE.</summary>
