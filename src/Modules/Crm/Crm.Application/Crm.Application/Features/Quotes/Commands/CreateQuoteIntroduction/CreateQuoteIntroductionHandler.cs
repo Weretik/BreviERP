@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Access;
@@ -24,12 +25,13 @@ public sealed class CreateQuoteIntroductionHandler(
         var now = clock.GetUtcNow();
         var input = command.Input;
         var introduction = input.ToIntroduction();
-        var added = await numbering.AddAsync(now, input.RequestId, async number =>
+        var request = RequestKeys.Of(input.RequestId, command with { Input = input with { RequestId = null } });
+        var added = await numbering.AddAsync(now, request, async number =>
         {
             var items = await builder.BuildAsync(introduction, input.Pages, [], author, now, cancellationToken);
             if (!items.IsSuccess) return items.Map(_ => default(Quote)!);
             var created = Quote.Create(number, QuoteKind.Introduction, author, input.ToHeader(), items.Value, now,
-                input.RequestId);
+                request);
             if (created.IsFailure) return created.Error!.ToResult<Quote>();
             var introduced = created.Value.SetIntroduction(introduction);
             return introduced.IsSuccess ? Result.Success(created.Value) : introduced.Error!.ToResult<Quote>();

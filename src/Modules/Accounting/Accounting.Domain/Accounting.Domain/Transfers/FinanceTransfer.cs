@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using Accounting.Domain.Accounts;
 using Accounting.Domain;
 using Accounting.Domain.Ledger;
@@ -19,6 +20,8 @@ public sealed class FinanceTransfer : IAggregateRoot
 
     /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
     public Guid? RequestId { get; private set; }
+    /// <summary>Hash of what the request asked for; a repeat with other data answers 409.</summary>
+    public string? RequestHash { get; private set; }
     public DateOnly Date { get; private set; }
     public FinanceAccountId FromAccountId { get; private set; }
     public FinanceAccountId ToAccountId { get; private set; }
@@ -43,13 +46,14 @@ public sealed class FinanceTransfer : IAggregateRoot
 
     public static DomainResult<FinanceTransfer> Create(FinanceTransferId id, LedgerScope scope,
         FinanceTransferDetails details, FinanceAccount from, FinanceAccount to, string by, DateTimeOffset now,
-        Guid? requestId = null)
+        RequestKey? request = null)
     {
         if (MovementRules.CheckScope(scope) is { IsFailure: true } badScope) return badScope.Error!;
         var transfer = new FinanceTransfer
         {
             Id = id,
-            RequestId = requestId,
+            RequestId = request?.Id,
+            RequestHash = request?.Hash,
             Scope = scope,
             Source = MovementSource.Manual,
             Status = MovementStatus.Active,

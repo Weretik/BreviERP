@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain;
+using BuildingBlocks.Application.Idempotency;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared.Persistence;
 using Crm.Application.Abstractions.Quotes;
@@ -7,17 +9,17 @@ namespace Crm.Application.Features.Quotes.Shared.Building;
 
 /// <summary>
 /// Adds a new КП with the next number «номер-місяць-рік» (R-03); the counter restarts every Kyiv month and a parallel
-/// create retries with the next one. A repeat with the same request id returns the КП the first attempt saved.
+/// create retries with the next one. A repeat with the same request id returns the КП the first attempt saved; the same id with other data answers 409.
 /// </summary>
 public sealed class QuoteNumbering(IQuoteStore store)
 {
     private const int Attempts = 5;
 
     /// <param name="create">Builds the КП for the given number; called again on every retry.</param>
-    public async Task<Result<Quote>> AddAsync(DateTimeOffset now, Guid? requestId,
+    public async Task<Result<Quote>> AddAsync(DateTimeOffset now, RequestKey? request,
         Func<QuoteNumber, Task<Result<Quote>>> create, CancellationToken cancellationToken)
     {
-        if (await SavedAsync(requestId, cancellationToken) is { } saved) return Result.Success(saved);
+        if (await SavedAsync(request, cancellationToken) is { } saved) return saved;
         for (var attempt = 1; ; attempt++)
         {
             var built = await create(await NextAsync(now, cancellationToken));
@@ -33,21 +35,26 @@ public sealed class QuoteNumbering(IQuoteStore store)
             {
                 store.Quotes.Entry(built.Value).Context.ChangeTracker.Clear();
             }
-            catch (DbUpdateException) when (requestId is not null)
+            catch (DbUpdateException) when (request is not null)
             {
                 // The same press arrived twice at once: the other request saved the КП.
                 store.Quotes.Entry(built.Value).Context.ChangeTracker.Clear();
-                if (await SavedAsync(requestId, cancellationToken) is { } other) return Result.Success(other);
+                if (await SavedAsync(request, cancellationToken) is { } other) return other;
                 throw;
             }
         }
     }
 
-    private async Task<Quote?> SavedAsync(Guid? requestId, CancellationToken cancellationToken) =>
-        requestId is { } id && await store.Quotes.AsNoTracking().Where(x => x.CreateRequestId == id)
-            .Select(x => (long?)x.Id.Value).SingleOrDefaultAsync(cancellationToken) is { } quoteId
-            ? await store.LoadAsync(quoteId, cancellationToken)
-            : null;
+    /// <summary>The КП saved under the request id, a conflict when the id was used for other data, or null.</summary>
+    private async Task<Result<Quote>?> SavedAsync(RequestKey? request, CancellationToken cancellationToken)
+    {
+        if (request is not { } key) return null;
+        var saved = await store.Quotes.AsNoTracking().Where(x => x.CreateRequestId == key.Id)
+            .Select(x => new { Id = x.Id.Value, x.CreateRequestHash }).SingleOrDefaultAsync(cancellationToken);
+        if (saved is null) return null;
+        if (!key.Matches(saved.CreateRequestHash)) return RequestKeys.Conflict<Quote>();
+        return await store.LoadAsync(saved.Id, cancellationToken) is { } quote ? Result.Success(quote) : null;
+    }
 
     private async Task<QuoteNumber> NextAsync(DateTimeOffset now, CancellationToken cancellationToken)
     {

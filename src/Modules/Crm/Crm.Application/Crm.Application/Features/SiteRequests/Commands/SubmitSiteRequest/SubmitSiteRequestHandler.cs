@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain;
+using BuildingBlocks.Application.Idempotency;
 using BuildingBlocks.Application.Outbox;
 using Crm.Domain.SiteRequests;
 using Crm.Application.Features.SiteRequests.Shared;
@@ -14,9 +16,11 @@ public sealed class SubmitSiteRequestHandler(
     public async ValueTask<Result<SiteRequestReceivedResponse>> Handle(SubmitSiteRequestCommand command,
         CancellationToken cancellationToken)
     {
-        // The same form sent again (a double press or a retry): the request is already in.
-        if (await SavedAsync(command.RequestId, cancellationToken) is { } saved)
-            return Result.Success(new SiteRequestReceivedResponse(saved));
+        // The same form sent again (a double press or a retry): the request is already in. The file content is not
+        // hashed; its name is.
+        var requestKey = RequestKeys.Of(command.RequestId,
+            new { Form = command with { RequestId = null, File = null }, FileName = command.File?.FileName });
+        if (await SavedAsync(requestKey, cancellationToken) is { } saved) return saved;
 
         var now = clock.GetUtcNow();
         string? fileUrl = null;
@@ -28,7 +32,7 @@ public sealed class SubmitSiteRequestHandler(
         }
 
         var created = SiteRequest.Create(command.Phone, command.Workwear, command.Quantity, command.Comment,
-            command.Locale ?? "uk", Path.GetFileName(command.File?.FileName), fileUrl, now, command.RequestId);
+            command.Locale ?? "uk", Path.GetFileName(command.File?.FileName), fileUrl, now, requestKey);
         if (created.IsFailure) return created.Error!.ToResult<SiteRequestReceivedResponse>();
         var request = created.Value;
 
@@ -44,8 +48,7 @@ public sealed class SubmitSiteRequestHandler(
             // Both copies arrived at once and the other one was saved first.
             await transaction.RollbackAsync(CancellationToken.None);
             store.SiteRequests.Entry(request).State = EntityState.Detached;
-            if (await SavedAsync(command.RequestId, cancellationToken) is { } other)
-                return Result.Success(new SiteRequestReceivedResponse(other));
+            if (await SavedAsync(requestKey, cancellationToken) is { } other) return other;
             throw;
         }
 
@@ -59,11 +62,17 @@ public sealed class SubmitSiteRequestHandler(
         return Result.Success(new SiteRequestReceivedResponse(request.Id.Value));
     }
 
-    private async Task<long?> SavedAsync(Guid? requestId, CancellationToken cancellationToken) =>
-        requestId is { } id
-            ? await store.SiteRequests.AsNoTracking().Where(x => x.RequestId == id).Select(x => (long?)x.Id.Value)
-                .SingleOrDefaultAsync(cancellationToken)
-            : null;
+    /// <summary>The answer for a request saved under the id, a conflict when the id came with other data, or null.</summary>
+    private async Task<Result<SiteRequestReceivedResponse>?> SavedAsync(RequestKey? request, CancellationToken cancellationToken)
+    {
+        if (request is not { } key) return null;
+        var saved = await store.SiteRequests.AsNoTracking().Where(x => x.RequestId == key.Id)
+            .Select(x => new { Id = x.Id.Value, x.RequestHash }).SingleOrDefaultAsync(cancellationToken);
+        if (saved is null) return null;
+        return key.Matches(saved.RequestHash)
+            ? Result.Success(new SiteRequestReceivedResponse(saved.Id))
+            : RequestKeys.Conflict<SiteRequestReceivedResponse>();
+    }
 
     private static string ContentType(string? value) =>
         string.IsNullOrWhiteSpace(value) ? "application/octet-stream" : value;

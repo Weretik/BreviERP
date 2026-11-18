@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using Production.Domain.Staff;
 using Production.Domain.Payroll.Identifiers;
 using BuildingBlocks.Domain.Entity;
@@ -33,13 +34,13 @@ public sealed class PayrollPayment : DomainEventSource, IAggregateRoot
 
     public static DomainResult<PayrollPayment> Create(PayrollEntryTarget target, DateOnly paidOn,
         PayrollPaymentKind kind, decimal amount, string? comment, string actorName, DateTimeOffset now,
-        Guid? requestId = null)
+        RequestKey? request = null)
     {
         if (amount is <= 0 or > MaxAmount) return PayrollErrors.AmountOutOfRange();
         var text = OrderText.Check(comment, CommentMaxLength, "comment");
         return text.IsFailure
             ? text.Error!
-            : new PayrollPayment(target, paidOn, kind, amount, comment, actorName, now) { RequestId = requestId };
+            : new PayrollPayment(target, paidOn, kind, amount, comment, actorName, now) { RequestId = request?.Id, RequestHash = request?.Hash };
     }
 
     private PayrollPayment(PayrollEntryTarget target, DateOnly paidOn, PayrollPaymentKind kind, decimal amount,
@@ -61,6 +62,8 @@ public sealed class PayrollPayment : DomainEventSource, IAggregateRoot
 
     /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
     public Guid? RequestId { get; private init; }
+    /// <summary>Hash of what the request asked for; a repeat with other data answers 409.</summary>
+    public string? RequestHash { get; private init; }
 
     public DateOnly Month { get; private set; }
     public WorkshopEmployeeId EmployeeId { get; private set; }
@@ -99,13 +102,13 @@ public sealed class PayrollAdjustment : DomainEventSource, IAggregateRoot
     private PayrollAdjustment() { }
 
     public static DomainResult<PayrollAdjustment> Create(PayrollEntryTarget target, decimal amount, string reason,
-        string actorName, DateTimeOffset now, Guid? requestId = null)
+        string actorName, DateTimeOffset now, RequestKey? request = null)
     {
         if (amount == 0 || Math.Abs(amount) > PayrollPayment.MaxAmount) return PayrollErrors.AdjustmentAmountOutOfRange();
         var text = OrderText.Check(reason, PayrollPayment.ReasonMaxLength, "reason", required: true);
         return text.IsFailure
             ? text.Error!
-            : new PayrollAdjustment(target, amount, reason, actorName, now) { RequestId = requestId };
+            : new PayrollAdjustment(target, amount, reason, actorName, now) { RequestId = request?.Id, RequestHash = request?.Hash };
     }
 
     private PayrollAdjustment(PayrollEntryTarget target, decimal amount, string reason, string actorName,
@@ -125,6 +128,8 @@ public sealed class PayrollAdjustment : DomainEventSource, IAggregateRoot
 
     /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
     public Guid? RequestId { get; private init; }
+    /// <summary>Hash of what the request asked for; a repeat with other data answers 409.</summary>
+    public string? RequestHash { get; private init; }
 
     public DateOnly Month { get; private set; }
     public WorkshopEmployeeId EmployeeId { get; private set; }

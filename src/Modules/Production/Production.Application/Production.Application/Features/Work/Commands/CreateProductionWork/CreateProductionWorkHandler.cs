@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain;
+using BuildingBlocks.Application.Idempotency;
 using BuildingBlocks.Domain.Identifiers.Orders;
 using Production.Domain.Staff;
 using Production.Domain.Orders.ValueObjects;
@@ -17,13 +19,16 @@ public sealed class CreateProductionWorkHandler(IProductionDbContext db, IProduc
         CancellationToken cancellationToken)
     {
         var input = command.Input;
+        var request = RequestKeys.Of(input.RequestId, command with { Input = input with { RequestId = null } });
         var order = await db.Orders.Include(x => x.Items)
             .SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(command.OrderId) && x.DeletedAt == null, cancellationToken);
         var item = order?.Items.FirstOrDefault(x => x.Id == new ProductionItemId(command.ItemId));
         if (order is null || item is null) return Result<ProductionItemWorkResponse>.NotFound(OrderMessages.NotFound);
         if (!command.Actor.CanRecordWork(order)) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
-        if (await RecordedAsync(input.RequestId, cancellationToken))
-            return Result.Success(await cards.BuildAsync(order, item, command.Actor, cancellationToken));
+        if (await RepeatOfAsync(request, cancellationToken) is { } same)
+            return same
+                ? Result.Success(await cards.BuildAsync(order, item, command.Actor, cancellationToken))
+                : RequestKeys.Conflict<ProductionItemWorkResponse>();
         if (item.SewingRate is not > 0) return Invalid(nameof(input.Kind), WorkMessages.NoRate);
         if (input.WorkDate > WorkshopDay.Today(clock)) return Invalid(nameof(input.WorkDate), WorkMessages.FutureDate);
         if (await PayrollMonths.IsClosedAsync(db, input.WorkDate, cancellationToken))
@@ -45,7 +50,7 @@ public sealed class CreateProductionWorkHandler(IProductionDbContext db, IProduc
         if (actorName is null) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
         var work = ProductionWork.Create(new WorkTarget(order.Id, item.Id, employee.Id, employee.FullName),
             new WorkFacts(kind, input.Quantity, input.WorkDate, input.OverPlan, input.Reason, input.Comment,
-                item.SewingRate.Value), actorName, clock.GetUtcNow(), requestId: input.RequestId);
+                item.SewingRate.Value), actorName, clock.GetUtcNow(), request: request);
         if (work.IsFailure) return work.Error!.ToResult<ProductionItemWorkResponse>();
         var now = clock.GetUtcNow();
         if (!await PayrollMonths.MarkChangedAsync(db, input.WorkDate, actorName, now, cancellationToken))
@@ -54,20 +59,25 @@ public sealed class CreateProductionWorkHandler(IProductionDbContext db, IProduc
         try
         {
             if (await PayrollMonths.SaveAsync(db, cancellationToken) is { IsSuccess: false } saved
-                && !await RecordedAsync(input.RequestId, cancellationToken))
+                && await RepeatOfAsync(request, cancellationToken) is null)
                 return Result<ProductionItemWorkResponse>.Conflict([.. saved.Errors]);
         }
         catch (DbUpdateException)
         {
             // The same press arrived twice at once: the other request saved this work.
-            if (!await RecordedAsync(input.RequestId, cancellationToken)) throw;
+            if (await RepeatOfAsync(request, cancellationToken) is not { } savedSame) throw;
+            if (!savedSame) return RequestKeys.Conflict<ProductionItemWorkResponse>();
         }
 
         return Result.Success(await cards.BuildAsync(order, item, command.Actor, cancellationToken));
     }
 
-    private async Task<bool> RecordedAsync(Guid? requestId, CancellationToken cancellationToken) =>
-        requestId is { } id && await db.Work.AsNoTracking().AnyAsync(x => x.RequestId == id, cancellationToken);
+    /// <summary>Null when this request saved nothing yet; else whether the saved work came from the same data.</summary>
+    private async Task<bool?> RepeatOfAsync(RequestKey? request, CancellationToken cancellationToken) =>
+        request is { } key
+            ? RequestKeys.Same(key, await db.Work.AsNoTracking().Where(x => x.RequestId == key.Id)
+                .Select(x => new RequestKeys.Saved(x.RequestHash)).SingleOrDefaultAsync(cancellationToken))
+            : null;
 
     private static Result<ProductionItemWorkResponse> Invalid(string field, string message) =>
         Result<ProductionItemWorkResponse>.Invalid(new ValidationError($"Input.{field}", message));

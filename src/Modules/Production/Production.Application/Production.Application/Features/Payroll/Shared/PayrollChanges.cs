@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain;
+using BuildingBlocks.Application.Idempotency;
 using Production.Application.Abstractions;
 using Production.Domain.Payroll;
 using Production.Application.Features.Orders.Shared;
@@ -43,28 +45,31 @@ public sealed class PayrollChanges(IProductionDbContext db, IProductionStaffRead
     /// <paramref name="exists"/> (also when the first one wins a race) returns the month as it is and adds nothing.
     /// </summary>
     public async Task<Result<PayrollMonthResponse>> ApplyOnceAsync(ProductionActor actor, string monthText,
-        Guid? requestId, Func<Guid, CancellationToken, Task<bool>> exists, Func<PayrollChange, Task<Result?>> change,
-        CancellationToken cancellationToken)
+        RequestKey? request, Func<Guid, CancellationToken, Task<RequestKeys.Saved?>> find,
+        Func<PayrollChange, Task<Result?>> change, CancellationToken cancellationToken)
     {
-        if (requestId is not { } id) return await ApplyAsync(actor, monthText, true, change, cancellationToken);
+        if (request is not { } key) return await ApplyAsync(actor, monthText, true, change, cancellationToken);
         if (!actor.CanPay) return Result<PayrollMonthResponse>.Forbidden(PayrollMessages.CannotPay);
-        if (await exists(id, cancellationToken)) return await RepeatAsync(actor, monthText, cancellationToken);
+        if (RequestKeys.Same(key, await find(key.Id, cancellationToken)) is { } same)
+            return await RepeatAsync(actor, monthText, same, cancellationToken);
         try
         {
             var result = await ApplyAsync(actor, monthText, true, change, cancellationToken);
-            if (result.Status != ResultStatus.Conflict || !await exists(id, cancellationToken)) return result;
+            if (result.Status != ResultStatus.Conflict || await find(key.Id, cancellationToken) is null) return result;
         }
         catch (DbUpdateException)
         {
-            if (!await exists(id, cancellationToken)) throw;
+            if (await find(key.Id, cancellationToken) is null) throw;
         }
 
-        return await RepeatAsync(actor, monthText, cancellationToken);
+        return await RepeatAsync(actor, monthText,
+            RequestKeys.Same(key, await find(key.Id, cancellationToken)) == true, cancellationToken);
     }
 
-    private async Task<Result<PayrollMonthResponse>> RepeatAsync(ProductionActor actor, string monthText,
+    private async Task<Result<PayrollMonthResponse>> RepeatAsync(ProductionActor actor, string monthText, bool same,
         CancellationToken cancellationToken)
     {
+        if (!same) return RequestKeys.Conflict<PayrollMonthResponse>();
         PayrollMonths.TryParse(monthText, out var month);
         return Result.Success(await ReadAsync(actor, month, cancellationToken));
     }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
@@ -22,6 +23,8 @@ public sealed class FinanceTransaction : IAggregateRoot
 
     /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
     public Guid? RequestId { get; private set; }
+    /// <summary>Hash of what the request asked for; a repeat with other data answers 409.</summary>
+    public string? RequestHash { get; private set; }
     public DateOnly Date { get; private set; }
     public CategoryDirection Type { get; private set; }
     public FinanceAccountId AccountId { get; private set; }
@@ -75,13 +78,14 @@ public sealed class FinanceTransaction : IAggregateRoot
     /// </summary>
     public static DomainResult<FinanceTransaction> Create(FinanceTransactionId id, LedgerScope scope,
         FinanceTransactionDetails details, FinanceAccount account, FinanceCategory category,
-        CounterpartyState? counterparty, string by, DateTimeOffset now, Guid? requestId = null)
+        CounterpartyState? counterparty, string by, DateTimeOffset now, RequestKey? request = null)
     {
         if (MovementRules.CheckScope(scope) is { IsFailure: true } badScope) return badScope.Error!;
         var transaction = new FinanceTransaction
         {
             Id = id,
-            RequestId = requestId,
+            RequestId = request?.Id,
+            RequestHash = request?.Hash,
             Scope = scope,
             Source = MovementSource.Manual,
             Status = MovementStatus.Active,

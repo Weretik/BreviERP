@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
@@ -30,9 +31,13 @@ public sealed class CreateProductionOrderHandler(
         var input = command.Input;
         if (!actor.CanCreate) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotCreate);
 
+        var request = RequestKeys.Of(input.RequestId, command with { Input = input with { RequestId = Guid.Empty } })!.Value;
         var existing = await cards.Orders.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.CreateRequestId == input.RequestId, cancellationToken);
-        if (existing is not null) return Result.Success(await cards.BuildAsync(existing, actor, cancellationToken));
+            .FirstOrDefaultAsync(x => x.CreateRequestId == request.Id, cancellationToken);
+        if (existing is not null)
+            return request.Matches(existing.CreateRequestHash)
+                ? Result.Success(await cards.BuildAsync(existing, actor, cancellationToken))
+                : RequestKeys.Conflict<ProductionOrderResponse>();
 
         var quote = await quotes.ReadAsync(actor.QuoteReader, input.QuoteId, cancellationToken);
         if (quote is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.QuoteNotFound);
@@ -75,7 +80,7 @@ public sealed class CreateProductionOrderHandler(
         var now = clock.GetUtcNow();
         var created = ProductionOrder.Create(await OrderNumbers.NextAsync(db, cancellationToken),
             new OrderOrigin(new QuoteId(quote.Id), quote.Number, CustomerId.FromNullable(quote.CustomerId), new UserId(quote.ResponsibleUserId), quote.ResponsibleName,
-                input.RequestId),
+                request),
             new OrderHeader(input.ClientName, input.OrderDate, input.Comment), tier, items, actorName, now);
         if (created.IsFailure) return created.Error!.ToResult<ProductionOrderResponse>();
         var order = created.Value;

@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using ActivityLog.Domain.Filters;
 using ActivityLog.Domain.Entries;
 using ActivityLog.Contracts.Activity;

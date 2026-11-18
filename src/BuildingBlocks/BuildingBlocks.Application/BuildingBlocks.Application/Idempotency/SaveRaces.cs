@@ -1,7 +1,7 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace BuildingBlocks.Application;
+namespace BuildingBlocks.Application.Idempotency;
 
 /// <summary>
 /// The save failures that mean «someone else was first» (database rules 4): a row version that moved or a unique index

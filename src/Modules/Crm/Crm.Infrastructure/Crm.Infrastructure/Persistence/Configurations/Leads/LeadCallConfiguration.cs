@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using Crm.Domain.Leads;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -19,6 +20,8 @@ public sealed class LeadCallConfiguration : IEntityTypeConfiguration<LeadCall>
         b.HasIndex(x => x.At);
         b.HasIndex(x => new { x.ByUserId, x.At });
         b.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
+
+        b.Property(x => x.RequestHash).HasMaxLength(RequestKey.HashLength);
         // The result by id without a foreign key: the call keeps the result's name at the time of the call.
     }
 }

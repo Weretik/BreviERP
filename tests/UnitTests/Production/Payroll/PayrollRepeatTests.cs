@@ -31,6 +31,7 @@ public sealed class PayrollRepeatTests
         var repeat = await handler.Handle(new(Admin, Month, input), CancellationToken.None);
         var other = await handler.Handle(new(Admin, Month, input with { RequestId = Guid.NewGuid() }),
             CancellationToken.None);
+        var changed = await handler.Handle(new(Admin, Month, input with { Amount = 200m }), CancellationToken.None);
 
         await using var check = workshop.OtherRequest();
         Assert.Multiple(() =>
@@ -38,6 +39,7 @@ public sealed class PayrollRepeatTests
             Assert.That((first.Status, repeat.Status, other.Status),
                 Is.EqualTo((ResultStatus.Ok, ResultStatus.Ok, ResultStatus.Ok)));
             Assert.That(check.PayrollPayments.Count(), Is.EqualTo(2), "the repeat adds nothing, a new request does");
+            Assert.That(changed.Status, Is.EqualTo(ResultStatus.Conflict), "the same id with other data is refused");
         });
     }
 
@@ -51,11 +53,14 @@ public sealed class PayrollRepeatTests
 
         await handler.Handle(new(Admin, Month, input), CancellationToken.None);
         var repeat = await handler.Handle(new(Admin, Month, input), CancellationToken.None);
+        var changed = await handler.Handle(new(Admin, Month, input with { Reason = "Інша причина" }),
+            CancellationToken.None);
 
         await using var check = workshop.OtherRequest();
         Assert.Multiple(() =>
         {
             Assert.That(repeat.Status, Is.EqualTo(ResultStatus.Ok));
+            Assert.That(changed.Status, Is.EqualTo(ResultStatus.Conflict));
             Assert.That(check.PayrollAdjustments.Count(), Is.EqualTo(1));
         });
     }

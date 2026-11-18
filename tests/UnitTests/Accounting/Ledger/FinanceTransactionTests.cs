@@ -38,10 +38,13 @@ public sealed class FinanceTransactionTests
             harness.Time).Handle(command, default);
         var other = await new CreateFinanceTransactionHandler(harness.Fresh(), harness.Parties, harness.Parties,
             harness.Time).Handle(command with { RequestId = Guid.NewGuid() }, default);
+        var changed = await new CreateFinanceTransactionHandler(harness.Fresh(), harness.Parties, harness.Parties,
+            harness.Time).Handle(command with { Fields = Fields(bank.Id, rent.Id, 400_00) }, default);
 
         Assert.Multiple(() =>
         {
             Assert.That(repeat.Value.Id, Is.EqualTo(first.Value.Id), "the repeat answers with the saved operation");
+            Assert.That(changed.Status, Is.EqualTo(ResultStatus.Conflict), "the same id with other data is refused");
             Assert.That(other.Value.Id, Is.Not.EqualTo(first.Value.Id));
             Assert.That(harness.Fresh().Transactions.Count(), Is.EqualTo(2));
         });

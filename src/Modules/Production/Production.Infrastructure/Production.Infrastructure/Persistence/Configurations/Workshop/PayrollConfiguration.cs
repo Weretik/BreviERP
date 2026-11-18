@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using Production.Domain.Orders;
 using Production.Domain.Payroll;
 using Production.Domain.Staff;
@@ -82,6 +83,8 @@ internal sealed class PayrollPaymentConfiguration : IEntityTypeConfiguration<Pay
         builder.HasOne<WorkshopEmployee>().WithMany().HasForeignKey(x => x.EmployeeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(x => x.Month);
         builder.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
+
+        builder.Property(x => x.RequestHash).HasMaxLength(RequestKey.HashLength);
     }
 }
 
@@ -102,6 +105,8 @@ internal sealed class PayrollAdjustmentConfiguration : IEntityTypeConfiguration<
         builder.HasOne<WorkshopEmployee>().WithMany().HasForeignKey(x => x.EmployeeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(x => x.Month);
         builder.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
+
+        builder.Property(x => x.RequestHash).HasMaxLength(RequestKey.HashLength);
     }
 }
 

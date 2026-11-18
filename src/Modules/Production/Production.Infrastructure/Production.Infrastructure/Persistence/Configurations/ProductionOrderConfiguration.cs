@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Infrastructure.Database;
 using Production.Domain.Orders;
 using Production.Infrastructure.Persistence;
@@ -26,6 +27,8 @@ internal sealed class ProductionOrderConfiguration : IEntityTypeConfiguration<Pr
         builder.Property(x => x.CancelReason).HasMaxLength(ProductionOrder.CancelReasonMaxLength);
         builder.Property(x => x.Version).IsConcurrencyToken();
         builder.HasIndex(x => x.CreateRequestId).IsUnique().HasFilter("\"CreateRequestId\" IS NOT NULL");
+
+        builder.Property(x => x.CreateRequestHash).HasMaxLength(RequestKey.HashLength);
         builder.HasIndex(x => x.LegacyId).IsUnique().HasFilter("\"LegacyId\" IS NOT NULL");
         builder.HasIndex(x => x.QuoteId);
         builder.HasSearchText(nameof(ProductionOrder.ClientName), nameof(ProductionOrder.QuoteNumber));

@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
