@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Domain.Quotes;

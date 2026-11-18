@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using Catalog.Domain.Products;
 using IntegrationTests.TestSupport;
@@ -108,7 +109,7 @@ public sealed class PpeScheduledPriceRefreshTests : SewingPricingDatabaseFixture
         var product = Product.Create(ProductId.Create(id), "Костюм " + code, "Костюм " + code,
             ProductSlug.Create("kostium-" + code).Value, ProductType.Ppe, Monday).Value;
         product.SetCode(code, Monday);
-        product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(1), sku, null, price, false, "Одяг ЗІЗ", "шт"), Monday);
+        product.SetPpeSupplier(new PpeSupplierDetails(new SupplierId(1), sku, null, price, false, "Одяг ЗІЗ", "шт"), Monday);
         return product;
     }
 

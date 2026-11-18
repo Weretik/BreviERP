@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 
@@ -22,7 +23,7 @@ public sealed class StockChanges(IWarehouseDbContext db, IWarehouseStaffReader s
         if (fabric is null) return Result<StockFabric>.NotFound(StockMessages.FabricNotFound);
         if (string.IsNullOrWhiteSpace(fabric.Code)) return Result<StockFabric>.Invalid(
             new ValidationError(nameof(fabricId), StockMessages.FabricWithoutCode));
-        return Result.Success(new StockFabric(fabric.Id, fabric.Code, fabric.Name));
+        return Result.Success(new StockFabric(new FabricId(fabric.Id), fabric.Code, fabric.Name));
     }
 
     /// <summary>
@@ -38,7 +39,7 @@ public sealed class StockChanges(IWarehouseDbContext db, IWarehouseStaffReader s
         if (!fabric.IsActive) return Result<StockFabric>.Invalid(new ValidationError("FabricId", StockMessages.FabricInactive));
         if (!FabricAliases.MatchesGroup(fabric.Code, fabric.Composition, fabric.Density))
             return Result<StockFabric>.Invalid(new ValidationError("FabricId", StockMessages.IdentityChanged));
-        return Result.Success(new StockFabric(fabric.Id, fabric.Code, fabric.Name));
+        return Result.Success(new StockFabric(new FabricId(fabric.Id), fabric.Code, fabric.Name));
     }
 
     /// <summary>The line of a fabric and colour, created (not yet saved) when the stock never held it.</summary>

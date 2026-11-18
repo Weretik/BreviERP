@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions;
@@ -38,7 +39,7 @@ public sealed class UpdateProductOverviewHandler(
         var now = timeProvider.GetUtcNow();
         var changed = product.SetCode(code, now);
         if (changed.IsSuccess)
-            changed = product.SetOverview(new ProductOverviewDetails(command.SectionId, command.Season,
+            changed = product.SetOverview(new ProductOverviewDetails(ProductSectionId.FromNullable(command.SectionId), command.Season,
                 command.IsActive, command.CurrentSiteUrl, command.QuoteDescription), now);
         if (changed.IsFailure) return changed.Error!.ToResult();
         await repository.UpdateAsync(product, cancellationToken);

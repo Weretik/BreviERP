@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using IntegrationTests.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.GarmentAccessories;
@@ -17,9 +18,9 @@ public sealed class ReferencePricingFirstVersionTests : SewingPricingDatabaseFix
     public async Task New_fabric_and_accessory_get_a_first_version_then_next_ones_and_lose_them_on_delete()
     {
         await using var reference = Reference();
-        var fabricId = FabricId.From(9001);
-        var accessoryId = GarmentAccessoryId.From(9001);
-        reference.Fabrics.Add(Fabric.Create(fabricId, "Тест тканина", MoneyAmount.From(120), SupplierId.From(1)).Value);
+        var fabricId = new FabricId(9001);
+        var accessoryId = new GarmentAccessoryId(9001);
+        reference.Fabrics.Add(Fabric.Create(fabricId, "Тест тканина", MoneyAmount.From(120), new SupplierId(1)).Value);
         reference.GarmentAccessories.Add(GarmentAccessory.Create(accessoryId, "Тест фурнітура", MoneyAmount.From(3)).Value);
         await reference.SaveChangesAsync();
 

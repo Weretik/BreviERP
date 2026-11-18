@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Reference.Contracts.Pricing;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
@@ -12,18 +13,18 @@ internal sealed class CatalogPricingInputUsage(CatalogDbContext dbContext) : IPr
 {
     public Task<bool> IsFabricUsedAsync(int fabricId, CancellationToken cancellationToken) =>
         dbContext.Products.AnyAsync(x =>
-            x.SewingDetails != null && x.SewingDetails.Fabrics.Any(y => y.FabricId == fabricId) ||
-            x.MaterialLines.Any(y => y.Kind == SewingMaterialKind.Fabric && y.FabricId == FabricReferenceId.Create(fabricId)),
+            x.SewingDetails != null && x.SewingDetails.Fabrics.Any(y => y.FabricId == new FabricId(fabricId)) ||
+            x.MaterialLines.Any(y => y.Kind == SewingMaterialKind.Fabric && y.FabricId == new FabricId(fabricId)),
             cancellationToken);
 
     public Task<bool> IsAccessoryUsedAsync(int accessoryId, CancellationToken cancellationToken) =>
         dbContext.Products.AnyAsync(x =>
-            x.SewingDetails != null && x.SewingDetails.Accessories.Any(y => y.GarmentAccessoryId == accessoryId) ||
-            x.MaterialLines.Any(y => y.Kind == SewingMaterialKind.Accessory && y.AccessoryId == AccessoryReferenceId.Create(accessoryId)),
+            x.SewingDetails != null && x.SewingDetails.Accessories.Any(y => y.GarmentAccessoryId == new GarmentAccessoryId(accessoryId)) ||
+            x.MaterialLines.Any(y => y.Kind == SewingMaterialKind.Accessory && y.AccessoryId == new GarmentAccessoryId(accessoryId)),
             cancellationToken);
 
     public Task<bool> IsOperationUsedAsync(int operationId, CancellationToken cancellationToken) =>
         dbContext.Products.AnyAsync(x =>
-            x.SewingDetails != null && x.SewingDetails.Operations.Any(y => y.GarmentPartOperationId == operationId) ||
-            x.OperationLines.Any(y => y.OperationId == OperationReferenceId.Create(operationId)), cancellationToken);
+            x.SewingDetails != null && x.SewingDetails.Operations.Any(y => y.GarmentPartOperationId == new GarmentPartOperationId(operationId)) ||
+            x.OperationLines.Any(y => y.OperationId == new GarmentPartOperationId(operationId)), cancellationToken);
 }

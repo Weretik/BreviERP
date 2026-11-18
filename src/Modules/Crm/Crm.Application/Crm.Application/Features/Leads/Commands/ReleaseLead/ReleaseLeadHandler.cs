@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Leads.Shared.Access;
 using Crm.Application.Features.Leads.Shared.Calling;

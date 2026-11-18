@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using BuildingBlocks.Application.Behaviors;
@@ -135,7 +136,7 @@ public sealed class CatalogProductPersistenceTests
         var product = Product.Create(ProductId.Create(301), "Projection product", "Проекційний товар",
             ProductSlug.Create("projection-product").Value, ProductType.Sewing, now).Value;
         product.ConfigureSewing(SewingProductDetails.Create(product.Id, 1m,
-            [ProductFabric.Create(product.Id, 501, true, 0).Value], [], []).Value, now);
+            [ProductFabric.Create(product.Id, new FabricId(501), true, 0).Value], [], []).Value, now);
         db.Products.Add(product);
         await db.SaveChangesAsync();
 
@@ -182,7 +183,7 @@ public sealed class CatalogProductPersistenceTests
         var product = Product.Create(id, "Integration Sewing", "Интеграция Швейный",
             ProductSlug.Create("integration-sewing").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
         product.ConfigureSewing(SewingProductDetails.Create(id, 1.25m,
-            [ProductFabric.Create(id, 501, true, 0).Value], [], []).Value, DateTimeOffset.UtcNow);
+            [ProductFabric.Create(id, new FabricId(501), true, 0).Value], [], []).Value, DateTimeOffset.UtcNow);
 
         db.Products.Add(product);
         await db.SaveChangesAsync();

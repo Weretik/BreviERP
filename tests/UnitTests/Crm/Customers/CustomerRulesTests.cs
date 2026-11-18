@@ -1,7 +1,7 @@
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.Identifiers;
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Customers.ExternalIdentities;
 
 namespace UnitTests.Crm.Customers;

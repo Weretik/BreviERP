@@ -12,6 +12,9 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(Product).Assembly);
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 using Reference.Domain.Suppliers;
@@ -34,10 +35,10 @@ public sealed class KeepinCrmSupplierSyncTests
     [Test]
     public async Task Updates_by_id_links_by_name_creates_the_rest_and_keeps_brevi_fields()
     {
-        var linked = Supplier.CreateFromKeepinCrm(SupplierId.From(3), Keepin("220810", "Фастекст"), Now.AddDays(-30)).Value;
+        var linked = Supplier.CreateFromKeepinCrm(new SupplierId(3), Keepin("220810", "Фастекст"), Now.AddDays(-30)).Value;
         linked.SetActive(false);
-        var manual = Supplier.Create(SupplierId.From(6), "Скай Текс, ТОВ", notes: "оптова знижка").Value;
-        var gone = Supplier.CreateFromKeepinCrm(SupplierId.From(9), Keepin("1", "Старий"), Now.AddDays(-30)).Value;
+        var manual = Supplier.Create(new SupplierId(6), "Скай Текс, ТОВ", notes: "оптова знижка").Value;
+        var gone = Supplier.CreateFromKeepinCrm(new SupplierId(9), Keepin("1", "Старий"), Now.AddDays(-30)).Value;
         var (sync, added, repository) = Create(
         [
             Keepin("220810", "Фастекст юа", "фурнітура"),
@@ -69,8 +70,8 @@ public sealed class KeepinCrmSupplierSyncTests
     [Test]
     public async Task Name_taken_by_another_supplier_gets_the_keepin_id()
     {
-        var first = Supplier.Create(SupplierId.From(1), "Тексика").Value;
-        var second = Supplier.Create(SupplierId.From(2), "ТЕКСИКА ТОВ").Value;
+        var first = Supplier.Create(new SupplierId(1), "Тексика").Value;
+        var second = Supplier.Create(new SupplierId(2), "ТЕКСИКА ТОВ").Value;
         var (sync, added, _) = Create([Keepin("5", "Тексика")], [first, second]);
 
         await sync.RunAsync(CancellationToken.None);
@@ -81,7 +82,7 @@ public sealed class KeepinCrmSupplierSyncTests
     [Test]
     public async Task Empty_answer_changes_nothing()
     {
-        var (sync, _, repository) = Create([], [Supplier.Create(SupplierId.From(1), "Тексика").Value]);
+        var (sync, _, repository) = Create([], [Supplier.Create(new SupplierId(1), "Тексика").Value]);
 
         await Assert.ThrowsAsync<KeepinCrmUnavailableException>(() => sync.RunAsync(CancellationToken.None));
         repository.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);

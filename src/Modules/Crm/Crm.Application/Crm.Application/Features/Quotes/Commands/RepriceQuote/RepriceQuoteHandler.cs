@@ -108,7 +108,7 @@ public sealed class RepriceQuoteHandler(
     }
 
     private static QuoteSewingVariant Variant(QuoteItemOption option) =>
-        new(option.Fabrics.OrderBy(f => f.Position).Select(f => new QuoteSewingFabric(f.FabricId, f.Meters)).ToArray());
+        new(option.Fabrics.OrderBy(f => f.Position).Select(f => new QuoteSewingFabric(f.FabricId.Value, f.Meters)).ToArray());
 
     /// <summary>A «Виріб з нуля» is priced again from its saved composition by the Catalog formula (R-20).</summary>
     private async Task RepriceCustomAsync(QuoteItem item, bool apply, DateTimeOffset now,

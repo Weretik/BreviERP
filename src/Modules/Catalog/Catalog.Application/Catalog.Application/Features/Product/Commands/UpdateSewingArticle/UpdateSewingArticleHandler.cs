@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Reference;
@@ -32,7 +33,7 @@ public sealed class UpdateSewingArticleHandler(ISewingCompositionStore store, IP
         var now = TimeProvider.System.GetUtcNow();
         var changed = product.UpdateArticle(articleId, sku, request.Active, now);
         if (changed.IsSuccess)
-            changed = product.SetArticleFabric(articleId, FabricReferenceId.Create(request.FabricId),
+            changed = product.SetArticleFabric(articleId, new FabricId(request.FabricId),
                 request.FabricQuantity, now);
         if (changed.IsFailure) return changed.Error!.ToResult<SewingArticleView>();
         if (!await store.SaveAsync(cancellationToken))

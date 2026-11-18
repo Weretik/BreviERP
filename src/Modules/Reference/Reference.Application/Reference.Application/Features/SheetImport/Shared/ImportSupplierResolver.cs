@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Reference.Domain.Suppliers;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using Reference.Application.Features.Supplier.Commands.SyncKeepinCrmSuppliers;
@@ -43,7 +44,7 @@ internal sealed class ImportSupplierResolver
     private SupplierEntity Create(string name)
     {
         // Resolve never passes a blank name, the only rule a new supplier can break here.
-        var supplier = SupplierEntity.Create(SupplierId.From(_nextId++), name).Value;
+        var supplier = SupplierEntity.Create(new SupplierId(_nextId++), name).Value;
         _created.Add(supplier);
         _byKey[SupplierNameKey.From(name)] = supplier;
         return supplier;

@@ -2,7 +2,7 @@ using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.ExternalIdentities;
 using Crm.Domain.Customers.Identifiers;
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

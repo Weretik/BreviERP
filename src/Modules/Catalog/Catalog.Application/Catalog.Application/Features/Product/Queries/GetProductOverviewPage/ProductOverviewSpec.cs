@@ -20,7 +20,7 @@ public sealed class ProductOverviewSpec : Specification<ProductEntity, ProductOv
         }
         Query.Select(x => new ProductOverviewReadModel(
             x.Id.Value, x.Type, x.ModelCode, x.CatalogProfile != null ? x.CatalogProfile.SaleSku : null, x.Name,
-            x.CatalogProfile != null ? x.CatalogProfile.SectionId : null,
+            x.CatalogProfile != null && x.CatalogProfile.SectionId != null ? x.CatalogProfile.SectionId.Value.Value : null,
             x.CatalogProfile != null ? x.CatalogProfile.Season : null,
             x.CatalogProfile == null || x.CatalogProfile.IsActive,
             x.CatalogProfile != null ? x.CatalogProfile.WebsiteUrl : null,

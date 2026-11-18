@@ -1,5 +1,5 @@
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
-using GarmentAccessoryId = Reference.Domain.GarmentAccessories.GarmentAccessoryId;
+using GarmentAccessoryId = BuildingBlocks.Domain.Identifiers.ReferenceData.GarmentAccessoryId;
 
 namespace Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds.Specs;
 
@@ -7,7 +7,7 @@ internal sealed class PricingGarmentAccessoriesByIdsSpec : Specification<Garment
 {
     public PricingGarmentAccessoriesByIdsSpec(IReadOnlyCollection<int> ids)
     {
-        var garmentAccessoryIds = ids.Select(GarmentAccessoryId.From).ToArray();
+        var garmentAccessoryIds = ids.Select(x => new GarmentAccessoryId(x)).ToArray();
 
         Query.AsNoTracking()
             .Where(x => garmentAccessoryIds.Contains(x.Id))

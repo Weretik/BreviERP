@@ -29,39 +29,10 @@ public static class ReferenceConverters
             id => id.Value,
             v => FabricColorId.From(v)
         );
-    public static readonly ValueConverter<ProductSectionId, int> ProductSectionIdConvert =
-        new(
-            id => id.Value,
-            v => ProductSectionId.From(v)
-        );
-    public static readonly ValueConverter<FabricId, int> FabricIdConvert =
-        new(
-            id => id.Value,
-            v => FabricId.From(v)
-        );
-
     public static readonly ValueConverter<GarmentPartId, int> GarmentPartIdConvert =
         new(
             id => id.Value,
             v => GarmentPartId.From(v)
-        );
-
-    public static readonly ValueConverter<GarmentAccessoryId, int> GarmentAccessoryIdConvert =
-        new(
-            id => id.Value,
-            v => GarmentAccessoryId.From(v)
-        );
-
-    public static readonly ValueConverter<GarmentPartOperationId, int> GarmentPartOperationIdConvert =
-        new(
-            id => id.Value,
-            v => GarmentPartOperationId.From(v)
-        );
-
-    public static readonly ValueConverter<SupplierId, int> SupplierIdConvert =
-        new(
-            id => id.Value,
-            v => SupplierId.From(v)
         );
 
     public static readonly ValueConverter<Percent, decimal> PercentConvert =

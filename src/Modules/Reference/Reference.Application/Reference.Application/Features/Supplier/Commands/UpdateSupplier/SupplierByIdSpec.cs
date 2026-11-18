@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
@@ -9,6 +10,6 @@ public sealed class SupplierByIdSpec : Specification<SupplierEntity>
 {
     public SupplierByIdSpec(int id)
     {
-        Query.Where(x => x.Id == SupplierId.From(id));
+        Query.Where(x => x.Id == new SupplierId(id));
     }
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -81,7 +82,7 @@ public sealed class SewingCompositionPersistenceTests
         [
             SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-1", 1m, SewingMaterialUnit.Service, 0).Value,
             SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-2", 1m, SewingMaterialUnit.Service, 1).Value
-        ], [SewingOperationLine.Create(default, productId, null, OperationReferenceId.Create(1), 1m, null, 0).Value], now);
+        ], [SewingOperationLine.Create(default, productId, null, new GarmentPartOperationId(1), 1m, null, 0).Value], now);
 
         Assert.DoesNotThrow(() => db.Products.Add(product));
         var articleIds = db.Entry(product).Collection(x => x.Articles).CurrentValue!

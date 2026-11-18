@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
@@ -10,6 +11,6 @@ public sealed class GarmentPartOperationByIdOrPartAndNameSpec : Specification<Ga
 {
     public GarmentPartOperationByIdOrPartAndNameSpec(int id, int garmentPartId, string name)
     {
-        Query.Where(x => x.Id == GarmentPartOperationId.From(id) || (x.GarmentPartId == GarmentPartId.From(garmentPartId) && x.Name == name));
+        Query.Where(x => x.Id == new GarmentPartOperationId(id) || (x.GarmentPartId == GarmentPartId.From(garmentPartId) && x.Name == name));
     }
 }

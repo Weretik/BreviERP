@@ -28,10 +28,10 @@ internal static class QuoteResponseMapper
         item.EmbroideryCalculationId?.Value);
 
     private static QuoteOptionResponse ToResponse(QuoteItemOption option) => new(
-        option.Id, option.ArticleId, option.FabricId, option.Title, option.Details, option.IsRecommended,
+        option.Id, option.ArticleId, option.FabricId?.Value, option.Title, option.Details, option.IsRecommended,
         ToResponse(option.Retail), ToResponse(option.Wholesale), ToResponse(option.Large),
         option.ManualReason, option.ManualByName, option.ManualAt, option.PricesTakenAt, option.FabricMeters,
-        option.Fabrics.OrderBy(x => x.Position).Select(x => new QuoteOptionFabricResponse(x.FabricId, x.Name, x.Meters))
+        option.Fabrics.OrderBy(x => x.Position).Select(x => new QuoteOptionFabricResponse(x.FabricId.Value, x.Name, x.Meters))
             .ToArray());
 
     private static QuotePriceResponse ToResponse(QuotePrice price) =>

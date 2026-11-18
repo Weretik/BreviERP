@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.Products.Enums;
@@ -10,7 +11,7 @@ public sealed class PpeSupplierProductsSpec : Specification<ProductEntity>
 {
     public PpeSupplierProductsSpec(int supplierId)
     {
-        var key = SupplierReferenceId.Create(supplierId);
+        var key = new SupplierId(supplierId);
         Query.Where(x => !x.IsDeleted && x.Type == ProductType.Ppe && x.CatalogProfile != null
                          && x.CatalogProfile.SupplierId == key)
             .Include(x => x.CatalogProfile);
@@ -29,4 +30,4 @@ public sealed class PpeSupplierCountsSpec : Specification<ProductEntity, PpeSupp
     }
 }
 
-public sealed record PpeSupplierCountRow(SupplierReferenceId SupplierId, bool AllowManualPrice);
+public sealed record PpeSupplierCountRow(SupplierId SupplierId, bool AllowManualPrice);

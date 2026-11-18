@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
@@ -37,7 +38,7 @@ public sealed class GarmentPartOperationSeeder(
             var garmentPartId = GarmentPartId.From(row.GarmentPartId);
 
             var created = GarmentPartOperation.Create(
-                GarmentPartOperationId.From(row.Id),
+                new GarmentPartOperationId(row.Id),
                 new GarmentPartOperationDetails(row.Code, garmentPartId, row.Element, row.Variant, name, row.Min,
                     row.MinutesPerProduct, row.IsActive, row.Notes));
             if (created.IsFailure)

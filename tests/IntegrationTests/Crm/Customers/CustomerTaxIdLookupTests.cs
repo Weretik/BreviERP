@@ -1,6 +1,6 @@
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Application.Features.Customers.Queries.GetCustomerLookup;
 using Crm.Application.Features.Customers.Queries.GetCustomersByTaxIds;
 using Crm.Infrastructure.Persistence.Repositories.Customers;

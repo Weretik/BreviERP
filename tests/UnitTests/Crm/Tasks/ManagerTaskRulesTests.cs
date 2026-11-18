@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Commands.ChangeTaskStatus;
 using Crm.Application.Features.Tasks.Commands.CreateTask;

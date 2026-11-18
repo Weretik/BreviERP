@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using BuildingBlocks.Application.DomainEvents;
 using Production.Application.Abstractions;
 using Production.Domain.Staff;

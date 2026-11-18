@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using FabricEntity = Reference.Domain.Fabrics.Fabric;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
@@ -10,6 +11,6 @@ public sealed class FabricByIdSpec : Specification<FabricEntity>
 {
     public FabricByIdSpec(int id)
     {
-        Query.Where(x => x.Id == FabricId.From(id));
+        Query.Where(x => x.Id == new FabricId(id));
     }
 }

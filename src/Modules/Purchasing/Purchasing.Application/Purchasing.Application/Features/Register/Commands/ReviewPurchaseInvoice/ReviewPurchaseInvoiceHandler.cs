@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Purchasing.Domain.Messages.Identifiers;
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Messages;
@@ -32,10 +33,10 @@ public sealed class ReviewPurchaseInvoiceHandler(
         if (message is null) return Result<PurchaseInvoiceReviewResponse>.NotFound(NotFound);
         if (message.ReviewVersion != command.Version) return Result<PurchaseInvoiceReviewResponse>.Conflict(Stale);
         // An inactive supplier may stay linked, but a new link needs an active one.
-        if (supplier is { Active: false } && supplier.Id != message.SupplierId)
+        if (supplier is { Active: false } && new SupplierId(supplier.Id) != message.SupplierId)
             return Result<PurchaseInvoiceReviewResponse>.NotFound(SupplierNotFound);
 
-        var reviewed = message.Review(command.SupplierId, command.Note, command.Reviewer, clock.GetUtcNow());
+        var reviewed = message.Review(SupplierId.FromNullable(command.SupplierId), command.Note, command.Reviewer, clock.GetUtcNow());
         if (reviewed.IsFailure) return reviewed.ToResult<PurchaseReviewChange?, PurchaseInvoiceReviewResponse>();
         if (reviewed.Value is { } change)
         {
@@ -44,7 +45,7 @@ public sealed class ReviewPurchaseInvoiceHandler(
             await scope.CommitAsync(cancellationToken);
         }
 
-        return Result.Success(new PurchaseInvoiceReviewResponse(message.Id.Value, message.SupplierId, supplier?.Name,
+        return Result.Success(new PurchaseInvoiceReviewResponse(message.Id.Value, message.SupplierId?.Value, supplier?.Name,
             message.ReviewNote, message.ReviewVersion, message.ReviewedBy, message.ReviewedAt));
     }
 }

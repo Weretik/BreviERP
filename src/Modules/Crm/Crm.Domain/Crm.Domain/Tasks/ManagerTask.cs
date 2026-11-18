@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using System.Globalization;

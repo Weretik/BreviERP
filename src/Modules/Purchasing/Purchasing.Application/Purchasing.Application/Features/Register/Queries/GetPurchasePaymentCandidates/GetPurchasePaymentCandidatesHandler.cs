@@ -19,7 +19,7 @@ public sealed class GetPurchasePaymentCandidatesHandler(IPurchasingDbContext db,
         var linked = (await PurchasePayments.ActiveLinksAsync(db, [message.Id], cancellationToken))[message.Id]
             .Select(x => x.TransactionId).ToHashSet();
         var search = string.IsNullOrWhiteSpace(query.Search) ? null : query.Search.Trim();
-        var candidates = await reader.CandidatesAsync(message.SupplierId, total, search, cancellationToken);
+        var candidates = await reader.CandidatesAsync(message.SupplierId?.Value, total, search, cancellationToken);
         return Result.Success<IReadOnlyList<PurchasePaymentCandidateResponse>>(candidates
             .Where(x => !linked.Contains(x.Id))
             .Select(x => new PurchasePaymentCandidateResponse(x.Id, x.Date, x.AmountMinor, x.Currency, x.AccountName,

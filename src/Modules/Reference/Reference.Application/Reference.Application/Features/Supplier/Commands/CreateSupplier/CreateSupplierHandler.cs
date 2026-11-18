@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using Reference.Application.Abstractions;
@@ -52,7 +53,7 @@ public sealed class CreateSupplierHandler(IReferenceRepository<SupplierEntity> r
         }
 
         var created = SupplierEntity.Create(
-            Reference.Domain.Suppliers.SupplierId.From(request.Id),
+            new SupplierId(request.Id),
             name,
             link,
             contactPerson,

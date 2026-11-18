@@ -3,7 +3,7 @@ using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.ExternalIdentities;
 using Crm.Domain.Customers.Identifiers;
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 
 namespace Crm.Domain.Customers;
 

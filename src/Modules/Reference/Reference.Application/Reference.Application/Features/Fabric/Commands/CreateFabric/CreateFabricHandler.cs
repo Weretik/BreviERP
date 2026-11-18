@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Reference.Application.Features.Fabric.Shared;
 using Reference.Domain.GarmentAccessories;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
@@ -35,7 +36,7 @@ public sealed class CreateFabricHandler(
             return Result.Invalid(errors);
 
         var created = FabricEntity.Create(
-            FabricId.From(request.Id),
+            new FabricId(request.Id),
             FabricDetailsFactory.From(request, supplier!.Id),
             MoneyAmount.From(request.Price),
             KyivDate.Today(timeProvider));

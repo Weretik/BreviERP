@@ -1,4 +1,5 @@
-﻿using Moq;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using Moq;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
 using Reference.Application.Abstractions;
@@ -33,18 +34,18 @@ public sealed class ReferenceSheetImportTests
 
     private static List<Supplier> Suppliers() =>
     [
-        Supplier.Create(SupplierId.From(1), "Не указан").Value,
-        Supplier.Create(SupplierId.From(5), "Спецтекстиль, ТОВ").Value,
+        Supplier.Create(new SupplierId(1), "Не указан").Value,
+        Supplier.Create(new SupplierId(5), "Спецтекстиль, ТОВ").Value,
     ];
 
     [Test]
     public async Task Fabric_import_updates_by_code_links_by_name_creates_the_rest_and_new_suppliers()
     {
-        var coded = Fabric.Create(FabricId.From(3), "Сантана", MoneyAmount.From(50), SupplierId.From(5)).Value;
-        coded.ApplyDetails(new FabricDetails("FAB-003", "Сантана", null, SupplierId.From(5), "100%поліестер", null, "90",
+        var coded = Fabric.Create(new FabricId(3), "Сантана", MoneyAmount.From(50), new SupplierId(5)).Value;
+        coded.ApplyDetails(new FabricDetails("FAB-003", "Сантана", null, new SupplierId(5), "100%поліестер", null, "90",
             true, null, null));
-        var legacy = Fabric.Create(FabricId.From(7), "Тканина \"Грета\" Черкаси, ВВ", MoneyAmount.From(100), SupplierId.From(5)).Value;
-        var stale = Fabric.Create(FabricId.From(9), "Стара тканина", MoneyAmount.From(10), SupplierId.From(5)).Value;
+        var legacy = Fabric.Create(new FabricId(7), "Тканина \"Грета\" Черкаси, ВВ", MoneyAmount.From(100), new SupplierId(5)).Value;
+        var stale = Fabric.Create(new FabricId(9), "Стара тканина", MoneyAmount.From(10), new SupplierId(5)).Value;
         var added = new List<Fabric>();
         var addedSuppliers = new List<Supplier>();
         var fabrics = Repository([coded, legacy, stale], added);
@@ -67,8 +68,8 @@ public sealed class ReferenceSheetImportTests
             Assert.That(coded.Price.Value, Is.EqualTo(56m));
             Assert.That(coded.PriceUpdatedAt, Is.EqualTo(SheetDate));
             Assert.That(legacy.Code, Is.EqualTo("FAB-010"));
-            Assert.That(legacy.ProviderId, Is.EqualTo(SupplierId.From(1)));
-            Assert.That(added.Single().Id, Is.EqualTo(FabricId.From(10)));
+            Assert.That(legacy.ProviderId, Is.EqualTo(new SupplierId(1)));
+            Assert.That(added.Single().Id, Is.EqualTo(new FabricId(10)));
             Assert.That(addedSuppliers.Single().Name, Is.EqualTo("Тексика"));
             Assert.That(added.Single().ProviderId, Is.EqualTo(addedSuppliers.Single().Id));
             Assert.That(stale.IsActive, Is.False);
@@ -80,7 +81,7 @@ public sealed class ReferenceSheetImportTests
     [Test]
     public async Task Fabric_preview_changes_nothing_and_repeating_the_sheet_is_unchanged()
     {
-        var fabric = Fabric.Create(FabricId.From(1), new FabricDetails("FAB-001", "МВО", null, SupplierId.From(5),
+        var fabric = Fabric.Create(new FabricId(1), new FabricDetails("FAB-001", "МВО", null, new SupplierId(5),
             "100% бавовна", null, "260", true, null, null), MoneyAmount.From(147), SheetDate).Value;
         var added = new List<Fabric>();
         var fabrics = Repository([fabric], added);

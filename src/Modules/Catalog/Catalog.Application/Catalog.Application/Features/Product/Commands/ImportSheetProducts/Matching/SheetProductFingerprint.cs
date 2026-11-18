@@ -16,7 +16,7 @@ public static class SheetProductFingerprint
         var parts = new List<string?>
         {
             product.Name, product.RuName, product.Code,
-            Text(p?.SectionId), p?.Season, Text(p?.IsActive),
+            Text(p?.SectionId?.Value), p?.Season, Text(p?.IsActive),
             p?.WebsiteUrl, p?.ShortDescription,
             Text(p?.SupplierId?.Value), p?.SupplierSku, p?.SupplierProductUrl, Text(p?.SupplierPrice),
             Text(p?.AllowManualPrice), p?.PricingRuleCode, p?.Unit,

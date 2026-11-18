@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products;
 using IntegrationTests.TestSupport;
@@ -17,7 +18,7 @@ public sealed class SewingVariantPersistenceTests : SewingPricingDatabaseFixture
     public async Task Variant_is_added_with_its_fabric_listed_and_removed_with_it()
     {
         int productId;
-        FabricReferenceId fabricId;
+        FabricId fabricId;
         await using (var catalog = Catalog())
         {
             var product = await catalog.Products.SingleAsync(x => x.ModelCode == "MOD-025");

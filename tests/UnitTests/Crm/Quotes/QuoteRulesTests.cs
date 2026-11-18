@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Commands.CreateQuote;
 using Crm.Application.Features.Quotes.Queries.GetQuotes;
@@ -102,8 +103,8 @@ public sealed class QuoteRulesTests
     [Test]
     public void CopyKeepsManualPricesAndCompositionButNotTheStatus()
     {
-        var option = QuoteItemOption.Create(0, null, 5, "Саржа", null, true, new QuotePrice(100m, 120m, true),
-            QuotePrice.Empty, QuotePrice.Empty, DateTimeOffset.UnixEpoch).WithFabrics([QuoteItemOptionFabric.Create(0, 5, "Саржа", 1.5m)]);
+        var option = QuoteItemOption.Create(0, null, new FabricId(5), "Саржа", null, true, new QuotePrice(100m, 120m, true),
+            QuotePrice.Empty, QuotePrice.Empty, DateTimeOffset.UnixEpoch).WithFabrics([QuoteItemOptionFabric.Create(0, new FabricId(5), "Саржа", 1.5m)]);
         option.SetManualAudit("Знижка", new QuotePerson(new UserId(5), "Олена"), DateTimeOffset.UnixEpoch);
         var item = QuoteItem.Create(0, QuoteItemKind.CustomSewing, null, new QuoteItemTexts(null, "Фартух", null, null,
             null, null, null, null), [option], [QuoteItemLine.Create(0, QuoteItemLineKind.Operation, 155, "Шов", "хв", 1m, 12m)]);

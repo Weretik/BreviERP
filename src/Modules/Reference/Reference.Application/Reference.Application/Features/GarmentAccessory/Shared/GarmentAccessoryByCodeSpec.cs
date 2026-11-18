@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Reference.Domain.GarmentAccessories;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 
@@ -10,6 +11,6 @@ public sealed class GarmentAccessoryByCodeSpec : Specification<GarmentAccessoryE
     {
         Query.Where(x => x.Code == code);
         if (exceptId is { } id)
-            Query.Where(x => x.Id != GarmentAccessoryId.From(id));
+            Query.Where(x => x.Id != new GarmentAccessoryId(id));
     }
 }

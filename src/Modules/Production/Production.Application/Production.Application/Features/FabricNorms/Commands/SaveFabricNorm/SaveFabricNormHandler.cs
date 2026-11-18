@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Application.Features.FabricNorms.Shared;

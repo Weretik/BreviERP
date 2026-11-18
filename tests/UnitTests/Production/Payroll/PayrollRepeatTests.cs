@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Ardalis.Result;
 using Production.Application.Features.Orders.Shared.Access;
 using Production.Application.Features.Payroll.Commands.CreatePayrollAdjustment;

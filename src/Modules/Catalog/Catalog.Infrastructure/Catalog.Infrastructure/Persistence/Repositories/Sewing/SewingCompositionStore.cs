@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Results;
 using Catalog.Domain.Products;
 using Npgsql;
@@ -34,7 +35,7 @@ internal sealed class SewingCompositionStore(CatalogDbContext db) : ISewingCompo
         => db.Set<SavedSewingCalculationRecord>().AnyAsync(x => x.ArticleId == ArticleId.Create(articleId), cancellationToken);
 
     public async Task<DomainResult<bool>> AddArticleAsync(Product product, SewingArticle article,
-        FabricReferenceId fabricId, decimal fabricQuantity, DateTimeOffset now, CancellationToken cancellationToken)
+        FabricId fabricId, decimal fabricQuantity, DateTimeOffset now, CancellationToken cancellationToken)
     {
         // A broken rule or a lost race leaves the transaction uncommitted, so the article saved first is rolled back.
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
