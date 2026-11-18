@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Domain.Stock.Plans;
@@ -31,11 +32,12 @@ public sealed class StockReservations(IWarehouseDbContext db, IWarehouseProducti
     public async Task<Dictionary<(int ItemId, FabricPlanKey Key), decimal>> CoveredAsync(IReadOnlyCollection<int> itemIds,
         CancellationToken cancellationToken)
     {
+        var keys = itemIds.Select(x => new ProductionItemId(x)).ToArray();
         var issues = await db.FabricIssues.AsNoTracking().Include(x => x.Lines)
-            .Where(x => itemIds.Contains(x.ItemId) && x.ReversedAt == null)
+            .Where(x => keys.Contains(x.ItemId) && x.ReversedAt == null)
             .ToListAsync(cancellationToken);
         return issues.SelectMany(x => x.Lines.Where(l => l.Plan is not null)
-                .Select(l => (x.ItemId, Key: l.Plan!, l.CoveredMeters)))
+                .Select(l => (ItemId: x.ItemId.Value, Key: l.Plan!, l.CoveredMeters)))
             .GroupBy(x => (x.ItemId, x.Key))
             .ToDictionary(g => g.Key, g => g.Sum(x => x.CoveredMeters));
     }

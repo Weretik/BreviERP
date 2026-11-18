@@ -35,7 +35,7 @@ public sealed class ProductionAssemblies(IProductionDbContext db, IProductionMod
                     .Where(x => x.Kind != "Fabric" && (x.ArticleId is null || x.ArticleId == item.ArticleId?.Value))
                     .Select(x => new AssemblyLine(x.Kind, x.Code, x.Name, x.Quantity, x.Unit, x.Comment))
                     .ToList();
-                return new AssemblyItem(order.Id.Value, order.Number, order.ClientName, order.CreatedAt, item.Id,
+                return new AssemblyItem(order.Id.Value, order.Number, order.ClientName, order.CreatedAt, item.Id.Value,
                     item.ModelName, item.ModelCode, item.Quantity, lines is { Count: > 0 } ? lines : null, item.DueDate);
             }))
             .ToList();

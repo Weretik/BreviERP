@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Crm.Domain.Quotes;
@@ -107,7 +108,7 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         for (var index = 0; index < input.Options.Count; index++)
         {
             var optionInput = input.Options[index];
-            var saved = previous.Options.FirstOrDefault(x => x.Id == optionInput.Id);
+            var saved = previous.Options.FirstOrDefault(x => x.Id.Value == optionInput.Id);
             if (saved is null || !saved.HasFabrics(optionInput.Fabrics!.Select(x => (new FabricId(x.FabricId), x.Meters)).ToArray()))
                 return null;
             options.Add(QuoteItemOption.Create(index, null, saved.FabricId, saved.Title, saved.Details,

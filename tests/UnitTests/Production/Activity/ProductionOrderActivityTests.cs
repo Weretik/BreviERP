@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.People;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
@@ -19,7 +20,7 @@ public sealed class ProductionOrderActivityTests
         var item = ProductionItem.Create(1,
             new ItemSource(null, null, null, null, "MOD-1", "Куртка", null, null, null, 120m, null),
             new ItemDetails(10, Today.AddDays(7), "Синій", [], null, null, null, []), null).Value;
-        return ProductionOrder.Create(42, new OrderOrigin(5, "2026-11-003", null, new UserId(7), "Юлія", null, null, null),
+        return ProductionOrder.Create(42, new OrderOrigin(new QuoteId(5), "2026-11-003", null, new UserId(7), "Юлія", null, null, null),
             new OrderHeader("ТОВ «Агро»", Today, null), null, [item], "Юлія", Now).Value;
     }
 

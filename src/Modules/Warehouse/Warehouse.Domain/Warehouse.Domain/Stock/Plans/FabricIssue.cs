@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Domain.Stock;
 using BuildingBlocks.Domain.Entity;
@@ -60,8 +61,8 @@ public sealed class FabricIssue : IAggregateRoot
         new(target, issuedOn, note, actorName, now, legacyId, issuedQuantity, operationId, planVersion);
 
     public FabricIssueId Id { get; private set; }
-    public int OrderId { get; private set; }
-    public int ItemId { get; private set; }
+    public ProductionOrderId OrderId { get; private set; }
+    public ProductionItemId ItemId { get; private set; }
     public int OrderNumber { get; private set; }
     public string ModelName { get; private set; } = null!;
     public DateOnly IssuedOn { get; private set; }

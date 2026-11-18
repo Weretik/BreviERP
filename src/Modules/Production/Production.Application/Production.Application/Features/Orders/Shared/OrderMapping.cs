@@ -38,7 +38,7 @@ internal static class OrderMapping
         var canEdit = actor.CanEdit(order);
         var canTrack = actor.CanTrack(order);
         return new ProductionOrderResponse(
-            order.Id.Value, order.Number, order.Status.ToString(), order.ClientName, order.QuoteId, order.QuoteNumber,
+            order.Id.Value, order.Number, order.Status.ToString(), order.ClientName, order.QuoteId?.Value, order.QuoteNumber,
             order.ManagerName, order.OrderDate, order.Comment,
             actor.SeesReportPrice ? order.PriceTier?.ToString() : null,
             order.LegacyId is not null, order.CopiedFromOrderId?.Value, order.CreatedAt, order.CreatedByName,
@@ -55,12 +55,12 @@ internal static class OrderMapping
     }
 
     public static ProductionFileResponse ToResponse(this ProductionOrderFile file) => new(
-        file.Id, file.ItemId, file.Kind.ToString(), file.Name, file.ContentType, file.Bytes, file.Url,
+        file.Id, file.ItemId?.Value, file.Kind.ToString(), file.Name, file.ContentType, file.Bytes, file.Url,
         file.StorageKey is null, file.CreatedByName, file.CreatedAt);
 
     public static ProductionItemResponse ToResponse(this ProductionItem item, ProductionOrder order,
         ProductionActor actor, IReadOnlyDictionary<long, ProductionEmbroideryResponse>? embroideries = null) => new(
-        item.Id, item.Position, item.ModelCode, item.ModelName, item.FabricCode, item.FabricName, item.Quantity,
+        item.Id.Value, item.Position, item.ModelCode, item.ModelName, item.FabricCode, item.FabricName, item.Quantity,
         item.DueDate, item.MainColor, item.AdditionalColors.ToArray(), item.SizesText, item.TechnicalChanges,
         item.Comment,
         item.Applications.Select(x => new ItemApplicationResponse(x.Kind.ToString(), x.Place, x.Description, x.Color,
@@ -79,7 +79,7 @@ internal static class OrderMapping
             .ToArray());
 
     public static ProductionOrderChangeResponse ToResponse(this ProductionOrderChange change) => new(
-        change.Id, change.ItemId, change.ItemName, change.Field, change.Before, change.After, change.ActorName,
+        change.Id, change.ItemId?.Value, change.ItemName, change.Field, change.Before, change.After, change.ActorName,
         change.At);
 
     public static FabricNormInput? ToNormInput(this ModelFabricNorm? norm) => norm?.Values.ToInput();

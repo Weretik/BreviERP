@@ -58,7 +58,7 @@ public sealed class GetFabricMovementsHandler(IWarehouseDbContext db)
     public static FabricMovementRowResponse Map(FabricMovement x, WarehouseActor actor, int? products = null,
         decimal? pairMetersAfter = null) => new(x.Id.Value, x.StockId.Value,
         x.Kind.ToString(), x.OperationDate, x.CreatedAt, x.Stock.FabricCode, FabricAliases.Canonical(x.Stock.FabricCode),
-        x.Stock.FabricName, x.Stock.Color, x.SupplierName, x.Document, x.OrderId, x.ItemId, x.OrderNumber, x.ModelName,
+        x.Stock.FabricName, x.Stock.Color, x.SupplierName, x.Document, x.OrderId?.Value, x.ItemId?.Value, x.OrderNumber, x.ModelName,
         x.Destination, x.Delta, x.MetersAfter, x.Note, x.CreatedByName, x.IsReversed, x.ReversesMovementId?.Value,
         actor.CanMoveStock && ReverseFabricMovementHandler.CanReverse(x), x.IsVoided, x.Revision,
         actor.CanMoveStock && x.CanRevise, PerProduct(x.Delta, products), pairMetersAfter);

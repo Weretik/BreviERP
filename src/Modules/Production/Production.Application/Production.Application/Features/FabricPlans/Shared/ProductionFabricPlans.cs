@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Domain.FabricPlans;
@@ -34,7 +35,7 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
     {
         var order = await db.Orders.AsNoTracking().Include(x => x.Items)
             .SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(orderId) && x.DeletedAt == null, cancellationToken);
-        var item = order?.Items.FirstOrDefault(x => x.Id == itemId);
+        var item = order?.Items.FirstOrDefault(x => x.Id == new ProductionItemId(itemId));
         if (order is null || item is null) return null;
         return (await PlanAsync([(order, item)], cancellationToken))[0];
     }
@@ -44,7 +45,7 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
         CancellationToken cancellationToken)
     {
         if (itemIds.Count == 0) return [];
-        var ids = itemIds.Distinct().ToArray();
+        var ids = itemIds.Distinct().Select(x => new ProductionItemId(x)).ToArray();
         var orders = await db.Orders.AsNoTracking().Include(x => x.Items)
             .Where(x => x.DeletedAt == null && x.Items.Any(i => ids.Contains(i.Id)))
             .ToListAsync(cancellationToken);
@@ -62,7 +63,7 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
             .Where(x => x.LegacyId != null && ids.Contains(x.LegacyId) && x.DeletedAt == null)
             .ToListAsync(cancellationToken);
         return orders.Select(o => new LegacyOrder(o.LegacyId!, o.Id.Value, o.Number,
-            o.Items.Select(i => new LegacyOrderItem(i.Position, i.Id, i.ModelName, i.ModelCode, i.Quantity)).ToList())).ToList();
+            o.Items.Select(i => new LegacyOrderItem(i.Position, i.Id.Value, i.ModelName, i.ModelCode, i.Quantity)).ToList())).ToList();
     }
 
     public Task<IReadOnlyList<AssemblyItem>> OpenAssembliesAsync(CancellationToken cancellationToken) =>
@@ -74,11 +75,11 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
     {
         // PostgreSQL keeps microseconds: the same instant must compare equal after a round trip.
         var when = at.AddTicks(-(at.Ticks % 10));
-        if (await db.OrderChanges.AnyAsync(x => x.OrderId == new ProductionOrderId(orderId) && x.ItemId == itemId && x.Field == FabricField
+        if (await db.OrderChanges.AnyAsync(x => x.OrderId == new ProductionOrderId(orderId) && x.ItemId == new ProductionItemId(itemId) && x.Field == FabricField
                 && x.After == text && x.At == when, cancellationToken)) return;
         var order = await db.Orders.Include(x => x.Items).SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(orderId), cancellationToken);
         if (order is null) return;
-        order.RecordAbout(itemId, FabricField, null, text, actorName, when);
+        order.RecordAbout(new ProductionItemId(itemId), FabricField, null, text, actorName, when);
         await db.SaveChangesAsync(cancellationToken);
     }
 
@@ -93,7 +94,7 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
         {
             var norm = x.Item.ModelCode is null ? null : norms.GetValueOrDefault(x.Item.ModelCode);
             return new OrderPlanItem(x.Order.Id.Value, x.Order.Number, x.Order.Version,
-                x.Order is { Status: ProductionOrderStatus.New, IsDeleted: false }, x.Order.ClientName, x.Item.Id,
+                x.Order is { Status: ProductionOrderStatus.New, IsDeleted: false }, x.Order.ClientName, x.Item.Id.Value,
                 x.Item.ModelName,
                 x.Item.FabricCode, x.Item.FabricName, x.Item.Quantity, norm is not null,
                 FabricPlanParts.For(norm, x.Item.FabricCode, x.Item.MainColor, x.Item.AdditionalColors,

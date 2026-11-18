@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
@@ -17,13 +18,13 @@ public sealed class GetFabricPlanFactHandler(
     {
         var issues = await db.FabricIssues.AsNoTracking().Include(x => x.Lines).ThenInclude(x => x.Movements)
             .Where(x => x.ReversedAt == null).ToListAsync(cancellationToken);
-        var ids = issues.Select(x => x.ItemId).Distinct().ToArray();
+        var ids = issues.Select(x => x.ItemId.Value).Distinct().ToArray();
         var items = (await production.ItemsAsync(ids, cancellationToken)).ToDictionary(x => x.ItemId);
         var saved = await plans.SavedAsync(ids, cancellationToken);
         var names = (await reference.FabricsAsync(cancellationToken)).Where(x => !string.IsNullOrWhiteSpace(x.Code))
             .GroupBy(x => FabricAliases.Normalize(x.Code!)).ToDictionary(g => g.Key, g => g.First().Name);
 
-        var evaluated = issues.GroupBy(x => x.ItemId)
+        var evaluated = issues.GroupBy(x => x.ItemId.Value)
             .Where(g => items.ContainsKey(g.Key))
             .Select(g =>
             {
