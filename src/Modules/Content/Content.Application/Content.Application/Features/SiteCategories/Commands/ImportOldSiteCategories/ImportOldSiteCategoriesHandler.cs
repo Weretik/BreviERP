@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
@@ -107,7 +108,7 @@ public sealed class ImportOldSiteCategoriesHandler(
         {
             var categoryId = bySlug.TryGetValue(item.Slug, out var category) ? category.Id : default;
             var current = links.GetValueOrDefault(categoryId) ?? [];
-            var inCategory = current.Select(x => x.ProductId).ToHashSet();
+            var inCategory = current.Select(x => x.ProductId.Value).ToHashSet();
             var place = current.Count == 0 ? 0 : current.Max(x => x.SortOrder);
             foreach (var url in item.ProductUrls ?? [])
             {
@@ -120,7 +121,7 @@ public sealed class ImportOldSiteCategoriesHandler(
 
                 if (!inCategory.Add(productId.Value)) continue;
                 productLinks++;
-                if (!command.DryRun) db.SiteCategoryProducts.Add(SiteCategoryProduct.Create(categoryId, productId.Value, ++place));
+                if (!command.DryRun) db.SiteCategoryProducts.Add(SiteCategoryProduct.Create(categoryId, new ProductId(productId.Value), ++place));
             }
         }
 

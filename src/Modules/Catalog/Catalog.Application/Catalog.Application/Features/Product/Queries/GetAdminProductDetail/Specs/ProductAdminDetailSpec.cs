@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Content;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Sewing;
@@ -9,7 +10,7 @@ public sealed class ProductAdminDetailSpec : Specification<ProductEntity, Produc
     public ProductAdminDetailSpec(int id)
     {
         Query.AsNoTracking().AsSplitQuery()
-            .Where(x => x.Id == Catalog.Domain.Products.ValueObjects.ProductId.Create(id))
+            .Where(x => x.Id == new ProductId(id))
             .Select(x => new ProductAdminDetailReadModel(
                 x.Id.Value,
                 x.Name,

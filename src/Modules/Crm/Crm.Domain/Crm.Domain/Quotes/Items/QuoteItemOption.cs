@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes.ValueObjects;
@@ -15,7 +16,7 @@ public sealed class QuoteItemOption
     private QuoteItemOption() { }
 
     private QuoteItemOption(
-        int position, long? articleId, FabricId? fabricId, string title, string? details, bool isRecommended,
+        int position, ArticleId? articleId, FabricId? fabricId, string title, string? details, bool isRecommended,
         QuotePrice retail, QuotePrice wholesale, QuotePrice large, DateTimeOffset? pricesTakenAt)
     {
         Position = position;
@@ -31,7 +32,7 @@ public sealed class QuoteItemOption
     }
 
     public static QuoteItemOption Create(
-        int position, long? articleId, FabricId? fabricId, string title, string? details, bool isRecommended,
+        int position, ArticleId? articleId, FabricId? fabricId, string title, string? details, bool isRecommended,
         QuotePrice retail, QuotePrice wholesale, QuotePrice large, DateTimeOffset? pricesTakenAt) =>
         new(position, articleId, fabricId, title, details, isRecommended, retail, wholesale, large, pricesTakenAt);
 
@@ -40,7 +41,7 @@ public sealed class QuoteItemOption
     public int Position { get; private set; }
 
     /// <summary>Catalog Article (fabric variant) of a sewing model; null for PPE.</summary>
-    public long? ArticleId { get; private set; }
+    public ArticleId? ArticleId { get; private set; }
 
     /// <summary>Reference fabric of the variant.</summary>
     public FabricId? FabricId { get; private set; }

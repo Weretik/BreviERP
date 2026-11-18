@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.Articles.Shared;
@@ -28,7 +29,7 @@ public sealed class ImportOldSiteProductPagesHandler(
             byLastPart.TryAdd(OldSiteLinks.LastPart(product.OldSiteUrl), product);
         }
 
-        var pages = await db.ProductPages.Include(x => x.Texts).ToDictionaryAsync(x => x.ProductId, cancellationToken);
+        var pages = await db.ProductPages.Include(x => x.Texts).ToDictionaryAsync(x => x.ProductId.Value, cancellationToken);
         var slugs = pages.Values.Select(x => x.Slug).ToHashSet(StringComparer.Ordinal);
         var done = new HashSet<int>();
         var notMatched = new List<OldSiteImportNote>();
@@ -73,7 +74,7 @@ public sealed class ImportOldSiteProductPagesHandler(
             }
             else
             {
-                var made = ProductPage.Create(product.Id, FreeSlug(item, product, slugs), command.UpdatedBy, now);
+                var made = ProductPage.Create(new ProductId(product.Id), FreeSlug(item, product, slugs), command.UpdatedBy, now);
                 if (made.IsFailure) return made.Error!.ToResult<OldSiteImportResponse>();
                 page = made.Value;
                 slugs.Add(page.Slug);

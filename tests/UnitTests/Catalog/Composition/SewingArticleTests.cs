@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.Readiness;
@@ -14,7 +15,7 @@ public sealed class SewingArticleTests
     [Test]
     public void New_sewing_product_has_an_empty_article_collection()
     {
-        var product = Product.Create(ProductId.Create(101), "Model", "Model RU",
+        var product = Product.Create(new ProductId(101), "Model", "Model RU",
             ProductSlug.Create("model").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
 
         Assert.That(product.Articles, Is.Empty,
@@ -25,9 +26,9 @@ public sealed class SewingArticleTests
     public void Product_adds_article_and_rejects_duplicate_sku()
     {
         var product = CreateProduct();
-        product.AddArticle(SewingArticle.Create(ArticleId.Create(0), product.Id, " 00246 ").Value, DateTimeOffset.UtcNow);
+        product.AddArticle(SewingArticle.Create(new ArticleId(0), product.Id, " 00246 ").Value, DateTimeOffset.UtcNow);
         Assert.That(product.Articles.Single().SaleSku, Is.EqualTo("00246"));
-        Assert.That(product.AddArticle(SewingArticle.Create(ArticleId.Create(0), product.Id, "00246").Value, DateTimeOffset.UtcNow).IsFailure, Is.True);
+        Assert.That(product.AddArticle(SewingArticle.Create(new ArticleId(0), product.Id, "00246").Value, DateTimeOffset.UtcNow).IsFailure, Is.True);
         Assert.That(product.Articles, Has.Count.EqualTo(1));
     }
 
@@ -35,7 +36,7 @@ public sealed class SewingArticleTests
     public void Composition_replacement_is_atomic_when_scope_conflicts()
     {
         var product = CreateProduct();
-        var article = SewingArticle.Create(ArticleId.Create(1), product.Id, "00246").Value;
+        var article = SewingArticle.Create(new ArticleId(1), product.Id, "00246").Value;
         product.AddArticle(article, DateTimeOffset.UtcNow);
         var shared = SewingMaterialLine.Create(CompositionLineId.Create(1), product.Id, null, SewingMaterialKind.Fabric,
             new FabricId(10), null, null, 3.6m, SewingMaterialUnit.Metre, 0).Value;
@@ -51,7 +52,7 @@ public sealed class SewingArticleTests
     public void Variant_has_only_its_one_fabric_line()
     {
         var product = CreateProduct();
-        var article = SewingArticle.Create(ArticleId.Create(4), product.Id, "00246").Value;
+        var article = SewingArticle.Create(new ArticleId(4), product.Id, "00246").Value;
         product.AddArticle(article, DateTimeOffset.UtcNow);
         var accessory = SewingMaterialLine.Create(CompositionLineId.Create(1), product.Id, article.Id,
             SewingMaterialKind.Accessory, null, new GarmentAccessoryId(12), null, 2m, SewingMaterialUnit.Piece, 0).Value;
@@ -74,8 +75,8 @@ public sealed class SewingArticleTests
     public void Variant_sku_change_rejects_a_duplicate_and_removal_drops_its_fabric()
     {
         var product = CreateProduct();
-        var first = SewingArticle.Create(ArticleId.Create(4), product.Id, "246").Value;
-        var second = SewingArticle.Create(ArticleId.Create(5), product.Id, "247").Value;
+        var first = SewingArticle.Create(new ArticleId(4), product.Id, "246").Value;
+        var second = SewingArticle.Create(new ArticleId(5), product.Id, "247").Value;
         product.AddArticle(first, DateTimeOffset.UtcNow);
         product.AddArticle(second, DateTimeOffset.UtcNow);
         product.SetArticleFabric(second.Id, new FabricId(10), 3.6m, DateTimeOffset.UtcNow);
@@ -93,7 +94,7 @@ public sealed class SewingArticleTests
     [Test]
     public void Operation_manual_minutes_must_be_positive()
     {
-        var productId = ProductId.Create(101);
+        var productId = new ProductId(101);
         Assert.That(SewingOperationLine.Create(
             CompositionLineId.Create(0), productId, null, new GarmentPartOperationId(5), 1m, 0m, 0).IsFailure, Is.True);
     }
@@ -102,7 +103,7 @@ public sealed class SewingArticleTests
     public void Effective_materials_include_model_lines_and_selected_article_lines_in_order()
     {
         var product = CreateProduct();
-        var article = SewingArticle.Create(ArticleId.Create(4), product.Id, "00246").Value;
+        var article = SewingArticle.Create(new ArticleId(4), product.Id, "00246").Value;
         product.AddArticle(article, DateTimeOffset.UtcNow);
         var shared = SewingMaterialLine.Create(CompositionLineId.Create(1), product.Id, null, SewingMaterialKind.Accessory,
             null, new GarmentAccessoryId(12), null, 2m, SewingMaterialUnit.Piece, 1).Value;
@@ -118,7 +119,7 @@ public sealed class SewingArticleTests
     public void Readiness_reports_missing_composition_blockers_without_review()
     {
         var product = CreateProduct();
-        var article = SewingArticle.Create(ArticleId.Create(9), product.Id, "SKU-9").Value;
+        var article = SewingArticle.Create(new ArticleId(9), product.Id, "SKU-9").Value;
         product.AddArticle(article, DateTimeOffset.UtcNow);
         var operation = SewingOperationLine.Create(CompositionLineId.Create(3), product.Id, null, new GarmentPartOperationId(3),
             1m, null, 0).Value;
@@ -154,6 +155,6 @@ public sealed class SewingArticleTests
         Assert.That(product.OperationLines.Select(x => x.ManualMinutes), Is.EqualTo(new decimal?[] { 20m, 86m }));
     }
 
-    private static Product CreateProduct() => Product.Create(ProductId.Create(101), "Model", "Model RU",
+    private static Product CreateProduct() => Product.Create(new ProductId(101), "Model", "Model RU",
         ProductSlug.Create("model").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
 }

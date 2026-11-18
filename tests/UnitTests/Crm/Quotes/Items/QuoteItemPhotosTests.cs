@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
@@ -52,7 +53,7 @@ public sealed class QuoteItemPhotosTests
     [Test]
     public void Pdf_shows_the_main_photo_of_an_item_from_the_old_site()
     {
-        var item = QuoteItem.Create(0, QuoteItemKind.Ppe, 10,
+        var item = QuoteItem.Create(0, QuoteItemKind.Ppe, new ProductId(10),
             new QuoteItemTexts("PPE-1", "Рукавиці", null, null, null, "https://brevi.com.ua/image/old.jpg", null, null),
             [QuoteItemOption.Create(0, null, null, "Ціна", null, false, new QuotePrice(100m, null, true),
                 new QuotePrice(90m, null, true), new QuotePrice(80m, null, true), DateTimeOffset.UnixEpoch)]);

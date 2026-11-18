@@ -38,7 +38,7 @@ internal static class PublicArticleMapping
     }
 
     private static PublicArticlePhoto? Cover(Article article, IReadOnlyDictionary<int, ContentMediaPhoto> photos) =>
-        article.CoverPhotoId is { } id ? Photo(photos.GetValueOrDefault(id)) : null;
+        article.CoverPhotoId is { } id ? Photo(photos.GetValueOrDefault(id.Value)) : null;
 
     /// <summary>A block as the site shows it; an image whose photo the library no longer has is left out.</summary>
     private static PublicArticleBlock? Block(ArticleBlock block, IReadOnlyDictionary<int, ContentMediaPhoto> photos)

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using System.Globalization;
 using Catalog.Domain.Products;
@@ -60,7 +61,7 @@ public sealed class CreateCatalogProductHandler(
 
         var slug = await FreeSlugAsync(name, code, cancellationToken);
         var lastId = await repository.FirstOrDefaultAsync(new LastProductIdSpec(), cancellationToken);
-        var id = ProductId.Create(lastId.Value + 1);
+        var id = new ProductId(lastId.Value + 1);
         var now = timeProvider.GetUtcNow();
 
         // Russian names are not kept for new products; the column stays filled until the Content module owns texts.

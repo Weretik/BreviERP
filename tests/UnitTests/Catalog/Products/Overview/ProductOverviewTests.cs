@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Commands.UpdateProductOverview;
@@ -80,7 +81,7 @@ public sealed class ProductOverviewTests
     }
 
     private static Product Create(ProductType type)
-        => Product.Create(ProductId.Create(101), "Костюм «Верде»", "Костюм «Верде» RU", ProductSlug.Create("kostyum-verde").Value, type, Now).Value;
+        => Product.Create(new ProductId(101), "Костюм «Верде»", "Костюм «Верде» RU", ProductSlug.Create("kostyum-verde").Value, type, Now).Value;
 
     private static ProductOverviewDetails Details(
         string? season = "Літо", string? url = null, string? quote = null)

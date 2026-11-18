@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using static UnitTests.Catalog.SheetImport.CatalogSheetImportFixtures;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
@@ -119,7 +120,7 @@ public sealed class CatalogSheetImportTests
         var first = Plan();
         var stored = Stored(first.Writes[0], 300);
         stored.ReplaceArticles([global::Catalog.Domain.Products.SewingArticle.Create(
-            global::Catalog.Domain.Products.Sewing.ValueObjects.ArticleId.Create(77), stored.Id, "999").Value], Now);
+            new ArticleId(77), stored.Id, "999").Value], Now);
 
         var plan = Plan(context: Context([old, stored], calculatedProducts: new HashSet<int> { 7 },
             calculatedArticles: new HashSet<long> { 77 }));

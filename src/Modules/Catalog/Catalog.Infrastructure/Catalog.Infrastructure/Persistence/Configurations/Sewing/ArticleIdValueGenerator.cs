@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -13,5 +14,5 @@ internal sealed class ArticleIdValueGenerator : ValueGenerator<ArticleId>
     public override bool GeneratesTemporaryValues => true;
 
     public override ArticleId Next(EntityEntry entry)
-        => ArticleId.CreateTemporary(Interlocked.Decrement(ref _nextTemporaryId));
+        => new ArticleId(Interlocked.Decrement(ref _nextTemporaryId));
 }

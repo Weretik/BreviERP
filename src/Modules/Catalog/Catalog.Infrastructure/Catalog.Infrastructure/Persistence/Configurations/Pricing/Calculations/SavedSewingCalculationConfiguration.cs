@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
@@ -18,9 +19,9 @@ internal sealed class SavedSewingCalculationConfiguration : IEntityTypeConfigura
         builder.Property(x => x.SnapshotJson).HasColumnType("jsonb").IsRequired();
         builder.Property(x => x.CreatedBy).HasMaxLength(200).IsRequired();
         builder.Property(x => x.ProductId)
-            .HasConversion(x => x.Value, x => ProductId.Create(x));
+            .HasConversion(x => x.Value, x => new ProductId(x));
         builder.Property(x => x.ArticleId)
-            .HasConversion(x => x.Value, x => ArticleId.Create(x));
+            .HasConversion(x => x.Value, x => new ArticleId(x));
         builder.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<SewingArticle>().WithMany().HasForeignKey(x => new { x.ProductId, x.ArticleId })
             .HasPrincipalKey(x => new { x.ProductId, ArticleId = x.Id }).OnDelete(DeleteBehavior.Restrict);

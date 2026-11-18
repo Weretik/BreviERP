@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Commands.ImportQuotes;
 using Crm.Application.Features.Quotes.Shared;
@@ -24,7 +25,7 @@ public sealed class RepriceQuoteHandler(
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Version != command.Version) return Result.Conflict(QuoteMessages.Stale);
 
-        var productIds = quote.Items.Where(x => x.ProductId is not null).Select(x => x.ProductId!.Value).Distinct()
+        var productIds = quote.Items.Where(x => x.ProductId is not null).Select(x => x.ProductId!.Value.Value).Distinct()
             .ToArray();
         var products = productIds.Length == 0
             ? new Dictionary<int, QuoteCatalogProduct>()
@@ -36,7 +37,7 @@ public sealed class RepriceQuoteHandler(
         foreach (var item in quote.Items.Where(x => x.ProductId is not null && x.Kind != QuoteItemKind.CustomSewing)
                      .OrderBy(x => x.Position))
         {
-            products.TryGetValue(item.ProductId!.Value, out var product);
+            products.TryGetValue(item.ProductId!.Value.Value, out var product);
             var otherFabrics = item.Options.Where(x => IsOtherFabric(item, x)).OrderBy(x => x.Position).ToArray();
             if (otherFabrics.Length > 0)
                 await RepriceOtherFabricsAsync(item, otherFabrics, command.Apply, now, changes, unavailable,
@@ -91,7 +92,7 @@ public sealed class RepriceQuoteHandler(
         DateTimeOffset now, List<QuoteRepriceChange> changes, List<QuoteRepriceProblem> unavailable,
         CancellationToken cancellationToken)
     {
-        var model = sewing is null || models is null ? null : await models.ReadAsync(item.ProductId!.Value, cancellationToken);
+        var model = sewing is null || models is null ? null : await models.ReadAsync(item.ProductId!.Value.Value, cancellationToken);
         if (model is null)
         {
             unavailable.AddRange(options.Select(x =>
@@ -178,7 +179,7 @@ public sealed class RepriceQuoteHandler(
             return product.Prices;
         }
 
-        var variant = product.Variants.FirstOrDefault(x => x.ArticleId == option.ArticleId);
+        var variant = product.Variants.FirstOrDefault(x => x.ArticleId == option.ArticleId?.Value);
         if (variant is null || !variant.IsActive)
         {
             reason = "Варіант тканини видалено або вимкнено.";

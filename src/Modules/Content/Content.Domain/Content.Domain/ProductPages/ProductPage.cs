@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 
@@ -13,7 +14,7 @@ public sealed class ProductPage : IAggregateRoot
 
     private ProductPage() { }
 
-    private ProductPage(int productId, string slug, string updatedBy, DateTimeOffset now)
+    private ProductPage(ProductId productId, string slug, string updatedBy, DateTimeOffset now)
     {
         ProductId = productId;
         Slug = slug;
@@ -21,15 +22,15 @@ public sealed class ProductPage : IAggregateRoot
     }
 
     /// <summary>A new page, hidden from the site until someone switches it on.</summary>
-    public static DomainResult<ProductPage> Create(int productId, string slug, string updatedBy, DateTimeOffset now)
+    public static DomainResult<ProductPage> Create(ProductId productId, string slug, string updatedBy, DateTimeOffset now)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(productId);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(productId.Value);
         if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
         return new ProductPage(productId, slug, updatedBy, now);
     }
 
     /// <summary>Catalog product id; no database link across modules.</summary>
-    public int ProductId { get; private set; }
+    public ProductId ProductId { get; private set; }
 
     public bool ShowOnSite { get; private set; }
 

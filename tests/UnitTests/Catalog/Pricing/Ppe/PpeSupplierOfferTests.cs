@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using Ardalis.Specification;
@@ -157,6 +158,6 @@ public sealed class PpeSupplierOfferTests
         => new(new SupplierId(5), "CARINA", url, price, false, "Одяг ЗІЗ — АВ-Центр", "шт.");
 
     private static Product Create(ProductType type)
-        => Product.Create(ProductId.Create(101), "Костюм ВОЛОГОЗАХИСНИЙ", "Костюм ВОЛОГОЗАХИСНИЙ RU",
+        => Product.Create(new ProductId(101), "Костюм ВОЛОГОЗАХИСНИЙ", "Костюм ВОЛОГОЗАХИСНИЙ RU",
             ProductSlug.Create("kostyum-vologozahysnyj").Value, type, Now).Value;
 }

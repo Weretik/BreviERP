@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.Products.Enums;
@@ -10,7 +11,7 @@ public sealed class PpeProductWithProfileSpec : Specification<ProductEntity>
 {
     public PpeProductWithProfileSpec(int id, bool forReading = false)
     {
-        var productId = ProductId.Create(id);
+        var productId = new ProductId(id);
         Query.Where(x => x.Id == productId && x.Type == ProductType.Ppe).Include(x => x.CatalogProfile);
         if (forReading) Query.AsNoTracking();
     }

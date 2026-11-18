@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products.Readiness;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Errors;

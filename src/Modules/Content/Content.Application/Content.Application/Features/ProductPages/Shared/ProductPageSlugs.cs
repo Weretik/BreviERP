@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 
@@ -21,5 +22,5 @@ internal static class ProductPageSlugs
 
     public static Task<bool> TakenAsync(IContentDbContext db, string slug, int productId,
         CancellationToken cancellationToken) =>
-        db.ProductPages.AnyAsync(x => x.Slug == slug && x.ProductId != productId, cancellationToken);
+        db.ProductPages.AnyAsync(x => x.Slug == slug && x.ProductId != new ProductId(productId), cancellationToken);
 }

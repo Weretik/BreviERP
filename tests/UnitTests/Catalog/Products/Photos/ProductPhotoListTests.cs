@@ -1,4 +1,4 @@
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Commands.ImportOldSitePhotos;
 using Catalog.Application.Features.Product.Commands.SetProductPhotos;
@@ -40,7 +40,7 @@ public sealed class ProductPhotoListTests
 
         product.SetPhotoList(Ids(20, 10), null, Now);
         var keptMain = product.Photos.Single(x => x.IsMain).MediaFileId.Value;
-        product.SetPhotoList(Ids(20, 10), MediaFileId.Create(20), Now);
+        product.SetPhotoList(Ids(20, 10), new MediaFileId(20), Now);
 
         Assert.Multiple(() =>
         {
@@ -90,12 +90,12 @@ public sealed class ProductPhotoListTests
 
     private static Product Product(params int[] mediaFileIds)
     {
-        var product = global::Catalog.Domain.Products.Product.Create(ProductId.Create(1), "Куртка", "Куртка",
+        var product = global::Catalog.Domain.Products.Product.Create(new ProductId(1), "Куртка", "Куртка",
             ProductSlug.Create("kurtka").Value, ProductType.Sewing, Now).Value;
         foreach (var (id, index) in mediaFileIds.Select((id, index) => (id, index)))
-            product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(id), Now, sortOrder: index);
+            product.AddPhoto(ProductPhotoId.Create(index + 1), new MediaFileId(id), Now, sortOrder: index);
         return product;
     }
 
-    private static List<MediaFileId> Ids(params int[] ids) => ids.Select(MediaFileId.Create).ToList();
+    private static List<MediaFileId> Ids(params int[] ids) => ids.Select(x => new MediaFileId(x)).ToList();
 }

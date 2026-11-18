@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Building;
@@ -38,8 +39,8 @@ public sealed class QuoteIntroductionBuilder(QuoteItemsBuilder items, IQuoteStor
 
     private static QuoteItemInput ToItemInput(QuoteIntroModelInput model, IReadOnlyList<QuoteItem> saved)
     {
-        var item = saved.FirstOrDefault(x => x.Id == model.ItemId && x.ProductId == model.ProductId);
-        var option = item?.Options.FirstOrDefault(x => x.ArticleId == model.ArticleId);
+        var item = saved.FirstOrDefault(x => x.Id == model.ItemId && x.ProductId?.Value == model.ProductId);
+        var option = item?.Options.FirstOrDefault(x => x.ArticleId?.Value == model.ArticleId);
         var hidden = new QuotePriceInput(false, null);
         return new QuoteItemInput(item?.Id, nameof(QuoteItemKind.Sewing), model.ProductId, null, item?.Description,
             null, null,

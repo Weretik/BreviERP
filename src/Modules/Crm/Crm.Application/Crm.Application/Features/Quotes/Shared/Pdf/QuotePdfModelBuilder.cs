@@ -80,7 +80,7 @@ public static class QuotePdfModelBuilder
                 Visible(x.Wholesale), Visible(x.Large)))
             .ToArray();
         return new QuotePdfItem(item.Name, item.Code, item.Subtitle, item.Season, QuotePdfText.Unwrap(item.Description),
-            QuoteItemPhotos.Resolve(item.ProductId, item.PhotoUrl, photos), item.SiteUrl,
+            QuoteItemPhotos.Resolve(item.ProductId?.Value, item.PhotoUrl, photos), item.SiteUrl,
             IsSewing(item.Kind) ? labels.FabricsTitle : null, options);
     }
 

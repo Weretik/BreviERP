@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared.Catalog;
@@ -57,7 +58,7 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
             options.Add(priced.Value);
         }
 
-        return Result.Success(QuoteItem.Create(position, QuoteItemKind.CustomSewing, input.ProductId, texts, options, lines));
+        return Result.Success(QuoteItem.Create(position, QuoteItemKind.CustomSewing, ProductId.FromNullable(input.ProductId), texts, options, lines));
     }
 
     /// <summary>A variant priced by the formula: its fabrics summed with the shared lines (R-26).</summary>

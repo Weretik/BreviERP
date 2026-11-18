@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.Products.Enums;
@@ -15,7 +16,7 @@ public sealed class ProductOverviewSpec : Specification<ProductEntity, ProductOv
         if (type is { } productType) Query.Where(x => x.Type == productType);
         if (ids is not null)
         {
-            var keys = ids.Distinct().Select(ProductId.Create).ToList();
+            var keys = ids.Distinct().Select(x => new ProductId(x)).ToList();
             Query.Where(x => keys.Contains(x.Id));
         }
         Query.Select(x => new ProductOverviewReadModel(

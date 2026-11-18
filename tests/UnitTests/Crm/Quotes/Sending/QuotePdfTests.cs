@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
@@ -18,14 +19,14 @@ public sealed class QuotePdfTests
 
     private static Quote SampleQuote()
     {
-        var sewing = QuoteItem.Create(0, QuoteItemKind.Sewing, 10,
+        var sewing = QuoteItem.Create(0, QuoteItemKind.Sewing, new ProductId(10),
             new QuoteItemTexts("MOD-1", "Костюм «Імпульс»", "Швейна продукція · готові варіанти тканини",
                 "Літній костюм із курткою та штанами.", "https://brevi.com.ua/impuls", null, "Літо", "https://supplier.test"),
             [
-                QuoteItemOption.Create(0, 100, new FabricId(5), "Саржа", "65% поліестер, 210 г/м²", true,
+                QuoteItemOption.Create(0, new ArticleId(100), new FabricId(5), "Саржа", "65% поліестер, 210 г/м²", true,
                     new QuotePrice(1364.17m, null, true), new QuotePrice(1290m, null, false), new QuotePrice(1200m, null, true),
                     DateTimeOffset.UnixEpoch),
-                QuoteItemOption.Create(1, 101, new FabricId(6), "Прихована тканина", null, false,
+                QuoteItemOption.Create(1, new ArticleId(101), new FabricId(6), "Прихована тканина", null, false,
                     new QuotePrice(900m, null, false), new QuotePrice(850m, null, false), new QuotePrice(800m, null, false),
                     DateTimeOffset.UnixEpoch),
             ]);
@@ -33,7 +34,7 @@ public sealed class QuotePdfTests
             new QuotePrice(100m, 95m, true), new QuotePrice(90m, null, true), new QuotePrice(80m, null, true),
             DateTimeOffset.UnixEpoch);
         ppeOption.SetManualAudit("Знижка постійному клієнту", new QuotePerson(new UserId(5), "Юлія"), DateTimeOffset.UnixEpoch);
-        var ppe = QuoteItem.Create(1, QuoteItemKind.Ppe, 20,
+        var ppe = QuoteItem.Create(1, QuoteItemKind.Ppe, new ProductId(20),
             new QuoteItemTexts("PPE-1", "Рукавиці", "ЗІЗ · готовий товар", null, null, null, null, null), [ppeOption]);
 
         return Quote.Create(new QuoteNumber(2026, 11, 3), QuoteKind.Request, new QuotePerson(new UserId(5), "Юлія"),
@@ -183,10 +184,10 @@ public sealed class QuotePdfTests
     [Test]
     public async Task APositionTallerThanAPageIsStillPrinted()
     {
-        var item = QuoteItem.Create(0, QuoteItemKind.Sewing, 10,
+        var item = QuoteItem.Create(0, QuoteItemKind.Sewing, new ProductId(10),
             new QuoteItemTexts("MOD-1", "Костюм", null, string.Join(" ", Enumerable.Repeat("Довгий опис моделі.", 600)),
                 null, null, null, null),
-            [QuoteItemOption.Create(0, 100, new FabricId(5), "Саржа", null, true, new QuotePrice(100m, null, true),
+            [QuoteItemOption.Create(0, new ArticleId(100), new FabricId(5), "Саржа", null, true, new QuotePrice(100m, null, true),
                 new QuotePrice(90m, null, true), new QuotePrice(80m, null, true), DateTimeOffset.UnixEpoch)]);
         var quote = Quote.Create(new QuoteNumber(2026, 11, 24), QuoteKind.Request, new QuotePerson(new UserId(5), "Юлія"),
             new QuoteHeader("Довге", null, null, null, null, null), [item, item], DateTimeOffset.UnixEpoch).Value;
@@ -269,11 +270,11 @@ public sealed class QuotePdfTests
     [Test]
     public async Task RendersVariantsWithAllThreePrices()
     {
-        static QuoteItemOption Option(int position, bool recommended) => QuoteItemOption.Create(position, 100 + position, new FabricId(5),
+        static QuoteItemOption Option(int position, bool recommended) => QuoteItemOption.Create(position, new ArticleId(100 + position), new FabricId(5),
             $"Тканина {position}", "65% поліестер, 210 г/м²", recommended,
             new QuotePrice(1364.17m, null, true), new QuotePrice(1290m, null, true), new QuotePrice(1200m, null, true),
             DateTimeOffset.UnixEpoch);
-        var item = QuoteItem.Create(0, QuoteItemKind.Sewing, 10,
+        var item = QuoteItem.Create(0, QuoteItemKind.Sewing, new ProductId(10),
             new QuoteItemTexts("MOD-1", "Вест Бери спина", null, null, null, null, null, null),
             [Option(0, true), Option(1, false)]);
         var quote = Quote.Create(new QuoteNumber(2026, 11, 23), QuoteKind.Request, new QuotePerson(new UserId(5), "Юлія"),

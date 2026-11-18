@@ -38,5 +38,5 @@ public static class QuoteItemPhotos
 
     public static Task<IReadOnlyDictionary<int, string>> CatalogPhotosAsync(Quote quote, IQuoteCatalogReader catalog,
         CancellationToken cancellationToken) =>
-        CatalogPhotosAsync(quote.Items.Select(x => (x.ProductId, x.PhotoUrl)), catalog, cancellationToken);
+        CatalogPhotosAsync(quote.Items.Select(x => (x.ProductId?.Value, x.PhotoUrl)), catalog, cancellationToken);
 }

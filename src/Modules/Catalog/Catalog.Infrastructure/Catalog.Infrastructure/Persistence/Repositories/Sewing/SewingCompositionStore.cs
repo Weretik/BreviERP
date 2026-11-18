@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Results;
 using Catalog.Domain.Products;
@@ -20,19 +21,19 @@ internal sealed class SewingCompositionStore(CatalogDbContext db) : ISewingCompo
             .Include(product => product.MaterialLines)
             .Include(product => product.OperationLines)
             .AsSplitQuery()
-            .SingleOrDefaultAsync(product => product.Id == ProductId.Create(productId)
+            .SingleOrDefaultAsync(product => product.Id == new ProductId(productId)
                 && !product.IsDeleted && product.Type == ProductType.Sewing, cancellationToken);
 
     public async Task<bool> SaleSkuExistsAsync(string saleSku, long? exceptArticleId, CancellationToken cancellationToken)
     {
-        var except = exceptArticleId.HasValue ? ArticleId.Create(exceptArticleId.Value) : (ArticleId?)null;
+        var except = exceptArticleId.HasValue ? new ArticleId(exceptArticleId.Value) : (ArticleId?)null;
         return await db.Set<SewingArticle>().AnyAsync(article => article.SaleSku == saleSku
                 && (except == null || article.Id != except), cancellationToken)
             || await db.Set<ProductCatalogProfile>().AnyAsync(profile => profile.SaleSku == saleSku, cancellationToken);
     }
 
     public Task<bool> HasPriceHistoryAsync(long articleId, CancellationToken cancellationToken)
-        => db.Set<SavedSewingCalculationRecord>().AnyAsync(x => x.ArticleId == ArticleId.Create(articleId), cancellationToken);
+        => db.Set<SavedSewingCalculationRecord>().AnyAsync(x => x.ArticleId == new ArticleId(articleId), cancellationToken);
 
     public async Task<DomainResult<bool>> AddArticleAsync(Product product, SewingArticle article,
         FabricId fabricId, decimal fabricQuantity, DateTimeOffset now, CancellationToken cancellationToken)

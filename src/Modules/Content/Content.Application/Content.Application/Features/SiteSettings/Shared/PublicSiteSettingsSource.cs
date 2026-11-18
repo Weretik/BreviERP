@@ -19,7 +19,7 @@ public sealed class PublicSiteSettingsSource(IContentDbContext db, IContentMedia
     {
         if (cache.TryGetValue(Key, out PublicSiteSettingsResponse? cached) && cached is not null) return cached;
         var settings = await db.SiteSeoSettings.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
-        var picture = await SiteSettingsReads.PictureAsync(media, settings?.DefaultOgPhotoId, cancellationToken);
+        var picture = await SiteSettingsReads.PictureAsync(media, settings?.DefaultOgPhotoId?.Value, cancellationToken);
         var result = new PublicSiteSettingsResponse(settings?.GoogleAnalyticsId, settings?.GoogleTagManagerId,
             settings?.GoogleSiteVerification, settings?.BingSiteVerification,
             picture is null ? null : new PublicSitePicture(picture.Url, picture.Width, picture.Height));

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Crm.Application.Features.Embroidery.Shared;
 
 namespace Crm.Application.Abstractions.Embroidery;
@@ -13,14 +14,14 @@ public interface IEmbroideryMediaReader
 internal static class EmbroideryMockups
 {
     public static async Task<IReadOnlyDictionary<int, EmbroideryMockupResponse>> ReadForAsync(
-        this IEmbroideryMediaReader media, IEnumerable<int?> mediaFileIds, CancellationToken cancellationToken)
+        this IEmbroideryMediaReader media, IEnumerable<MediaFileId?> mediaFileIds, CancellationToken cancellationToken)
     {
-        var ids = mediaFileIds.OfType<int>().Distinct().ToArray();
+        var ids = mediaFileIds.OfType<MediaFileId>().Select(x => x.Value).Distinct().ToArray();
         return ids.Length == 0
             ? new Dictionary<int, EmbroideryMockupResponse>()
             : await media.ReadAsync(ids, cancellationToken);
     }
 
     public static EmbroideryMockupResponse? Of(this IReadOnlyDictionary<int, EmbroideryMockupResponse> mockups,
-        int? mediaFileId) => mediaFileId is { } id ? mockups.GetValueOrDefault(id) : null;
+        MediaFileId? mediaFileId) => mediaFileId is { } id ? mockups.GetValueOrDefault(id.Value) : null;
 }

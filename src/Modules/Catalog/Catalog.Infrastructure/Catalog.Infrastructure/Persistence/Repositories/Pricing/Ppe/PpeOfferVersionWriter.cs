@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -26,11 +27,11 @@ public sealed class PpeOfferVersionWriter(CatalogDbContext db) : IPpeOfferVersio
         if (!await db.Products.FromSqlInterpolated($"SELECT * FROM catalog.\"Products\" WHERE \"Id\" = ANY({ids})")
             .AnyAsync(x => !x.IsDeleted && x.Type == Catalog.Domain.Products.Enums.ProductType.Ppe, cancellationToken))
             return Result.NotFound();
-        var current = await db.Set<PpeOfferVersionRecord>().AsNoTracking().Where(x => x.ProductId == Catalog.Domain.Products.ValueObjects.ProductId.Create(productId)).OrderByDescending(x => x.Id).FirstOrDefaultAsync(cancellationToken);
+        var current = await db.Set<PpeOfferVersionRecord>().AsNoTracking().Where(x => x.ProductId == new ProductId(productId)).OrderByDescending(x => x.Id).FirstOrDefaultAsync(cancellationToken);
         if (current?.PublicId != expectedVersionId) return Result.Conflict("Дані для ціни вже змінили. Оновіть сторінку перед збереженням.");
         var now = DateTimeOffset.UtcNow;
         var record = new PpeOfferVersionRecord { PublicId = Guid.NewGuid(), RequestId = requestId, RequestHash = hash,
-            ValuesJson = json, ApprovedBy = actor, ApprovedAt = now, CreatedAt = now, ProductId = Catalog.Domain.Products.ValueObjects.ProductId.Create(productId), };
+            ValuesJson = json, ApprovedBy = actor, ApprovedAt = now, CreatedAt = now, ProductId = new ProductId(productId), };
         db.Add(record);
         await db.SaveChangesAsync(cancellationToken);
         if (transaction is not null) await transaction.CommitAsync(cancellationToken);

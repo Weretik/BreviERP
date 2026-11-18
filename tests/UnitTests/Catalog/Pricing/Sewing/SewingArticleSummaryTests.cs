@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
@@ -130,7 +131,7 @@ public sealed class SewingArticleSummaryTests
     [Test]
     public void Line_comment_is_trimmed_and_limited()
     {
-        var productId = ProductId.Create(7);
+        var productId = new ProductId(7);
         var operation = SewingOperationLine.Create(CompositionLineId.Create(1), productId, null,
             new GarmentPartOperationId(3), 1, null, 0, comment: "  Комір  ").Value;
         var empty = SewingMaterialLine.Create(CompositionLineId.Create(2), productId, null, SewingMaterialKind.Fabric,

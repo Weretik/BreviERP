@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Queries.GetQuoteModelComposition;
@@ -48,7 +49,7 @@ public sealed class QuoteChangedModelTests
         Assert.Multiple(() =>
         {
             Assert.That(item.Kind, Is.EqualTo(QuoteItemKind.CustomSewing));
-            Assert.That(item.ProductId, Is.EqualTo(10));
+            Assert.That(item.ProductId, Is.EqualTo(new ProductId(10)));
             Assert.That(item.Code, Is.EqualTo("MOD-1"));
             Assert.That(item.SiteUrl, Is.EqualTo("https://brevi.com.ua/impuls"));
             Assert.That(item.Season, Is.EqualTo("Літо"));

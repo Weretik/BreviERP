@@ -1,5 +1,5 @@
 using BuildingBlocks.Domain.Entity;
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Errors;

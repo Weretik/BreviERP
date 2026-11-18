@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -10,7 +11,7 @@ public sealed class ProductCharacteristicTableConfiguration : IEntityTypeConfigu
     {
         builder.ToTable("ProductCharacteristicTables", "catalog");
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => ProductId.Create(x));
+        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => new ProductId(x));
         builder.Property(x => x.TitleUk).HasMaxLength(200).IsRequired();
         builder.Property(x => x.TitleRu).HasMaxLength(200).IsRequired();
         builder.Property(x => x.SortOrder).IsRequired();

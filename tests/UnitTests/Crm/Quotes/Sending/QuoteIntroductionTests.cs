@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
@@ -58,11 +59,11 @@ public sealed class QuoteIntroductionTests
 
     private static Quote SampleIntroduction()
     {
-        var items = Enumerable.Range(0, 8).Select(index => QuoteItem.Create(index, QuoteItemKind.Sewing, index + 1,
+        var items = Enumerable.Range(0, 8).Select(index => QuoteItem.Create(index, QuoteItemKind.Sewing, new ProductId(index + 1),
             new QuoteItemTexts($"MOD-{index + 1}", $"Модель {index + 1}", null, null, $"https://brevi.com.ua/m{index}", null,
                 index < 4 ? "Літо" : "Зима", "https://supplier.test"),
             [
-                QuoteItemOption.Create(0, index * 100 + 100, new FabricId(index), $"Тканина {index + 1}",
+                QuoteItemOption.Create(0, new ArticleId(index * 100 + 100), new FabricId(index), $"Тканина {index + 1}",
                     "60% бавовна, 40% поліестер, щільність 235 г/м²", false,
                     new QuotePrice(1500m, null, false), new QuotePrice(1400m, null, false),
                     new QuotePrice(1300.2m + index, null, true), DateTimeOffset.UnixEpoch),

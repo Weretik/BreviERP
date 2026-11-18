@@ -67,7 +67,7 @@ public static class QuoteIntroPdfModelBuilder
     {
         var option = item.Options.OrderBy(x => x.Position).FirstOrDefault();
         return new QuoteIntroPdfCard(item.Name, option?.Title, FabricLines(option?.Details),
-            QuoteItemPhotos.Resolve(item.ProductId, item.PhotoUrl, photos), item.SiteUrl,
+            QuoteItemPhotos.Resolve(item.ProductId?.Value, item.PhotoUrl, photos), item.SiteUrl,
             option?.Large.IsVisiblePositive == true ? QuotePdfPrices.Up(option.Large.Amount) : null, isMain);
     }
 }

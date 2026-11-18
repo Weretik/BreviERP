@@ -1,5 +1,5 @@
 using Ardalis.Specification.EntityFrameworkCore;
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -56,10 +56,10 @@ public sealed class ProductPhotoPersistenceTests
     {
         await using (var db = CreateContext())
         {
-            var product = Product.Create(ProductId.Create(901), "Куртка «Тест»", "Куртка «Тест»",
+            var product = Product.Create(new ProductId(901), "Куртка «Тест»", "Куртка «Тест»",
                 ProductSlug.Create("kurtka-test").Value, ProductType.Sewing, Now).Value;
-            product.AddPhoto(ProductPhotoId.Create(1), MediaFileId.Create(10), Now, sortOrder: 0);
-            product.AddPhoto(ProductPhotoId.Create(2), MediaFileId.Create(20), Now, sortOrder: 1);
+            product.AddPhoto(ProductPhotoId.Create(1), new MediaFileId(10), Now, sortOrder: 0);
+            product.AddPhoto(ProductPhotoId.Create(2), new MediaFileId(20), Now, sortOrder: 1);
             db.Products.Add(product);
             await db.SaveChangesAsync();
         }
@@ -68,7 +68,7 @@ public sealed class ProductPhotoPersistenceTests
         {
             var product = await SpecificationEvaluator.Default
                 .GetQuery(db.Products.AsQueryable(), new ProductPhotosByIdSpec(901, true)).SingleAsync();
-            product.SetPhotoList([MediaFileId.Create(30), MediaFileId.Create(20)], MediaFileId.Create(20), Now);
+            product.SetPhotoList([new MediaFileId(30), new MediaFileId(20)], new MediaFileId(20), Now);
             await db.SaveChangesAsync();
         }
 

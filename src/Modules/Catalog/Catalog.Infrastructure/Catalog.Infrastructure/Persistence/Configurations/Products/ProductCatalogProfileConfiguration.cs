@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -14,7 +15,7 @@ public sealed class ProductCatalogProfileConfiguration : IEntityTypeConfiguratio
         builder.ToTable("ProductCatalogProfiles", "catalog", table =>
             table.HasCheckConstraint("CK_ProductCatalogProfiles_SupplierPrice", "\"SupplierPrice\" IS NULL OR \"SupplierPrice\" > 0"));
         builder.HasKey(x => x.ProductId);
-        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => ProductId.Create(x));
+        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => new ProductId(x));
         builder.HasOne<Product>().WithOne(x => x.CatalogProfile).HasForeignKey<ProductCatalogProfile>(x => x.ProductId);
         builder.Property(x => x.SaleSku).HasMaxLength(80);
         builder.HasIndex(x => x.SaleSku).IsUnique();

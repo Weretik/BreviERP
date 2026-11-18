@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Identifiers.People;
 using Production.Application.Abstractions;
@@ -60,7 +61,7 @@ public sealed class CreateProductionOrderHandler(
             var resolved = await resolver.ResolveAsync(quoteItem, cancellationToken);
             var variant = resolved.Options.Single(x => x.Option.Id == option.Id);
             var details = line.Details.ToDetails(numbers.Value);
-            var source = new ItemSource(quoteItem.Id, option.Id, quoteItem.ProductId, option.ArticleId,
+            var source = new ItemSource(quoteItem.Id, option.Id, ProductId.FromNullable(quoteItem.ProductId), ArticleId.FromNullable(option.ArticleId),
                 resolved.ModelCode, quoteItem.Name, FabricId.FromNullable(option.FabricId), variant.FabricCode, variant.FabricName,
                 variant.SewingRate, variant.Price(tier));
             var colors = 1 + details.AdditionalColors.Count(x => !string.IsNullOrWhiteSpace(x));
