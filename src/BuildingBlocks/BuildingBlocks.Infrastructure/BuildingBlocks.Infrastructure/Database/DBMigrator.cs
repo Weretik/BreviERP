@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -9,6 +10,9 @@ namespace BuildingBlocks.Infrastructure.Database;
 /// Applies the migrations of one module in the <c>Host.Seed</c> job (database rules 5.1). The session waits at most
 /// <see cref="LockTimeout"/> for a lock (5.3): a migration that meets a busy table fails fast and the deploy stops,
 /// instead of queuing every query of the running site behind it.
+/// A module keeps its migration history in its own schema. The first run after a module moved its history there
+/// copies the module's rows from <c>public."__EFMigrationsHistory"</c>, so nothing is applied twice; the old rows stay
+/// until the release after, so a rollback still finds them.
 /// </summary>
 public class DbMigrator<TContext>(IServiceProvider services, ILogger<DbMigrator<TContext>> logger)
     : IDatabaseMigrator
@@ -33,7 +37,10 @@ public class DbMigrator<TContext>(IServiceProvider services, ILogger<DbMigrator<
                 try
                 {
                     if (dbContext.Database.IsNpgsql())
+                    {
                         await dbContext.Database.ExecuteSqlRawAsync($"SET lock_timeout = '{LockTimeout}'", ct);
+                        await CopyHistoryFromPublicAsync(dbContext, ct);
+                    }
                     await dbContext.Database.MigrateAsync(ct);
                 }
                 finally
@@ -54,5 +61,38 @@ public class DbMigrator<TContext>(IServiceProvider services, ILogger<DbMigrator<
             logger.LogError(ex, "❌ {Context} migration error", typeof(TContext).Name);
             throw;
         }
+    }
+
+    /// <summary>
+    /// When the context's history table lives in its own schema and does not exist yet, creates it and copies the
+    /// context's own migration rows from the shared <c>public</c> history (database rules 5.1).
+    /// </summary>
+    private static async Task CopyHistoryFromPublicAsync(DbContext dbContext, CancellationToken cancellationToken)
+    {
+        var relational = RelationalOptionsExtension.Extract(dbContext.GetService<IDbContextOptions>());
+        var schema = relational.MigrationsHistoryTableSchema;
+        var table = relational.MigrationsHistoryTableName ?? "__EFMigrationsHistory";
+        if (string.IsNullOrEmpty(schema) || schema == "public")
+            return;
+
+        var mustCopy = await dbContext.Database.SqlQueryRaw<bool>($$"""
+            SELECT to_regclass('"{{schema}}"."{{table}}"') IS NULL AND to_regclass('public."{{table}}"') IS NOT NULL AS "Value"
+            """).SingleAsync(cancellationToken);
+        if (!mustCopy)
+            return;
+
+        var migrations = dbContext.Database.GetMigrations().ToArray();
+        // Identifiers come from the code, never from input; the migration ids go as a parameter.
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await dbContext.Database.ExecuteSqlRawAsync($$"""
+            CREATE SCHEMA IF NOT EXISTS "{{schema}}";
+            CREATE TABLE "{{schema}}"."{{table}}" (
+                "MigrationId" character varying(150) NOT NULL,
+                "ProductVersion" character varying(32) NOT NULL,
+                CONSTRAINT "PK_{{table}}" PRIMARY KEY ("MigrationId"));
+            INSERT INTO "{{schema}}"."{{table}}" ("MigrationId", "ProductVersion")
+            SELECT "MigrationId", "ProductVersion" FROM public."{{table}}" WHERE "MigrationId" = ANY({0});
+            """, [migrations], cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 }

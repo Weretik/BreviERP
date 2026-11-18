@@ -74,7 +74,8 @@ public static class SeedHostServicesExtensions
         services.AddAiInfrastructure(configuration);
         services.AddActivityLogInfrastructure(configuration);
         services.AddDbContext<CatalogImportDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Default")));
+            options.UseNpgsql(configuration.GetConnectionString("Default"),
+                x => x.MigrationsHistoryTable("__EFMigrationsHistory", CatalogImportDbContext.Schema)));
         services.AddScoped<IDatabaseMigrator, DbMigrator<CatalogImportDbContext>>();
 
         services.AddPricingActivationServices();

@@ -9,6 +9,8 @@ namespace Catalog.Infrastructure.Persistence;
 public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     : DbContext(options)
 {
+    public const string Schema = "catalog";
+
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
 

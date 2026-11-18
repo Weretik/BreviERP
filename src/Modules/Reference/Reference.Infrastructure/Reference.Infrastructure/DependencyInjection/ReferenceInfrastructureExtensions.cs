@@ -47,7 +47,8 @@ public static class ReferenceInfrastructureExtensions
         services.AddReferenceKeepinCrmSync(configuration);
         services.AddDomainEvents();
         services.AddScoped<IActivityDescriber, ReferenceActivity>();
-        services.AddDbContext<ReferenceDbContext>((provider, options) => options.UseNpgsql(connectionString)
+        services.AddDbContext<ReferenceDbContext>((provider, options) => options.UseNpgsql(connectionString,
+                x => x.MigrationsHistoryTable("__EFMigrationsHistory", ReferenceDbContext.Schema))
             .AddInterceptors(provider.GetRequiredService<ReferencePricingInputChangeInterceptor>(),
                 provider.GetRequiredService<PricingSettingsOutboxInterceptor>())
             .AddDomainEvents(provider));

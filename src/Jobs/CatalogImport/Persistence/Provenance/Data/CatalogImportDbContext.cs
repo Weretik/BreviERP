@@ -4,6 +4,8 @@ namespace CatalogImport.Persistence;
 
 public sealed class CatalogImportDbContext(DbContextOptions<CatalogImportDbContext> options) : DbContext(options)
 {
+    public const string Schema = "imports";
+
     public DbSet<CatalogImportBatch> Batches => Set<CatalogImportBatch>();
     public DbSet<SourceIdMapping> Mappings => Set<SourceIdMapping>();
 
