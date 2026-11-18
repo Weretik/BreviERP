@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Warehouse.Domain.Stock.Plans;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
@@ -17,9 +18,9 @@ public sealed class ReverseFabricIssueHandler(IWarehouseProductionReader product
         CancellationToken cancellationToken)
     {
         var issue = await db.FabricIssues.Include(x => x.Lines).ThenInclude(x => x.Movements).ThenInclude(x => x.Stock)
-            .SingleOrDefaultAsync(x => x.Id == new FabricIssueId(command.IssueId) && x.OrderId == command.OrderId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new FabricIssueId(command.IssueId) && x.OrderId == new ProductionOrderId(command.OrderId), cancellationToken);
         if (issue is null) return Result<ProductionItemFabricResponse>.NotFound(StockMessages.IssueNotFound);
-        var item = await production.ItemAsync(issue.OrderId, issue.ItemId, cancellationToken);
+        var item = await production.ItemAsync(issue.OrderId.Value, issue.ItemId.Value, cancellationToken);
         if (item is null) return Result<ProductionItemFabricResponse>.NotFound(StockMessages.ItemNotFound);
         if (!command.Actor.CanMoveStock) return Result<ProductionItemFabricResponse>.Forbidden(StockMessages.CannotIssue);
         if (!item.IsOpen) return Result<ProductionItemFabricResponse>.Conflict(StockMessages.OrderClosed);
@@ -35,7 +36,7 @@ public sealed class ReverseFabricIssueHandler(IWarehouseProductionReader product
         foreach (var movement in issue.Lines.SelectMany(x => x.Movements).Where(x => !x.IsReversed && !x.IsVoided))
             movement.Stock.Reverse(movement, details, actorName, now);
         issue.Reverse(command.Input.Reason, actorName, now);
-        var note = history.Note(issue.OrderId, issue.ItemId,
+        var note = history.Note(issue.OrderId.Value, issue.ItemId.Value,
             $"Сторно видачі {CreateFabricIssueHandler.Meters(issue.Lines.Sum(x => x.Meters))} м", actorName, now);
         var saved = await changes.SaveAsync(cancellationToken);
         if (!saved.IsSuccess) return Result<ProductionItemFabricResponse>.Conflict([.. saved.Errors]);

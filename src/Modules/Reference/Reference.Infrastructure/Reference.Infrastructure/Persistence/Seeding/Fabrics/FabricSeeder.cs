@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
@@ -36,9 +37,9 @@ public sealed class FabricSeeder(
         {
             var name = row.Name.Trim();
             var price = MoneyAmount.From(row.Price);
-            var providerId = SupplierId.From(row.ProviderId);
+            var providerId = new SupplierId(row.ProviderId);
 
-            var created = Fabric.Create(FabricId.From(row.Id), name, price, providerId);
+            var created = Fabric.Create(new FabricId(row.Id), name, price, providerId);
             if (created.IsFailure)
             {
                 logger.LogWarning("Skipped Fabric seed row {Id}: {Error}", row.Id, created.Error!.Message);

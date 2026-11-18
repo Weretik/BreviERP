@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Shared.Sewing;
 using Catalog.Domain.Products.Sewing.Composition;
@@ -43,14 +45,14 @@ internal static class CompositionLineFactory
     {
         var kind = Enum.Parse<SewingMaterialKind>(line.Kind);
         return SewingMaterialLine.Create(default, productId, articleId, kind,
-            kind == SewingMaterialKind.Fabric ? FabricReferenceId.Create(line.ReferenceId!.Value) : null,
-            kind == SewingMaterialKind.Accessory ? AccessoryReferenceId.Create(line.ReferenceId!.Value) : null,
+            kind == SewingMaterialKind.Fabric ? new FabricId(line.ReferenceId!.Value) : null,
+            kind == SewingMaterialKind.Accessory ? new GarmentAccessoryId(line.ReferenceId!.Value) : null,
             line.CostCode, line.Quantity, Enum.Parse<SewingMaterialUnit>(line.Unit), line.SortOrder,
             line.Comment);
     }
 
     internal static DomainResult<SewingOperationLine> Operation(SewingOperationInput line, ProductId productId)
-        => SewingOperationLine.Create(default, productId, null, OperationReferenceId.Create(line.OperationId),
+        => SewingOperationLine.Create(default, productId, null, new GarmentPartOperationId(line.OperationId),
             line.Quantity, line.ManualMinutes, line.SortOrder, line.Comment);
 }
 

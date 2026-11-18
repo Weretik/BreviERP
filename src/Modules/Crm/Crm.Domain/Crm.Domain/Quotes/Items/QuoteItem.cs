@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Crm.Domain.Embroidery.Saved;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Enums;
@@ -13,7 +15,7 @@ public sealed class QuoteItem
     private QuoteItem() { }
 
     private QuoteItem(
-        int position, QuoteItemKind kind, int? productId, QuoteItemTexts texts, IEnumerable<QuoteItemOption> options,
+        int position, QuoteItemKind kind, ProductId? productId, QuoteItemTexts texts, IEnumerable<QuoteItemOption> options,
         IEnumerable<QuoteItemLine>? lines = null)
     {
         Position = position;
@@ -32,17 +34,17 @@ public sealed class QuoteItem
     }
 
     public static QuoteItem Create(
-        int position, QuoteItemKind kind, int? productId, QuoteItemTexts texts, IEnumerable<QuoteItemOption> options,
+        int position, QuoteItemKind kind, ProductId? productId, QuoteItemTexts texts, IEnumerable<QuoteItemOption> options,
         IEnumerable<QuoteItemLine>? lines = null) =>
         new(position, kind, productId, texts, options, lines);
 
-    public long Id { get; private set; }
+    public QuoteItemId Id { get; private set; }
     public QuoteId QuoteId { get; private set; }
     public int Position { get; private set; }
     public QuoteItemKind Kind { get; private set; }
 
     /// <summary>Catalog product; null for a one-off PPE and a «Виріб з нуля», the source model of a changed one.</summary>
-    public int? ProductId { get; private set; }
+    public ProductId? ProductId { get; private set; }
 
     public string? Code { get; private set; }
     public string Name { get; private set; } = null!;

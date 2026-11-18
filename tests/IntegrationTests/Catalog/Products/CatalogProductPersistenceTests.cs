@@ -1,7 +1,8 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using BuildingBlocks.Application.Behaviors;
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -103,7 +104,7 @@ public sealed class CatalogProductPersistenceTests
         await using var db = CreateContext();
         await db.Database.MigrateAsync();
         var now = DateTimeOffset.UtcNow;
-        db.Products.Add(Product.Create(ProductId.Create(201), "Concurrent product", "Конкурентний товар",
+        db.Products.Add(Product.Create(new ProductId(201), "Concurrent product", "Конкурентний товар",
             ProductSlug.Create("concurrent-product").Value, ProductType.Sewing, now).Value);
         await db.SaveChangesAsync();
 
@@ -114,7 +115,7 @@ public sealed class CatalogProductPersistenceTests
             new CreateProductCommand(null!),
             async (_, cancellationToken) =>
             {
-                db.Products.Add(Product.Create(ProductId.Create(202), "Concurrent product", "Інший товар",
+                db.Products.Add(Product.Create(new ProductId(202), "Concurrent product", "Інший товар",
                     ProductSlug.Create("another-product").Value, ProductType.Sewing, now).Value);
                 await db.SaveChangesAsync(cancellationToken);
                 return Result.Success<ProductAdminDetail>(null!);
@@ -132,10 +133,10 @@ public sealed class CatalogProductPersistenceTests
         await db.Database.MigrateAsync();
         await db.Database.ExecuteSqlRawAsync("DELETE FROM catalog.\"Products\"");
         var now = DateTimeOffset.UtcNow;
-        var product = Product.Create(ProductId.Create(301), "Projection product", "Проекційний товар",
+        var product = Product.Create(new ProductId(301), "Projection product", "Проекційний товар",
             ProductSlug.Create("projection-product").Value, ProductType.Sewing, now).Value;
         product.ConfigureSewing(SewingProductDetails.Create(product.Id, 1m,
-            [ProductFabric.Create(product.Id, 501, true, 0).Value], [], []).Value, now);
+            [ProductFabric.Create(product.Id, new FabricId(501), true, 0).Value], [], []).Value, now);
         db.Products.Add(product);
         await db.SaveChangesAsync();
 
@@ -178,11 +179,11 @@ public sealed class CatalogProductPersistenceTests
 
     private static async Task AssertProductLifecycleAndConstraints(CatalogDbContext db)
     {
-        var id = ProductId.Create(101);
+        var id = new ProductId(101);
         var product = Product.Create(id, "Integration Sewing", "Интеграция Швейный",
             ProductSlug.Create("integration-sewing").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
         product.ConfigureSewing(SewingProductDetails.Create(id, 1.25m,
-            [ProductFabric.Create(id, 501, true, 0).Value], [], []).Value, DateTimeOffset.UtcNow);
+            [ProductFabric.Create(id, new FabricId(501), true, 0).Value], [], []).Value, DateTimeOffset.UtcNow);
 
         db.Products.Add(product);
         await db.SaveChangesAsync();
@@ -190,7 +191,7 @@ public sealed class CatalogProductPersistenceTests
         Assert.That(await db.Set<SewingProductDetails>().CountAsync(), Is.EqualTo(1));
         Assert.That(await db.Set<ProductFabric>().CountAsync(), Is.EqualTo(1));
 
-        db.Products.Add(Product.Create(ProductId.Create(102), "Integration Sewing", "Інтеграція Дублікат",
+        db.Products.Add(Product.Create(new ProductId(102), "Integration Sewing", "Інтеграція Дублікат",
             ProductSlug.Create("integration-sewing-duplicate").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value);
         await Assert.ThatAsync(() => db.SaveChangesAsync(), Throws.TypeOf<DbUpdateException>());
         db.ChangeTracker.Clear();

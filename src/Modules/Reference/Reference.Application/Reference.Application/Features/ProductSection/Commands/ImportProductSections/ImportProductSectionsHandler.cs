@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Application.DomainEvents;
 using Reference.Application.Features.ProductSection.Shared;
 using Reference.Domain.ProductSections;
@@ -38,7 +39,7 @@ public sealed class ImportProductSectionsHandler(IDomainEventSuppression domainE
                 row.RowNumber);
             var target = byName.GetValueOrDefault(ReferenceNameKey.From(name));
 
-            var checkedRow = ProductSectionEntity.Create(ProductSectionId.From(target?.Id.Value ?? nextId), details);
+            var checkedRow = ProductSectionEntity.Create(new ProductSectionId(target?.Id.Value ?? nextId), details);
             if (checkedRow.IsFailure)
             {
                 rows.Add(new(row.RowNumber, row.Type, name, ReferenceImportActions.Error, [], checkedRow.Error!.Message));

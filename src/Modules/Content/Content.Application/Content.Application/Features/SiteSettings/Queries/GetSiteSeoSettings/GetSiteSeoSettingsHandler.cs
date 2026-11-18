@@ -11,6 +11,6 @@ public sealed class GetSiteSeoSettingsHandler(IContentDbContext db, IContentMedi
     {
         var settings = await db.SiteSeoSettings.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
         return SiteSettingsReads.Response(settings,
-            await SiteSettingsReads.PictureAsync(media, settings?.DefaultOgPhotoId, cancellationToken));
+            await SiteSettingsReads.PictureAsync(media, settings?.DefaultOgPhotoId?.Value, cancellationToken));
     }
 }

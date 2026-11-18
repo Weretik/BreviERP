@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products.Readiness;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Errors;
@@ -55,7 +57,7 @@ public partial class Product
     }
 
     /// <summary>Sets the one fabric line (metres per product) of a fabric variant (CAT-015).</summary>
-    public DomainResult SetArticleFabric(ArticleId articleId, FabricReferenceId fabricId, decimal quantity,
+    public DomainResult SetArticleFabric(ArticleId articleId, FabricId fabricId, decimal quantity,
         DateTimeOffset updatedAt)
     {
         var line = SewingMaterialLine.Create(default, Id, articleId, SewingMaterialKind.Fabric, fabricId, null, null,

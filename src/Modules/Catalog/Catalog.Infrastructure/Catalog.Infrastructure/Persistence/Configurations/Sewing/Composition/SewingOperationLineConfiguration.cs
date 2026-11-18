@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Catalog.Domain.Products.Sewing.Composition;
@@ -21,9 +23,9 @@ public sealed class SewingOperationLineConfiguration : IEntityTypeConfiguration<
         });
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).HasConversion(x => x.Value, x => CompositionLineId.Create(x)).ValueGeneratedOnAdd().HasValueGenerator<CompositionLineIdValueGenerator>();
-        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => ProductId.Create(x)).IsRequired();
-        builder.Property(x => x.ArticleId).HasConversion(new ValueConverter<ArticleId?, long?>(x => x.HasValue ? x.Value.Value : null, x => x.HasValue ? ArticleId.Create(x.Value) : null));
-        builder.Property(x => x.OperationId).HasConversion(x => x.Value, x => OperationReferenceId.Create(x)).IsRequired();
+        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => new ProductId(x)).IsRequired();
+        builder.Property(x => x.ArticleId).HasConversion(new ValueConverter<ArticleId?, long?>(x => x.HasValue ? x.Value.Value : null, x => x.HasValue ? new ArticleId(x.Value) : null));
+        builder.Property(x => x.OperationId).IsRequired();
         builder.Property(x => x.Quantity).HasPrecision(18, 6).IsRequired();
         builder.Property(x => x.ManualMinutes).HasPrecision(18, 6);
         builder.Property(x => x.Comment).HasMaxLength(SewingMaterialLine.CommentMaxLength);

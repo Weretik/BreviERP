@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products;
 using IntegrationTests.TestSupport;
@@ -17,7 +19,7 @@ public sealed class SewingVariantPersistenceTests : SewingPricingDatabaseFixture
     public async Task Variant_is_added_with_its_fabric_listed_and_removed_with_it()
     {
         int productId;
-        FabricReferenceId fabricId;
+        FabricId fabricId;
         await using (var catalog = Catalog())
         {
             var product = await catalog.Products.SingleAsync(x => x.ModelCode == "MOD-025");
@@ -61,14 +63,14 @@ public sealed class SewingVariantPersistenceTests : SewingPricingDatabaseFixture
         {
             var store = new SewingCompositionStore(catalog);
             var product = (await store.LoadAsync(productId, CancellationToken.None))!;
-            product.RemoveArticle(ArticleId.Create(articleId), DateTimeOffset.UtcNow);
+            product.RemoveArticle(new ArticleId(articleId), DateTimeOffset.UtcNow);
             Assert.That(await store.SaveAsync(CancellationToken.None), Is.True);
         }
 
         await using (var catalog = Catalog())
         {
             Assert.That(await catalog.Set<SewingArticle>().AnyAsync(x => x.SaleSku == "999"), Is.False);
-            Assert.That(await catalog.Set<SewingMaterialLine>().AnyAsync(x => x.ArticleId == ArticleId.Create(articleId)), Is.False);
+            Assert.That(await catalog.Set<SewingMaterialLine>().AnyAsync(x => x.ArticleId == new ArticleId(articleId)), Is.False);
         }
     }
 }

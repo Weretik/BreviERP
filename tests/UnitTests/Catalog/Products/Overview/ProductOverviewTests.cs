@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Commands.UpdateProductOverview;
 using Catalog.Domain.Products.Enums;
@@ -23,7 +25,7 @@ public sealed class ProductOverviewTests
             Assert.That(profile.WebsiteUrl, Is.EqualTo("https://brevi.com.ua/specodyag-litnij/kostyum-verde"));
             Assert.That(profile.ShortDescription, Is.Null);
             Assert.That(profile.Season, Is.EqualTo("Літо"));
-            Assert.That(profile.SectionId, Is.EqualTo(2));
+            Assert.That(profile.SectionId, Is.EqualTo(new ProductSectionId(2)));
             Assert.That(profile.IsActive, Is.True);
         });
     }
@@ -79,9 +81,9 @@ public sealed class ProductOverviewTests
     }
 
     private static Product Create(ProductType type)
-        => Product.Create(ProductId.Create(101), "Костюм «Верде»", "Костюм «Верде» RU", ProductSlug.Create("kostyum-verde").Value, type, Now).Value;
+        => Product.Create(new ProductId(101), "Костюм «Верде»", "Костюм «Верде» RU", ProductSlug.Create("kostyum-verde").Value, type, Now).Value;
 
     private static ProductOverviewDetails Details(
         string? season = "Літо", string? url = null, string? quote = null)
-        => new(2, season, true, url, quote);
+        => new(new ProductSectionId(2), season, true, url, quote);
 }

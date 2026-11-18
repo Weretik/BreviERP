@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
@@ -7,7 +8,7 @@ using Warehouse.Domain.Stock.Movements;
 namespace Warehouse.Domain.Stock;
 
 /// <summary>The fabric of «Тканини» a stock line holds, copied when the line is created.</summary>
-public sealed record StockFabric(int? FabricId, string Code, string Name);
+public sealed record StockFabric(FabricId? FabricId, string Code, string Name);
 
 /// <summary>
 /// «Склад тканин»: metres of one fabric (by FAB- code) in one colour. The balance changes only through
@@ -44,7 +45,7 @@ public sealed class FabricStock : IAggregateRoot
         new(fabric, color, now, legacyId);
 
     public FabricStockId Id { get; private set; }
-    public int? FabricId { get; private set; }
+    public FabricId? FabricId { get; private set; }
     public string FabricCode { get; private set; } = null!;
     public string FabricName { get; private set; } = null!;
     public string Color { get; private set; } = null!;

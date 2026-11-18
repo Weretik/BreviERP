@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Infrastructure.Database;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.ValueObjects;
@@ -14,7 +15,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .HasConversion(x => x.Value, x => ProductId.Create(x))
+            .HasConversion(x => x.Value, x => new ProductId(x))
             .ValueGeneratedNever();
 
         builder.Property(x => x.Name)

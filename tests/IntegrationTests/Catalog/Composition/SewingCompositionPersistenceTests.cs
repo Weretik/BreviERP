@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -73,7 +75,7 @@ public sealed class SewingCompositionPersistenceTests
     {
         using var db = CreateContext();
         var now = DateTimeOffset.UtcNow;
-        var productId = ProductId.Create(7);
+        var productId = new ProductId(7);
         var product = Product.Create(productId, "Model", "Модель", ProductSlug.Create("model").Value, ProductType.Sewing, now).Value;
         product.AddArticle(SewingArticle.Create(default, productId, "SKU-1").Value, now);
         product.AddArticle(SewingArticle.Create(default, productId, "SKU-2").Value, now);
@@ -81,7 +83,7 @@ public sealed class SewingCompositionPersistenceTests
         [
             SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-1", 1m, SewingMaterialUnit.Service, 0).Value,
             SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-2", 1m, SewingMaterialUnit.Service, 1).Value
-        ], [SewingOperationLine.Create(default, productId, null, OperationReferenceId.Create(1), 1m, null, 0).Value], now);
+        ], [SewingOperationLine.Create(default, productId, null, new GarmentPartOperationId(1), 1m, null, 0).Value], now);
 
         Assert.DoesNotThrow(() => db.Products.Add(product));
         var articleIds = db.Entry(product).Collection(x => x.Articles).CurrentValue!

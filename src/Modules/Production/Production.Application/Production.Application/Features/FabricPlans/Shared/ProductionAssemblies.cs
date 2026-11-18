@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Contracts.FabricPlans;
@@ -27,14 +28,14 @@ public sealed class ProductionAssemblies(IProductionDbContext db, IProductionMod
 
         return orders.SelectMany(order => order.Items.Select(item =>
             {
-                var composition = item.ProductId is { } productId && byProduct.TryGetValue(productId, out var found)
+                var composition = item.ProductId is { } productId && byProduct.TryGetValue(productId.Value, out var found)
                     ? found
                     : item.ModelCode is { } code ? byCode.GetValueOrDefault(code) : null;
                 var lines = composition?.Lines
-                    .Where(x => x.Kind != "Fabric" && (x.ArticleId is null || x.ArticleId == item.ArticleId))
+                    .Where(x => x.Kind != "Fabric" && (x.ArticleId is null || x.ArticleId == item.ArticleId?.Value))
                     .Select(x => new AssemblyLine(x.Kind, x.Code, x.Name, x.Quantity, x.Unit, x.Comment))
                     .ToList();
-                return new AssemblyItem(order.Id.Value, order.Number, order.ClientName, order.CreatedAt, item.Id,
+                return new AssemblyItem(order.Id.Value, order.Number, order.ClientName, order.CreatedAt, item.Id.Value,
                     item.ModelName, item.ModelCode, item.Quantity, lines is { Count: > 0 } ? lines : null, item.DueDate);
             }))
             .ToList();

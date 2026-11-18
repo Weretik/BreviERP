@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.Sewing.Enums;
@@ -12,8 +14,8 @@ public sealed class SewingMaterialLine
     public ProductId ProductId { get; private set; }
     public ArticleId? ArticleId { get; private set; }
     public SewingMaterialKind Kind { get; private set; }
-    public FabricReferenceId? FabricId { get; private set; }
-    public AccessoryReferenceId? AccessoryId { get; private set; }
+    public FabricId? FabricId { get; private set; }
+    public GarmentAccessoryId? AccessoryId { get; private set; }
     public string? CostCode { get; private set; }
     public decimal Quantity { get; private set; }
     public SewingMaterialUnit Unit { get; private set; }
@@ -29,7 +31,7 @@ public sealed class SewingMaterialLine
 
     private SewingMaterialLine() { }
     public static DomainResult<SewingMaterialLine> Create(CompositionLineId id, ProductId productId, ArticleId? articleId,
-        SewingMaterialKind kind, FabricReferenceId? fabricId, AccessoryReferenceId? accessoryId, string? costCode,
+        SewingMaterialKind kind, FabricId? fabricId, GarmentAccessoryId? accessoryId, string? costCode,
         decimal quantity, SewingMaterialUnit unit, int sortOrder, string? comment = null)
     {
         if (id.Value < 0) throw new ArgumentException("A line id cannot be negative.", nameof(id));

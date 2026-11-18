@@ -1,4 +1,7 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Domain.Quotes.Items;
@@ -14,7 +17,7 @@ public sealed class QuoteItemOption
     private QuoteItemOption() { }
 
     private QuoteItemOption(
-        int position, long? articleId, int? fabricId, string title, string? details, bool isRecommended,
+        int position, ArticleId? articleId, FabricId? fabricId, string title, string? details, bool isRecommended,
         QuotePrice retail, QuotePrice wholesale, QuotePrice large, DateTimeOffset? pricesTakenAt)
     {
         Position = position;
@@ -30,19 +33,19 @@ public sealed class QuoteItemOption
     }
 
     public static QuoteItemOption Create(
-        int position, long? articleId, int? fabricId, string title, string? details, bool isRecommended,
+        int position, ArticleId? articleId, FabricId? fabricId, string title, string? details, bool isRecommended,
         QuotePrice retail, QuotePrice wholesale, QuotePrice large, DateTimeOffset? pricesTakenAt) =>
         new(position, articleId, fabricId, title, details, isRecommended, retail, wholesale, large, pricesTakenAt);
 
-    public long Id { get; private set; }
-    public long ItemId { get; private set; }
+    public QuoteOptionId Id { get; private set; }
+    public QuoteItemId ItemId { get; private set; }
     public int Position { get; private set; }
 
     /// <summary>Catalog Article (fabric variant) of a sewing model; null for PPE.</summary>
-    public long? ArticleId { get; private set; }
+    public ArticleId? ArticleId { get; private set; }
 
     /// <summary>Reference fabric of the variant.</summary>
-    public int? FabricId { get; private set; }
+    public FabricId? FabricId { get; private set; }
 
     public string Title { get; private set; } = null!;
 
@@ -82,7 +85,7 @@ public sealed class QuoteItemOption
     }
 
     /// <summary>True when the row is sewn from exactly these fabrics and metres, in this order.</summary>
-    public bool HasFabrics(IReadOnlyList<(int FabricId, decimal Meters)> fabrics) =>
+    public bool HasFabrics(IReadOnlyList<(FabricId FabricId, decimal Meters)> fabrics) =>
         _fabrics.Count == fabrics.Count &&
         _fabrics.OrderBy(x => x.Position).Select(x => (x.FabricId, x.Meters)).SequenceEqual(fabrics);
 

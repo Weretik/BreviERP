@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using System.Text.Json;
 using Production.Application.Abstractions;
 using Production.Domain.Payroll;
@@ -69,7 +70,7 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
     private sealed record PayrollSources(
         Dictionary<WorkshopEmployeeId, WorkshopEmployee> Employees,
         List<ProductionWork> Work,
-        Dictionary<int, (int OrderNumber, string ModelName, decimal? SewingRate)> Items,
+        Dictionary<ProductionItemId, (int OrderNumber, string ModelName, decimal? SewingRate)> Items,
         List<(DateOnly WorkDate, WorkshopEmployeeId EmployeeId, int Minutes)> Time,
         List<PayrollPayment> Payments,
         List<PayrollAdjustment> Adjustments,

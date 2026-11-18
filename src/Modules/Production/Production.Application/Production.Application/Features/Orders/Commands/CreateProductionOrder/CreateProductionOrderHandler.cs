@@ -1,4 +1,7 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Identifiers.People;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Colors.Shared;
@@ -59,8 +62,8 @@ public sealed class CreateProductionOrderHandler(
             var resolved = await resolver.ResolveAsync(quoteItem, cancellationToken);
             var variant = resolved.Options.Single(x => x.Option.Id == option.Id);
             var details = line.Details.ToDetails(numbers.Value);
-            var source = new ItemSource(quoteItem.Id, option.Id, quoteItem.ProductId, option.ArticleId,
-                resolved.ModelCode, quoteItem.Name, option.FabricId, variant.FabricCode, variant.FabricName,
+            var source = new ItemSource(new QuoteItemId(quoteItem.Id), new QuoteOptionId(option.Id), ProductId.FromNullable(quoteItem.ProductId), ArticleId.FromNullable(option.ArticleId),
+                resolved.ModelCode, quoteItem.Name, FabricId.FromNullable(option.FabricId), variant.FabricCode, variant.FabricName,
                 variant.SewingRate, variant.Price(tier));
             var colors = 1 + details.AdditionalColors.Count(x => !string.IsNullOrWhiteSpace(x));
             var item = ProductionItem.Create(items.Count + 1, source, details,
@@ -71,7 +74,7 @@ public sealed class CreateProductionOrderHandler(
 
         var now = clock.GetUtcNow();
         var created = ProductionOrder.Create(await OrderNumbers.NextAsync(db, cancellationToken),
-            new OrderOrigin(quote.Id, quote.Number, CustomerId.FromNullable(quote.CustomerId), new UserId(quote.ResponsibleUserId), quote.ResponsibleName,
+            new OrderOrigin(new QuoteId(quote.Id), quote.Number, CustomerId.FromNullable(quote.CustomerId), new UserId(quote.ResponsibleUserId), quote.ResponsibleName,
                 input.RequestId),
             new OrderHeader(input.ClientName, input.OrderDate, input.Comment), tier, items, actorName, now);
         if (created.IsFailure) return created.Error!.ToResult<ProductionOrderResponse>();

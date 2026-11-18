@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
@@ -49,14 +51,14 @@ public sealed class FabricMovementLedgerQueryTests
         await using (var db = Context())
         {
             await db.Database.MigrateAsync();
-            var grey = FabricStock.Create(new StockFabric(23, "FAB-023", "Грета"), "Темно-сірий", Now);
-            var red = FabricStock.Create(new StockFabric(24, "FAB-024", "Саржа"), "Червоний", Now);
+            var grey = FabricStock.Create(new StockFabric(new FabricId(23), "FAB-023", "Грета"), "Темно-сірий", Now);
+            var red = FabricStock.Create(new StockFabric(new FabricId(24), "FAB-024", "Саржа"), "Червоний", Now);
             db.FabricStocks.AddRange(grey, red);
             grey.Move(FabricMovementKind.Opening, 10m, new(new DateOnly(2026, 11, 1), null), "Начальник", Now);
             grey.Move(FabricMovementKind.Receipt, 5m, new(new DateOnly(2026, 11, 2), null, null, "Черкаси ВВ", "ТН-7"),
                 "Начальник", Now);
             grey.Move(FabricMovementKind.Issue, -3m, new(new DateOnly(2026, 11, 3), null,
-                Target: new FabricMovementTarget(1, 2, 14, "Костюм")), "Начальник", Now);
+                Target: new FabricMovementTarget(new ProductionOrderId(1), new ProductionItemId(2), 14, "Костюм")), "Начальник", Now);
             red.Move(FabricMovementKind.Opening, 7m, new(new DateOnly(2026, 11, 1), "Залишок зі старого складу"),
                 "Начальник", Now);
             await db.SaveChangesAsync();

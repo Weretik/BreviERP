@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Domain.Stock.Plans;
@@ -20,7 +21,7 @@ public sealed class ItemFabricCards(IWarehouseDbContext db, StockReservations re
         var planned = ItemPlans.Apply(item, plan);
         var parts = await reservations.ItemAsync(item, cancellationToken);
         var issues = await db.FabricIssues.AsNoTracking().Include(x => x.Lines).ThenInclude(x => x.Movements)
-            .Where(x => x.ItemId == item.ItemId).OrderByDescending(x => x.Id).ToListAsync(cancellationToken);
+            .Where(x => x.ItemId == new ProductionItemId(item.ItemId)).OrderByDescending(x => x.Id).ToListAsync(cancellationToken);
         var codes = parts.SelectMany(x => FabricAliases.Members(x.Part.FabricCode)).Distinct().ToArray();
         var lines = codes.Length == 0
             ? []

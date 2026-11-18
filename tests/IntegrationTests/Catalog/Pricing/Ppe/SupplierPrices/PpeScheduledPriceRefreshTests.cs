@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using Catalog.Domain.Products;
 using IntegrationTests.TestSupport;
@@ -47,7 +49,7 @@ public sealed class PpeScheduledPriceRefreshTests : SewingPricingDatabaseFixture
         var outcomes = await Refresh(db, Monday).RunDueAsync("nightly-sync", CancellationToken.None);
 
         var product = await db.Products.AsNoTracking().Include(x => x.CatalogProfile)
-            .SingleAsync(x => x.Id == ProductId.Create(920001));
+            .SingleAsync(x => x.Id == new ProductId(920001));
         var offer = (await db.Set<PpeOfferVersionRecord>().AsNoTracking().SingleAsync()).Values();
         var runs = (await new PpePriceSourceStore(db).ReadLastRunsAsync(CancellationToken.None)).ToDictionary(x => x.SourceKey);
         Assert.Multiple(() =>
@@ -105,10 +107,10 @@ public sealed class PpeScheduledPriceRefreshTests : SewingPricingDatabaseFixture
 
     private static Product Ppe(int id, string code, string sku, decimal price)
     {
-        var product = Product.Create(ProductId.Create(id), "Костюм " + code, "Костюм " + code,
+        var product = Product.Create(new ProductId(id), "Костюм " + code, "Костюм " + code,
             ProductSlug.Create("kostium-" + code).Value, ProductType.Ppe, Monday).Value;
         product.SetCode(code, Monday);
-        product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(1), sku, null, price, false, "Одяг ЗІЗ", "шт"), Monday);
+        product.SetPpeSupplier(new PpeSupplierDetails(new SupplierId(1), sku, null, price, false, "Одяг ЗІЗ", "шт"), Monday);
         return product;
     }
 

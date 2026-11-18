@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.People;
 using Production.Domain.Orders.ValueObjects;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
@@ -22,7 +23,7 @@ public sealed class WorkshopActivityTests
     [Test]
     public void Recorded_and_voided_work_is_listed_but_moved_work_is_not()
     {
-        var target = new WorkTarget(new ProductionOrderId(1), 2, new WorkshopEmployeeId(3), "Ірина Бондар");
+        var target = new WorkTarget(new ProductionOrderId(1), new ProductionItemId(2), new WorkshopEmployeeId(3), "Ірина Бондар");
         var facts = new WorkFacts(ProductionWorkKind.Sewing, 15, Today, false, null, null, 120m);
         var work = ProductionWork.Create(target, facts, "Майстер", Now).Value;
         var describer = new ProductionWorkActivity();

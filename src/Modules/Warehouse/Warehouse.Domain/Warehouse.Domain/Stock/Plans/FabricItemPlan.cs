@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Entity;
 using Warehouse.Domain.Stock.Movements;
 
@@ -56,7 +57,7 @@ public sealed class FabricItemPlan : IAggregateRoot
 
     private FabricItemPlan() { }
 
-    private FabricItemPlan(int orderId, int itemId, int quantity, IEnumerable<FabricItemPlanPart> parts,
+    private FabricItemPlan(ProductionOrderId orderId, ProductionItemId itemId, int quantity, IEnumerable<FabricItemPlanPart> parts,
         string actorName, DateTimeOffset now)
     {
         OrderId = orderId;
@@ -65,15 +66,15 @@ public sealed class FabricItemPlan : IAggregateRoot
         Version = 1;
     }
 
-    public static FabricItemPlan Create(int orderId, int itemId, int quantity, IEnumerable<FabricItemPlanPart> parts,
+    public static FabricItemPlan Create(ProductionOrderId orderId, ProductionItemId itemId, int quantity, IEnumerable<FabricItemPlanPart> parts,
         string actorName, DateTimeOffset now) =>
         new(orderId, itemId, quantity, parts, actorName, now);
 
     public FabricItemPlanId Id { get; private set; }
-    public int OrderId { get; private set; }
+    public ProductionOrderId OrderId { get; private set; }
 
     /// <summary>One plan per item; the item is Production's, kept by value.</summary>
-    public int ItemId { get; private set; }
+    public ProductionItemId ItemId { get; private set; }
 
     /// <summary>Number of products the plan is for.</summary>
     public int Quantity { get; private set; }

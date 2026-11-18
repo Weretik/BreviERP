@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Crm.Domain.Embroidery.Saved;
 using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Shared.Access;
@@ -16,11 +17,11 @@ public sealed class SetEmbroideryMockupHandler(IEmbroideryStore store, IEmbroide
             cancellationToken);
         if (saved is null) return Result.NotFound(EmbroideryMessages.CalculationNotFound);
 
-        var mockups = await media.ReadForAsync([command.Input.MediaFileId], cancellationToken);
+        var mockups = await media.ReadForAsync([MediaFileId.FromNullable(command.Input.MediaFileId)], cancellationToken);
         if (command.Input.MediaFileId is { } fileId && !mockups.ContainsKey(fileId))
             return Result.Invalid(new ValidationError(EmbroideryMessages.MockupNotFound));
 
-        saved.SetMockup(command.Input.MediaFileId);
+        saved.SetMockup(MediaFileId.FromNullable(command.Input.MediaFileId));
         await store.SaveChangesAsync(cancellationToken);
         return Result.Success(saved.ToResponse(command.Actor.SeesCost, mockups.Of(saved.MockupMediaFileId)));
     }

@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.People;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
@@ -43,7 +44,7 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
         plan ??= plans.Save(item, actorName, now);
         var planned = ItemPlans.Apply(item, plan);
         var covered = (await db.FabricIssues.AsNoTracking().Include(x => x.Lines)
-                .Where(x => x.ItemId == item.ItemId && x.ReversedAt == null).ToListAsync(cancellationToken))
+                .Where(x => x.ItemId == new ProductionItemId(item.ItemId) && x.ReversedAt == null).ToListAsync(cancellationToken))
             .SelectMany(x => x.Lines).Where(x => x.Plan is not null)
             .GroupBy(x => x.Plan!).ToDictionary(g => g.Key, g => g.Sum(x => x.CoveredMeters));
 

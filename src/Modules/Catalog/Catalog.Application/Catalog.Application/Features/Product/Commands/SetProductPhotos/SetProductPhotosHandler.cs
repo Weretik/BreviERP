@@ -1,4 +1,4 @@
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Media;
@@ -26,8 +26,8 @@ public sealed class SetProductPhotosHandler(
             if (missing != 0) return Result.Conflict($"Фото {missing} не знайдено в медіатеці.");
         }
 
-        var set = product.SetPhotoList(command.MediaFileIds.Select(MediaFileId.Create).ToList(),
-            command.MainMediaFileId is { } main ? MediaFileId.Create(main) : null, timeProvider.GetUtcNow());
+        var set = product.SetPhotoList(command.MediaFileIds.Select(x => new MediaFileId(x)).ToList(),
+            command.MainMediaFileId is { } main ? new MediaFileId(main) : null, timeProvider.GetUtcNow());
         if (set.IsFailure) return set.Error!.ToResult<ProductPhotoList>();
         await repository.UpdateAsync(product, cancellationToken);
         return Result.Success(await ProductPhotoListBuilder.BuildAsync(product, media, cancellationToken));

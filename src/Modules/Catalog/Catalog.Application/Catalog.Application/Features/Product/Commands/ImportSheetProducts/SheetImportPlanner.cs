@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions.Pricing;
@@ -22,7 +23,7 @@ namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 public static class SheetImportPlanner
 {
     public const string OfferSource = "Імпорт з таблиці";
-    private static readonly ProductId ProbeId = ProductId.Create(1_000_000_000);
+    private static readonly ProductId ProbeId = new ProductId(1_000_000_000);
     private static readonly ProductSlug ProbeSlug = ProductSlug.Create("probe").Value;
 
     public static SheetImportPlan Plan(ImportSheetProductsCommand command, SheetImportContext context)
@@ -90,7 +91,7 @@ public static class SheetImportPlanner
                 : changed ? count with { Updated = count.Updated + 1 } : count with { Unchanged = count.Unchanged + 1 };
             if (!changed) continue;
 
-            var id = existing?.Id ?? ProductId.Create(nextId++);
+            var id = existing?.Id ?? new ProductId(nextId++);
             var slug = existing?.Slug.Value ?? FreeSlug(draft, slugs, context);
             writes.Add(new SheetPlannedProduct(existing, id, slug, draft, offer));
         }
@@ -113,7 +114,7 @@ public static class SheetImportPlanner
             if (created.IsSuccess)
             {
                 probe = created.Value;
-                checkedDraft = SheetProductApplier.ApplyCard(probe, draft, now, index => ArticleId.Create(index + 1));
+                checkedDraft = SheetProductApplier.ApplyCard(probe, draft, now, index => new ArticleId(index + 1));
                 if (checkedDraft.IsSuccess && draft.Sewing is { } sewing)
                     checkedDraft = SheetProductApplier.ApplyComposition(probe, sewing, now);
             }

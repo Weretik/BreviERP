@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Microsoft.EntityFrameworkCore;
 using Ardalis.Result;
 using Production.Application.Abstractions;

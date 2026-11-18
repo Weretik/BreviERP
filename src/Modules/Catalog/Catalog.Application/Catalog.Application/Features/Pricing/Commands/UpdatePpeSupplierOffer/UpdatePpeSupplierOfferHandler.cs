@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using System.Globalization;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
@@ -40,7 +41,7 @@ public sealed class UpdatePpeSupplierOfferHandler(
             return Result.Conflict("Ціни товару змінилися. Оновіть картку.");
 
         var now = timeProvider.GetUtcNow();
-        var changed = product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(command.SupplierId),
+        var changed = product.SetPpeSupplier(new PpeSupplierDetails(new SupplierId(command.SupplierId),
             command.SupplierSku, command.SupplierUrl, command.SupplierPrice, command.AllowManualPrice, ruleCode,
             command.Unit), now);
         if (changed.IsFailure) return changed.Error!.ToResult<PpeSupplierOffer>();

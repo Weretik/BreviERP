@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
@@ -48,7 +49,7 @@ public sealed class GarmentAccessorySeeder(
 
             var price = MoneyAmount.From(row.Price);
 
-            var created = GarmentAccessory.Create(GarmentAccessoryId.From(row.Id), name, price);
+            var created = GarmentAccessory.Create(new GarmentAccessoryId(row.Id), name, price);
             if (created.IsFailure)
             {
                 logger.LogWarning("Skipped GarmentAccessory seed row {Id}: {Error}", row.Id, created.Error!.Message);

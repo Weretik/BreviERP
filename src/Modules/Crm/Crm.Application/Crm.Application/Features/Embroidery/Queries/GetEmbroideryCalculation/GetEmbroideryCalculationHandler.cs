@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Crm.Domain.Embroidery.Saved;
 using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Shared.Access;

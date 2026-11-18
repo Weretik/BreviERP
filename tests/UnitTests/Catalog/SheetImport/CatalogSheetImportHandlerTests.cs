@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using UnitTests.TestSupport;
 using Catalog.Api.DependencyInjection;
 using System.Text.Json;
@@ -105,11 +107,11 @@ public sealed class CatalogSheetImportHandlerTests
     [Test]
     public void Replace_articles_keeps_the_id_of_a_kept_sku_and_removes_the_rest_with_their_lines()
     {
-        var product = Product.Create(ProductId.Create(5), "Модель", "Модель", ProductSlug.Create("model").Value, ProductType.Sewing, Now).Value;
-        product.AddArticle(SewingArticle.Create(ArticleId.Create(1), product.Id, "246").Value, Now);
-        product.AddArticle(SewingArticle.Create(ArticleId.Create(2), product.Id, "247").Value, Now);
-        product.ReplaceComposition([SewingMaterialLine.Create(default, product.Id, ArticleId.Create(2),
-            SewingMaterialKind.Fabric, FabricReferenceId.Create(23), null, null, 1, SewingMaterialUnit.Metre, 0).Value], [], Now);
+        var product = Product.Create(new ProductId(5), "Модель", "Модель", ProductSlug.Create("model").Value, ProductType.Sewing, Now).Value;
+        product.AddArticle(SewingArticle.Create(new ArticleId(1), product.Id, "246").Value, Now);
+        product.AddArticle(SewingArticle.Create(new ArticleId(2), product.Id, "247").Value, Now);
+        product.ReplaceComposition([SewingMaterialLine.Create(default, product.Id, new ArticleId(2),
+            SewingMaterialKind.Fabric, new FabricId(23), null, null, 1, SewingMaterialUnit.Metre, 0).Value], [], Now);
 
         product.ReplaceArticles([SewingArticle.Create(default, product.Id, "248", true, 0).Value,
             SewingArticle.Create(default, product.Id, "246", false, 1).Value], Now);

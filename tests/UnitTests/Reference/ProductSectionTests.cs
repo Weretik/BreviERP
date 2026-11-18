@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Domain.Results;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Results;
 using Moq;
 using Reference.Domain.ProductSections;
 using Reference.Application.Abstractions;
@@ -13,11 +14,11 @@ public sealed class ProductSectionTests
 {
     private static ProductSection Stored(int id, ProductSectionType type, string name, bool active = true,
         string? comment = null, int order = 0) =>
-        ProductSection.Create(ProductSectionId.From(id), new ProductSectionDetails(type, name, active, comment, order)).Value;
+        ProductSection.Create(new ProductSectionId(id), new ProductSectionDetails(type, name, active, comment, order)).Value;
 
     private static DomainResult<ProductSection> Attempt(int id, ProductSectionType type, string name, bool active = true,
         string? comment = null, int order = 0) =>
-        ProductSection.Create(ProductSectionId.From(id), new ProductSectionDetails(type, name, active, comment, order));
+        ProductSection.Create(new ProductSectionId(id), new ProductSectionDetails(type, name, active, comment, order));
 
     private static ProductSectionImportRow Row(int row, string type, string name, bool active = true,
         string? comment = null) => new(row, type, name, active, comment);

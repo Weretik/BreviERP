@@ -1,5 +1,5 @@
 using FabricEntity = Reference.Domain.Fabrics.Fabric;
-using FabricId = Reference.Domain.Fabrics.FabricId;
+using FabricId = BuildingBlocks.Domain.Identifiers.ReferenceData.FabricId;
 
 namespace Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds.Specs;
 
@@ -7,7 +7,7 @@ internal sealed class PricingFabricsByIdsSpec : Specification<FabricEntity, Pric
 {
     public PricingFabricsByIdsSpec(IReadOnlyCollection<int> ids)
     {
-        var fabricIds = ids.Select(FabricId.From).ToArray();
+        var fabricIds = ids.Select(x => new FabricId(x)).ToArray();
 
         Query.AsNoTracking()
             .Where(x => fabricIds.Contains(x.Id))

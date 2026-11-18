@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.People;
 using BuildingBlocks.Domain.Results;
 using System.Globalization;
 using Production.Domain.Orders.Enums;
@@ -79,7 +80,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>The Crm КП; null for an order moved from the old app, which keeps only <see cref="QuoteNumber"/>.</summary>
-    public long? QuoteId { get; private set; }
+    public QuoteId? QuoteId { get; private set; }
 
     public string? QuoteNumber { get; private set; }
     public CustomerId? CustomerId { get; private set; }
@@ -115,7 +116,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
 
     public IReadOnlyList<ProductionShipment> Shipments => _shipments;
 
-    public int ShippedQuantity(int itemId) => _shipments.Where(x => x.ItemId == itemId).Sum(x => x.Quantity);
+    public int ShippedQuantity(ProductionItemId itemId) => _shipments.Where(x => x.ItemId == itemId).Sum(x => x.Quantity);
 
     /// <summary>Every item is shipped in full, so the order may be closed.</summary>
     public bool IsFullyShipped => _items.All(x => ShippedQuantity(x.Id) >= x.Quantity);
@@ -141,7 +142,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         DateTimeOffset now)
     {
         var valid = DomainResult.Combine([CheckHeader(header),
-            .. _items.Where(x => items.ContainsKey(x.Id)).Select(x => ProductionItem.Check(items[x.Id].Details))]);
+            .. _items.Where(x => items.ContainsKey(x.Id.Value)).Select(x => ProductionItem.Check(items[x.Id.Value].Details))]);
         if (valid.IsFailure) return valid.Error!;
         var before = _newChanges.Count;
         Track(null, null, "Клієнт", ClientName, OrderText.Required(header.ClientName, ClientMaxLength), actorName, now);
@@ -151,7 +152,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
 
         foreach (var item in _items)
         {
-            if (!items.TryGetValue(item.Id, out var update)) continue;
+            if (!items.TryGetValue(item.Id.Value, out var update)) continue;
             var old = item.Details;
             var next = update.Details;
             var name = item.ModelName;
@@ -193,7 +194,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     }
 
     /// <returns>False when the stages did not change.</returns>
-    public DomainResult<bool> SetItemStages(int itemId, IEnumerable<ProductionStage> stages, string actorName,
+    public DomainResult<bool> SetItemStages(ProductionItemId itemId, IEnumerable<ProductionStage> stages, string actorName,
         DateTimeOffset now)
     {
         var from = _newChanges.Count;
@@ -202,7 +203,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         return changed;
     }
 
-    private DomainResult<bool> Stages(int itemId, IEnumerable<ProductionStage> stages, string actorName,
+    private DomainResult<bool> Stages(ProductionItemId itemId, IEnumerable<ProductionStage> stages, string actorName,
         DateTimeOffset now)
     {
         if (FindItem(itemId) is not { } item) return ProductionOrderErrors.ItemNotInOrder();
@@ -215,13 +216,13 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>Quantity still to ship for an item.</summary>
-    public int RemainingToShip(int itemId) => Item(itemId).Quantity - ShippedQuantity(itemId);
+    public int RemainingToShip(ProductionItemId itemId) => Item(itemId).Quantity - ShippedQuantity(itemId);
 
     /// <summary>
     /// «Відвантажити»: part of an item goes to the client. When the item is shipped in full, «Фактично відвантажено»
     /// is ticked for it.
     /// </summary>
-    public DomainResult<ProductionShipment> Ship(int itemId, int quantity, DateOnly shippedOn, string? comment,
+    public DomainResult<ProductionShipment> Ship(ProductionItemId itemId, int quantity, DateOnly shippedOn, string? comment,
         string actorName, DateTimeOffset now)
     {
         if (FindItem(itemId) is not { } item) return ProductionOrderErrors.ItemNotInOrder();
@@ -289,11 +290,11 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     public IReadOnlyList<ProductionOrderFile> Files => _files;
 
     /// <summary>A file may belong to the whole order (no item) or to one of its own items.</summary>
-    public DomainResult CanAddFile(int? itemId) =>
+    public DomainResult CanAddFile(ProductionItemId? itemId) =>
         itemId is { } id && FindItem(id) is null ? ProductionOrderErrors.ItemNotInOrder() : DomainResult.Success();
 
     /// <summary>«Додати файл»: the file joins the order or one of its items with a history line.</summary>
-    public DomainResult<ProductionOrderFile> AddFile(int? itemId, ProductionFileKind kind, string name,
+    public DomainResult<ProductionOrderFile> AddFile(ProductionItemId? itemId, ProductionFileKind kind, string name,
         string contentType, long bytes, string url, string? storageKey, string actorName, DateTimeOffset now)
     {
         var added = AddMovedFile(itemId, kind, name, contentType, bytes, url, storageKey, actorName, now);
@@ -302,7 +303,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>A file moved from the old «Цех»: it keeps who added it there and when, with no history line.</summary>
-    public DomainResult<ProductionOrderFile> AddMovedFile(int? itemId, ProductionFileKind kind, string name,
+    public DomainResult<ProductionOrderFile> AddMovedFile(ProductionItemId? itemId, ProductionFileKind kind, string name,
         string contentType, long bytes, string url, string? storageKey, string createdByName, DateTimeOffset createdAt)
     {
         var allowed = CanAddFile(itemId);
@@ -327,7 +328,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     /// A history line about an item (or the whole order when <paramref name="itemId"/> is null), such as a file; a
     /// person's line also goes to «Журнал дій».
     /// </summary>
-    public void RecordAbout(int? itemId, string field, string? before, string? after, string actorName,
+    public void RecordAbout(ProductionItemId? itemId, string field, string? before, string? after, string actorName,
         DateTimeOffset now)
     {
         _newChanges.Add(new ProductionOrderChange(itemId,
@@ -343,9 +344,9 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     private void Publish(ProductionOrderActivity kind, int from) =>
         Raise(new ProductionOrderRecorded(this, kind, _newChanges.Skip(from).ToList()));
 
-    private ProductionItem? FindItem(int itemId) => _items.FirstOrDefault(x => x.Id == itemId);
+    private ProductionItem? FindItem(ProductionItemId itemId) => _items.FirstOrDefault(x => x.Id == itemId);
 
-    private ProductionItem Item(int itemId) =>
+    private ProductionItem Item(ProductionItemId itemId) =>
         FindItem(itemId) ?? throw new ArgumentException("No such item.", nameof(itemId));
 
     private static DomainResult CheckHeader(OrderHeader header) => DomainResult.Combine(
@@ -382,7 +383,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         Comment = OrderText.Optional(header.Comment, CommentMaxLength);
     }
 
-    private void Track(int? itemId, string? itemName, string field, string? before, string? after, string actorName,
+    private void Track(ProductionItemId? itemId, string? itemName, string field, string? before, string? after, string actorName,
         DateTimeOffset now)
     {
         if (string.Equals(before ?? string.Empty, after ?? string.Empty, StringComparison.Ordinal)) return;
@@ -408,7 +409,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
 
 /// <summary>Where the order came from: the КП, a copy, or the old app; set once.</summary>
 public sealed record OrderOrigin(
-    long? QuoteId,
+    QuoteId? QuoteId,
     string? QuoteNumber,
     CustomerId? CustomerId,
     UserId? ManagerUserId,

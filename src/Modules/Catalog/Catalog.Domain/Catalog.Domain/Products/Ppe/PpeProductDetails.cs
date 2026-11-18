@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.Ppe.Pricing;
@@ -8,14 +10,14 @@ namespace Catalog.Domain.Products;
 public sealed class PpeProductDetails
 {
     public ProductId ProductId { get; private set; }
-    public int SupplierId { get; private set; }
+    public SupplierId SupplierId { get; private set; }
     public decimal BasePrice { get; private set; }
     public RetailPricePercent RetailPercent { get; private set; } = null!;
     public WholesalePricePercent WholesalePercent { get; private set; } = null!;
 
     private PpeProductDetails() { }
 
-    private PpeProductDetails(int supplierId, decimal basePrice, RetailPricePercent retailPercent, WholesalePricePercent wholesalePercent)
+    private PpeProductDetails(SupplierId supplierId, decimal basePrice, RetailPricePercent retailPercent, WholesalePricePercent wholesalePercent)
     {
         SupplierId = supplierId;
         BasePrice = basePrice;
@@ -23,10 +25,10 @@ public sealed class PpeProductDetails
         WholesalePercent = wholesalePercent;
     }
 
-    public static DomainResult<PpeProductDetails> Create(ProductId productId, int supplierId, decimal basePrice, RetailPricePercent retailPercent, WholesalePricePercent wholesalePercent)
+    public static DomainResult<PpeProductDetails> Create(ProductId productId, SupplierId supplierId, decimal basePrice, RetailPricePercent retailPercent, WholesalePricePercent wholesalePercent)
     {
         if (productId.Value == default) throw new ArgumentException("PPE details need their product id.", nameof(productId));
-        if (supplierId <= 0) return ProductErrors.PositiveValueRequired(nameof(SupplierId));
+        if (supplierId.Value <= 0) return ProductErrors.PositiveValueRequired(nameof(SupplierId));
         if (basePrice <= 0) return ProductErrors.PositiveValueRequired(nameof(BasePrice));
         ArgumentNullException.ThrowIfNull(retailPercent);
         ArgumentNullException.ThrowIfNull(wholesalePercent);

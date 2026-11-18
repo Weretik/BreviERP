@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Warehouse.Domain.Stock;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using BuildingBlocks.Domain.Entity;
@@ -27,7 +29,7 @@ public enum FabricMovementKind
 public sealed record FabricMovementDetails(
     DateOnly OperationDate,
     string? Note,
-    int? SupplierId = null,
+    SupplierId? SupplierId = null,
     string? SupplierName = null,
     string? Document = null,
     FabricMovementTarget? Target = null,
@@ -35,7 +37,7 @@ public sealed record FabricMovementDetails(
     StockOperationId? OperationId = null);
 
 /// <summary>The order item a movement went to.</summary>
-public sealed record FabricMovementTarget(int OrderId, int ItemId, int OrderNumber, string ModelName);
+public sealed record FabricMovementTarget(ProductionOrderId OrderId, ProductionItemId ItemId, int OrderNumber, string ModelName);
 
 /// <summary>
 /// One change of a stock line: before, change and after in metres. The chain of a line runs by operation date, then
@@ -100,15 +102,15 @@ public sealed class FabricMovement : DomainEventSource, IAggregateRoot
     public string? Note { get; private set; }
 
     /// <summary>«Постачальники» (Reference) of a receipt; null for the old app's typed names.</summary>
-    public int? SupplierId { get; private set; }
+    public SupplierId? SupplierId { get; private set; }
 
     public string? SupplierName { get; private set; }
 
     /// <summary>Invoice or delivery note of a receipt.</summary>
     public string? Document { get; private set; }
 
-    public int? OrderId { get; private set; }
-    public int? ItemId { get; private set; }
+    public ProductionOrderId? OrderId { get; private set; }
+    public ProductionItemId? ItemId { get; private set; }
     public int? OrderNumber { get; private set; }
     public string? ModelName { get; private set; }
 

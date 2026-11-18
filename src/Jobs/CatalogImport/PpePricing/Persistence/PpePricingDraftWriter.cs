@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using System.Text.Json;
 using Catalog.Domain.Products;
 using CatalogImport.PpePricing.Planning;
@@ -32,7 +33,7 @@ internal static class PpePricingDraftWriter
                 PublicId = Guid.NewGuid(),
                 RequestId = Guid.NewGuid(),
                 RequestHash = hash,
-                ProductId = ProductId.Create(productIds[offer.Key]),
+                ProductId = new ProductId(productIds[offer.Key]),
                 ValuesJson = JsonSerializer.Serialize(offer.Value),
                 CreatedAt = now
             });

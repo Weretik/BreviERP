@@ -73,7 +73,7 @@ public sealed class EditFabricMovementHandler(StockChanges changes, StockPairs p
             case FabricMovementKind.Receipt when input.FabricId is not null || !string.IsNullOrWhiteSpace(input.Color):
             {
                 // Only a colour: the same offer in another colour.
-                if ((input.FabricId ?? from.FabricId) is not { } fabricId)
+                if ((input.FabricId ?? from.FabricId?.Value) is not { } fabricId)
                     return Result<FabricStock>.Invalid(new ValidationError("FabricId", StockMessages.FabricNotFound));
                 var fabric = await changes.OfferAsync(fabricId, cancellationToken);
                 if (!fabric.IsSuccess) return fabric.Map(_ => default(FabricStock)!);

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Content.Domain.ProductPages;
@@ -37,7 +38,7 @@ public sealed class Article : IAggregateRoot
     public DateOnly PublishedOn { get; private set; }
 
     /// <summary>The cover in the «Фото» library; the id of another module, no FK.</summary>
-    public int? CoverPhotoId { get; private set; }
+    public MediaFileId? CoverPhotoId { get; private set; }
 
     public int Revision { get; private set; }
 
@@ -51,7 +52,7 @@ public sealed class Article : IAggregateRoot
 
     /// <summary>The cover and every photo of the bodies, each once.</summary>
     public IReadOnlyList<int> PhotoIds() =>
-        (CoverPhotoId is { } cover ? new[] { cover } : [])
+        (CoverPhotoId is { } cover ? new[] { cover.Value } : [])
         .Concat(ArticleBlocks.PhotoIds(_texts.SelectMany(x => x.Body))).Distinct().ToArray();
 
     public void SetVisibility(bool showOnSite, string updatedBy, DateTimeOffset now)
@@ -62,7 +63,7 @@ public sealed class Article : IAggregateRoot
     }
 
     /// <summary>Replaces the article as a whole; a language without any text loses its row.</summary>
-    public DomainResult Replace(string slug, DateOnly publishedOn, bool showOnSite, int? coverPhotoId,
+    public DomainResult Replace(string slug, DateOnly publishedOn, bool showOnSite, MediaFileId? coverPhotoId,
         IReadOnlyDictionary<string, ArticleTextValues> texts, string updatedBy, DateTimeOffset now)
     {
         if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();

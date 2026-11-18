@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using Ardalis.Specification;
 using Catalog.Domain.Pricing.Ppe;
@@ -40,7 +42,7 @@ public sealed class CatalogProductCreationTests
             Assert.That(product.RuName, Is.EqualTo(product.Name));
             Assert.That(product.Slug.Value, Is.EqualTo("kurtka-verde"));
             Assert.That(product.CatalogProfile!.IsActive, Is.False);
-            Assert.That(product.CatalogProfile.SectionId, Is.EqualTo(2));
+            Assert.That(product.CatalogProfile.SectionId, Is.EqualTo(new ProductSectionId(2)));
             Assert.That(product.CatalogProfile.Season, Is.EqualTo("Літо"));
         });
         setup.Offers.VerifyNoOtherCalls();
@@ -204,10 +206,10 @@ public sealed class CatalogProductCreationTests
     /// <summary>A sewing model MOD-124 (ID 300) and a PPE article 17 (ID 120).</summary>
     internal static List<Product> Existing()
     {
-        var sewing = Product.Create(ProductId.Create(300), "Костюм «Верде»", "Костюм «Верде» RU",
+        var sewing = Product.Create(new ProductId(300), "Костюм «Верде»", "Костюм «Верде» RU",
             ProductSlug.Create("kostium-verde").Value, ProductType.Sewing, Now).Value;
         sewing.SetCode("MOD-124", Now);
-        var ppe = Product.Create(ProductId.Create(120), "Костюм ВОЛОГОЗАХИСНИЙ", "Костюм ВОЛОГОЗАХИСНИЙ RU",
+        var ppe = Product.Create(new ProductId(120), "Костюм ВОЛОГОЗАХИСНИЙ", "Костюм ВОЛОГОЗАХИСНИЙ RU",
             ProductSlug.Create("kostyum-vologozahysnyj").Value, ProductType.Ppe, Now).Value;
         ppe.SetCode("17", Now);
         return [sewing, ppe];

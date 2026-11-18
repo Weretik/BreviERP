@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using IntegrationTests.TestSupport;
 using Microsoft.EntityFrameworkCore;
@@ -52,7 +54,7 @@ public sealed class PpeSupplierFileImportTests : SewingPricingDatabaseFixture
         Assert.That(applied.Value.Changed, Is.EqualTo(1));
 
         await using var db = Catalog();
-        var product = await db.Products.Include(x => x.CatalogProfile).SingleAsync(x => x.Id == ProductId.Create(910001));
+        var product = await db.Products.Include(x => x.CatalogProfile).SingleAsync(x => x.Id == new ProductId(910001));
         var offer = (await db.Set<PpeOfferVersionRecord>().AsNoTracking().SingleAsync()).Values();
         var run = (await new PpePriceSourceStore(db).ReadLastRunsAsync(CancellationToken.None)).Single();
         Assert.Multiple(() =>
@@ -81,10 +83,10 @@ public sealed class PpeSupplierFileImportTests : SewingPricingDatabaseFixture
 
     private static Product Ppe(int id, string code, string sku, decimal price, bool manual)
     {
-        var product = Product.Create(ProductId.Create(id), "Черевики " + sku, "Черевики " + sku,
+        var product = Product.Create(new ProductId(id), "Черевики " + sku, "Черевики " + sku,
             ProductSlug.Create("cherevyky-" + sku).Value, ProductType.Ppe, Now).Value;
         product.SetCode(code, Now);
-        product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(1), sku, null, price, manual, "Взуття", "пара"), Now);
+        product.SetPpeSupplier(new PpeSupplierDetails(new SupplierId(1), sku, null, price, manual, "Взуття", "пара"), Now);
         return product;
     }
 

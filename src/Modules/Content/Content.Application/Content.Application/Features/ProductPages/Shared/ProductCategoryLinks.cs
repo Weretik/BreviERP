@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Application.Abstractions;
 using Content.Domain.SiteCategories;
 
@@ -8,7 +9,7 @@ internal static class ProductCategoryLinks
 {
     public static async Task<IReadOnlyList<int>> IdsAsync(IContentDbContext db, int productId,
         CancellationToken cancellationToken) =>
-        await db.SiteCategoryProducts.Where(x => x.ProductId == productId).OrderBy(x => x.CategoryId)
+        await db.SiteCategoryProducts.Where(x => x.ProductId == new ProductId(productId)).OrderBy(x => x.CategoryId)
             .Select(x => x.CategoryId.Value).ToListAsync(cancellationToken);
 
     /// <summary>
@@ -23,13 +24,13 @@ internal static class ProductCategoryLinks
             .ToListAsync(cancellationToken);
         if (existing.Count != categoryIds.Count) return false;
 
-        var links = await db.SiteCategoryProducts.Where(x => x.ProductId == productId).ToListAsync(cancellationToken);
+        var links = await db.SiteCategoryProducts.Where(x => x.ProductId == new ProductId(productId)).ToListAsync(cancellationToken);
         db.SiteCategoryProducts.RemoveRange(links.Where(x => !ids.Contains(x.CategoryId)));
         foreach (var categoryId in ids.Where(id => links.All(x => x.CategoryId != id)))
         {
             var last = await db.SiteCategoryProducts.Where(x => x.CategoryId == categoryId)
                 .Select(x => (int?)x.SortOrder).MaxAsync(cancellationToken) ?? 0;
-            db.SiteCategoryProducts.Add(SiteCategoryProduct.Create(categoryId, productId, last + 1));
+            db.SiteCategoryProducts.Add(SiteCategoryProduct.Create(categoryId, new ProductId(productId), last + 1));
         }
 
         return true;

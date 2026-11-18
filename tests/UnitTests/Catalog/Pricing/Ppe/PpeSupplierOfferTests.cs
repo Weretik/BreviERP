@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Ardalis.Result;
 using Ardalis.Specification;
 using Catalog.Domain.Pricing.Ppe;
@@ -27,7 +29,7 @@ public sealed class PpeSupplierOfferTests
     public void Supplier_fields_go_to_the_profile_and_keep_the_quote_description()
     {
         var product = Create(ProductType.Ppe);
-        product.SetOverview(new ProductOverviewDetails(3, null, true, null, "Опис для КП"), Now);
+        product.SetOverview(new ProductOverviewDetails(new ProductSectionId(3), null, true, null, "Опис для КП"), Now);
 
         product.SetPpeSupplier(Details(price: 518.64m), Now);
 
@@ -153,9 +155,9 @@ public sealed class PpeSupplierOfferTests
         => new(101, supplierId, sku, url, price, false, "Одяг ЗІЗ — АВ-Центр", "шт.", expected ?? CurrentVersion, "manager");
 
     private static PpeSupplierDetails Details(decimal? price = 518.64m, string? url = "https://avcentr.com.ua/ua/kostyum-carina")
-        => new(SupplierReferenceId.Create(5), "CARINA", url, price, false, "Одяг ЗІЗ — АВ-Центр", "шт.");
+        => new(new SupplierId(5), "CARINA", url, price, false, "Одяг ЗІЗ — АВ-Центр", "шт.");
 
     private static Product Create(ProductType type)
-        => Product.Create(ProductId.Create(101), "Костюм ВОЛОГОЗАХИСНИЙ", "Костюм ВОЛОГОЗАХИСНИЙ RU",
+        => Product.Create(new ProductId(101), "Костюм ВОЛОГОЗАХИСНИЙ", "Костюм ВОЛОГОЗАХИСНИЙ RU",
             ProductSlug.Create("kostyum-vologozahysnyj").Value, type, Now).Value;
 }

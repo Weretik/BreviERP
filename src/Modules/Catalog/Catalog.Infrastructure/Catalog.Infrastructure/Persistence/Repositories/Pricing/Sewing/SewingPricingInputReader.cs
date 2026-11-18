@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
@@ -16,8 +17,8 @@ public sealed class SewingPricingInputReader(CatalogDbContext db) : ISewingPrici
 {
     public async Task<SewingArticlePricingSnapshot?> ReadAsync(int productId, long articleId, CancellationToken cancellationToken)
     {
-        var productKey = ProductId.Create(productId);
-        var articleKey = ArticleId.Create(articleId);
+        var productKey = new ProductId(productId);
+        var articleKey = new ArticleId(articleId);
         var identity = await db.Products.AsNoTracking().Where(x => x.Id == productKey && !x.IsDeleted && x.Type == ProductType.Sewing)
             .SelectMany(x => x.Articles.Where(a => a.Id == articleKey), (product, article) =>
                 new { article.SaleSku, product.CompositionVersion, Active = article.IsActive && (product.CatalogProfile == null || product.CatalogProfile.IsActive) })

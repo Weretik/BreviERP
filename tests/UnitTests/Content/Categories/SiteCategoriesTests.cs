@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Ardalis.Result;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
@@ -124,10 +125,10 @@ public sealed class SiteCategoriesTests
         await using (var db = h.Open())
         {
             db.SiteCategoryProducts.AddRange(
-                SiteCategoryProduct.Create(new SiteCategoryId(clothes.Category.Id), 1, 1),
-                SiteCategoryProduct.Create(new SiteCategoryId(suits.Category.Id), 1, 1),
-                SiteCategoryProduct.Create(new SiteCategoryId(suits.Category.Id), 2, 2),
-                SiteCategoryProduct.Create(new SiteCategoryId(jackets.Category.Id), 3, 1));
+                SiteCategoryProduct.Create(new SiteCategoryId(clothes.Category.Id), new ProductId(1), 1),
+                SiteCategoryProduct.Create(new SiteCategoryId(suits.Category.Id), new ProductId(1), 1),
+                SiteCategoryProduct.Create(new SiteCategoryId(suits.Category.Id), new ProductId(2), 2),
+                SiteCategoryProduct.Create(new SiteCategoryId(jackets.Category.Id), new ProductId(3), 1));
             await db.SaveChangesAsync();
         }
 
@@ -250,7 +251,7 @@ public sealed class SiteCategoriesTests
         var suits = await Add(h, "Костюми", clothes.Category.Id);
         await using (var seed = h.Open())
         {
-            seed.SiteCategoryProducts.Add(SiteCategoryProduct.Create(new SiteCategoryId(suits.Category.Id), 1, 1));
+            seed.SiteCategoryProducts.Add(SiteCategoryProduct.Create(new SiteCategoryId(suits.Category.Id), new ProductId(1), 1));
             await seed.SaveChangesAsync();
         }
 

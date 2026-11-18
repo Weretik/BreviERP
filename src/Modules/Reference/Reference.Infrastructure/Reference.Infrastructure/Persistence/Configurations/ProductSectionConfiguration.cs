@@ -13,7 +13,6 @@ public sealed class ProductSectionConfiguration : IEntityTypeConfiguration<Produ
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .HasConversion(ReferenceConverters.ProductSectionIdConvert)
             .ValueGeneratedNever();
 
         builder.Property(x => x.Type)

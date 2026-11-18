@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Reference.Application.Features.GarmentAccessory.Shared;
 using Reference.Domain.GarmentAccessories;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
@@ -34,7 +35,7 @@ public sealed class CreateGarmentAccessoryHandler(
             return Result.Invalid(errors);
 
         var created = GarmentAccessoryEntity.Create(
-            GarmentAccessoryId.From(request.Id),
+            new GarmentAccessoryId(request.Id),
             GarmentAccessoryDetailsFactory.From(request, supplier!.Id),
             MoneyAmount.From(request.Price),
             KyivDate.Today(timeProvider));

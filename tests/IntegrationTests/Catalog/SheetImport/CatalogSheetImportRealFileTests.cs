@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using System.Text.Json;
 using System.Diagnostics;
 using System.Net;
@@ -138,7 +139,7 @@ public sealed class CatalogSheetImportRealFileTests
     {
         await using (var reference = new ReferenceDbContext(new DbContextOptionsBuilder<ReferenceDbContext>().UseNpgsql(connection).Options))
         {
-            reference.Suppliers.Add(Supplier.Create(SupplierId.From(1), "Не указан").Value);
+            reference.Suppliers.Add(Supplier.Create(new SupplierId(1), "Не указан").Value);
             await reference.SaveChangesAsync();
         }
         await using (var provenance = new CatalogImportDbContext(new DbContextOptionsBuilder<CatalogImportDbContext>().UseNpgsql(connection).Options))

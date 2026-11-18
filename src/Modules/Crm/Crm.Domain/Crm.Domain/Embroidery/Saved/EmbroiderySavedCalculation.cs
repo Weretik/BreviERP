@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.People;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using System.Globalization;
@@ -85,7 +86,7 @@ public sealed class EmbroiderySavedCalculation : DomainEventSource, IAggregateRo
     public bool Incomplete { get; private set; }
 
     /// <summary>A photo or mockup of the design from the Media library, for the workshop; null when none.</summary>
-    public int? MockupMediaFileId { get; private set; }
+    public MediaFileId? MockupMediaFileId { get; private set; }
 
     public UserId CreatedByUserId { get; private set; }
     public string CreatedByName { get; private set; } = null!;
@@ -104,7 +105,7 @@ public sealed class EmbroiderySavedCalculation : DomainEventSource, IAggregateRo
         };
 
     /// <summary>Sets or clears the mockup; the only thing that changes after saving.</summary>
-    public void SetMockup(int? mediaFileId)
+    public void SetMockup(MediaFileId? mediaFileId)
     {
         if (mediaFileId == MockupMediaFileId) return;
         MockupMediaFileId = mediaFileId;

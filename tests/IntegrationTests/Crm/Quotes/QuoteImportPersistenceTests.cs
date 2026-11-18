@@ -1,6 +1,6 @@
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
 using Microsoft.EntityFrameworkCore;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;

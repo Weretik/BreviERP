@@ -1,4 +1,6 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Commands.ImportQuotes;
 using Crm.Application.Features.Quotes.Shared.Access;
@@ -95,14 +97,14 @@ public sealed class QuoteImportTests
         Assert.Multiple(() =>
         {
             Assert.That(item.Kind, Is.EqualTo(QuoteItemKind.Sewing));
-            Assert.That(item.ProductId, Is.EqualTo(10));
+            Assert.That(item.ProductId, Is.EqualTo(new ProductId(10)));
             Assert.That(item.Code, Is.EqualTo("MOD-166"));
             Assert.That(item.PhotoUrl, Is.Null, "only https photos are kept");
-            Assert.That(item.Options[0].ArticleId, Is.EqualTo(100));
+            Assert.That(item.Options[0].ArticleId, Is.EqualTo(new ArticleId(100)));
             Assert.That(item.Options[0].Retail, Is.EqualTo(new QuotePrice(2507.73m, null, true)));
             Assert.That(item.Options[0].Wholesale.Shown, Is.False);
             Assert.That(item.Options[1].ArticleId, Is.Null);
-            Assert.That(item.Options[1].FabricId, Is.EqualTo(7));
+            Assert.That(item.Options[1].FabricId, Is.EqualTo(new FabricId(7)));
             Assert.That(warnings.Single().Message, Does.Contain("Варіанта «Фліс» немає в каталозі"));
         });
     }
@@ -134,11 +136,11 @@ public sealed class QuoteImportTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(quote.Items[0].ProductId, Is.EqualTo(20));
+            Assert.That(quote.Items[0].ProductId, Is.EqualTo(new ProductId(20)));
             Assert.That(quote.Items[0].Options[0].Retail.Amount, Is.EqualTo(2000m));
             Assert.That(quote.Items[0].Options[0].ManualReason, Is.EqualTo("Знижка"));
             Assert.That(quote.Items[0].Options[0].ManualByName, Is.EqualTo("Олена"));
-            Assert.That(quote.Items[1].ProductId, Is.EqualTo(21));
+            Assert.That(quote.Items[1].ProductId, Is.EqualTo(new ProductId(21)));
             Assert.That(quote.Items[2].Kind, Is.EqualTo(QuoteItemKind.OneOffPpe));
             Assert.That(quote.Items[2].ProductId, Is.Null);
             Assert.That(quote.Items[2].Options[0].Retail, Is.EqualTo(new QuotePrice(null, 2507.73m, true)));
@@ -162,7 +164,7 @@ public sealed class QuoteImportTests
                 (QuoteItemLineKind.Fabric, 8, "м"), (QuoteItemLineKind.Accessory, 30, "шт."),
                 (QuoteItemLineKind.Operation, 40, "хв"),
             }));
-            Assert.That(item.Options.Single().FabricId, Is.EqualTo(7));
+            Assert.That(item.Options.Single().FabricId, Is.EqualTo(new FabricId(7)));
             Assert.That(item.Options.Single().FabricMeters, Is.EqualTo(2.1m));
         });
 

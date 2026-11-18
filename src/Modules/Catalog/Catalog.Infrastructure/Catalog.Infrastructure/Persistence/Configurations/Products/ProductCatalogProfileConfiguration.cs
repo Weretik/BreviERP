@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Catalog.Domain.Products.Ppe;
@@ -13,7 +15,7 @@ public sealed class ProductCatalogProfileConfiguration : IEntityTypeConfiguratio
         builder.ToTable("ProductCatalogProfiles", "catalog", table =>
             table.HasCheckConstraint("CK_ProductCatalogProfiles_SupplierPrice", "\"SupplierPrice\" IS NULL OR \"SupplierPrice\" > 0"));
         builder.HasKey(x => x.ProductId);
-        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => ProductId.Create(x));
+        builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => new ProductId(x));
         builder.HasOne<Product>().WithOne(x => x.CatalogProfile).HasForeignKey<ProductCatalogProfile>(x => x.ProductId);
         builder.Property(x => x.SaleSku).HasMaxLength(80);
         builder.HasIndex(x => x.SaleSku).IsUnique();
@@ -27,9 +29,5 @@ public sealed class ProductCatalogProfileConfiguration : IEntityTypeConfiguratio
         builder.Property(x => x.ShortDescription).HasMaxLength(4000);
         builder.Property(x => x.SectionId);
         builder.HasIndex(x => x.SectionId);
-        builder.Property(x => x.SupplierId).HasConversion(
-            new ValueConverter<SupplierReferenceId?, int?>(
-                x => x.HasValue ? x.Value.Value : null,
-                x => x.HasValue ? SupplierReferenceId.Create(x.Value) : null));
     }
 }

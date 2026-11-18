@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using CatalogImport.Execution;
 using CatalogImport.Planning;
@@ -31,7 +32,7 @@ public sealed class CatalogProductFactory(CatalogImportPlan plan, CatalogImportR
             ruName += $" (SKU {sourceKey})";
         var slug = ProductSlug.Create(sewing ? $"model-{sourceKey.ToLowerInvariant()}" : $"ppe-{sourceKey.ToLowerInvariant()}")
             .Require($"{row.Key} slug");
-        return Product.Create(ProductId.Create(id), name, ruName, slug, sewing ? ProductType.Sewing : ProductType.Ppe, now)
+        return Product.Create(new ProductId(id), name, ruName, slug, sewing ? ProductType.Sewing : ProductType.Ppe, now)
             .Require(row.Key);
     }
 
@@ -39,7 +40,7 @@ public sealed class CatalogProductFactory(CatalogImportPlan plan, CatalogImportR
     {
         product.SetModelCode(row.Text(0), now).Require($"{row.Key} model code");
         foreach (var article in plan.Articles.Where(a => CatalogSourceIdentity.ModelCode(a) == row.Text(0)))
-            product.AddArticle(SewingArticle.Create(ArticleId.Create(0), product.Id,
+            product.AddArticle(SewingArticle.Create(new ArticleId(0), product.Id,
                 article.Text(0), article.Flag(10), product.Articles.Count).Require($"Article {article.Text(0)}"), now)
                 .Require($"Article {article.Text(0)}");
     }

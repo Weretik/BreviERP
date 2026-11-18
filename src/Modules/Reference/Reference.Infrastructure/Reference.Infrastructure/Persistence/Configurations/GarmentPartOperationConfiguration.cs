@@ -15,7 +15,6 @@ public sealed class GarmentPartOperationConfiguration : IEntityTypeConfiguration
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .HasConversion(ReferenceConverters.GarmentPartOperationIdConvert)
             .ValueGeneratedNever();
 
         builder.Property(x => x.GarmentPartId)

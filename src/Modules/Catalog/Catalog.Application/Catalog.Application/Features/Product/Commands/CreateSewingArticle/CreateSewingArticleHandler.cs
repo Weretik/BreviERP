@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Reference;
@@ -28,7 +29,7 @@ public sealed class CreateSewingArticleHandler(ISewingCompositionStore store, IP
         var created = SewingArticle.Create(default, product.Id, request.SaleSku, request.Active, request.SortOrder);
         if (created.IsFailure) return created.Error!.ToResult<SewingArticleView>();
         var article = created.Value;
-        var added = await store.AddArticleAsync(product, article, FabricReferenceId.Create(request.FabricId),
+        var added = await store.AddArticleAsync(product, article, new FabricId(request.FabricId),
             request.FabricQuantity, TimeProvider.System.GetUtcNow(), cancellationToken);
         if (added.IsFailure) return added.Error!.ToResult<SewingArticleView>();
         if (!added.Value)

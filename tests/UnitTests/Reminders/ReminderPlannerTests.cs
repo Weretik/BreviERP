@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Reminders.Domain.Calendar;
 using Reminders.Domain.Dispatching;
 using Reminders.Domain.Identifiers;

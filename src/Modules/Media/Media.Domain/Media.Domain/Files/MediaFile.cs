@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Media.Domain.Folders;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;

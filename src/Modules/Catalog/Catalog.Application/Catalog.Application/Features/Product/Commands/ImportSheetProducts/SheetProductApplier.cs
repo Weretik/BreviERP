@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.Products.Sewing.Composition;
@@ -60,8 +62,8 @@ public static class SheetProductApplier
         {
             var material = SewingMaterialLine.Create(default, product.Id,
                 line.ArticleSku is null ? null : articles[line.ArticleSku], line.Kind,
-                line.Kind == SewingMaterialKind.Fabric ? FabricReferenceId.Create(line.ReferenceId) : null,
-                line.Kind == SewingMaterialKind.Accessory ? AccessoryReferenceId.Create(line.ReferenceId) : null,
+                line.Kind == SewingMaterialKind.Fabric ? new FabricId(line.ReferenceId) : null,
+                line.Kind == SewingMaterialKind.Accessory ? new GarmentAccessoryId(line.ReferenceId) : null,
                 null, line.Quantity, line.Unit, index, line.Comment);
             if (material.IsFailure) return material.Error!;
             materials.Add(material.Value);
@@ -71,7 +73,7 @@ public static class SheetProductApplier
         foreach (var (line, index) in sewing.Operations.Select((line, index) => (line, index)))
         {
             var operation = SewingOperationLine.Create(default, product.Id, null,
-                OperationReferenceId.Create(line.OperationId), line.Quantity, line.ManualMinutes, index, line.Comment);
+                new GarmentPartOperationId(line.OperationId), line.Quantity, line.ManualMinutes, index, line.Comment);
             if (operation.IsFailure) return operation.Error!;
             operations.Add(operation.Value);
         }

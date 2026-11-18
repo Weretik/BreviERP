@@ -1,4 +1,5 @@
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
@@ -29,7 +30,7 @@ internal static class ProductCardWriter
 
         foreach (var (photo, index) in request.Photos.Select((photo, index) => (photo, index)))
         {
-            var added = product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(photo.MediaFileId), now,
+            var added = product.AddPhoto(ProductPhotoId.Create(index + 1), new MediaFileId(photo.MediaFileId), now,
                 photo.Alt, photo.IsVisible, photo.SortOrder, photo.IsMain);
             if (added.IsFailure) return added;
         }
@@ -103,7 +104,7 @@ internal static class ProductCardWriter
         var fabrics = new List<ProductFabric>();
         foreach (var x in sewing.Fabrics)
         {
-            var fabric = ProductFabric.Create(product.Id, x.FabricId, x.IsPrimary, x.SortOrder);
+            var fabric = ProductFabric.Create(product.Id, new FabricId(x.FabricId), x.IsPrimary, x.SortOrder);
             if (fabric.IsFailure) return fabric.Error!;
             fabrics.Add(fabric.Value);
         }
@@ -111,7 +112,7 @@ internal static class ProductCardWriter
         var accessories = new List<ProductAccessory>();
         foreach (var x in sewing.Accessories)
         {
-            var accessory = ProductAccessory.Create(product.Id, x.GarmentAccessoryId, x.Quantity, x.SortOrder);
+            var accessory = ProductAccessory.Create(product.Id, new GarmentAccessoryId(x.GarmentAccessoryId), x.Quantity, x.SortOrder);
             if (accessory.IsFailure) return accessory.Error!;
             accessories.Add(accessory.Value);
         }
@@ -119,7 +120,7 @@ internal static class ProductCardWriter
         var operations = new List<ProductOperation>();
         foreach (var id in sewing.OperationIds)
         {
-            var operation = ProductOperation.Create(product.Id, id);
+            var operation = ProductOperation.Create(product.Id, new GarmentPartOperationId(id));
             if (operation.IsFailure) return operation.Error!;
             operations.Add(operation.Value);
         }
@@ -138,7 +139,7 @@ internal static class ProductCardWriter
             ? WholesalePricePercent.FromReference(ppe.WholesalePercent.AdditionalReferenceId!.Value)
             : WholesalePricePercent.FromCustom(ppe.WholesalePercent.CustomPercent!.Value);
         if (wholesale.IsFailure) return wholesale.Error!;
-        var details = PpeProductDetails.Create(product.Id, ppe.SupplierId, ppe.BasePrice, retail.Value, wholesale.Value);
+        var details = PpeProductDetails.Create(product.Id, new SupplierId(ppe.SupplierId), ppe.BasePrice, retail.Value, wholesale.Value);
         return details.IsFailure ? details.Error! : product.ConfigurePpe(details.Value, now);
     }
 }

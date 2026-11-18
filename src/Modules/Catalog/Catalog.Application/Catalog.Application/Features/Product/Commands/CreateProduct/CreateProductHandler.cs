@@ -1,5 +1,5 @@
 using ProductAdminDetailSpec = Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Specs.ProductAdminDetailSpec;
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.ProductCategories;
 using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
 using Catalog.Domain.Products;
@@ -51,7 +51,7 @@ public sealed class CreateProductHandler(
         var now = TimeProvider.System.GetUtcNow();
         var productSlug = ProductSlug.Create(slug);
         if (productSlug.IsFailure) return productSlug.Error!.ToResult<ProductAdminDetail>();
-        var created = ProductEntity.Create(ProductId.Create(request.Id), name, ruName, productSlug.Value, request.Type, now);
+        var created = ProductEntity.Create(new ProductId(request.Id), name, ruName, productSlug.Value, request.Type, now);
         if (created.IsFailure) return created.Error!.ToResult<ProductAdminDetail>();
         var product = created.Value;
         var card = ProductCardWriter.Apply(product, request, now);

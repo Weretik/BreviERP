@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Ardalis.Result;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
@@ -178,7 +179,7 @@ public sealed class SiteCategoryProductsTests
             Assert.That(tree.Select(x => x.ProductCount), Is.EqualTo(new[] { 2, 2 }));
             Assert.That(jackets.TextIn("ru")!.Name, Is.EqualTo("Куртки рабочие"));
             Assert.That(jackets.TextIn("uk")!.Text, Has.Count.EqualTo(1));
-            Assert.That(links.Select(x => x.ProductId), Is.EqualTo(new[] { 1, 2 }));
+            Assert.That(links.Select(x => x.ProductId), Is.EqualTo(new[] { new ProductId(1), new ProductId(2) }));
         });
     }
 
@@ -190,7 +191,7 @@ public sealed class SiteCategoryProductsTests
             new SiteCategoryTextInput("Наш спецодяг", null, null, null), null, ContentTestHarness.Editor), None)).Value.Category.Id;
         await using (var seed = h.Open())
         {
-            seed.SiteCategoryProducts.Add(SiteCategoryProduct.Create(new SiteCategoryId(id), 2, 1));
+            seed.SiteCategoryProducts.Add(SiteCategoryProduct.Create(new SiteCategoryId(id), new ProductId(2), 1));
             await seed.SaveChangesAsync();
         }
 

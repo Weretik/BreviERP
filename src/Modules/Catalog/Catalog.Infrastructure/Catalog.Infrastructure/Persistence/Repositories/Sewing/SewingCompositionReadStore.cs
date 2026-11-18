@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Features.Product.Queries.ListSewingArticles;
@@ -37,7 +38,7 @@ internal sealed class SewingCompositionReadStore(CatalogDbContext db) : ISewingC
 
     internal IQueryable<SewingArticleList> ArticlesQuery(int productId)
         => db.Products.AsNoTracking()
-            .Where(product => product.Id == ProductId.Create(productId)
+            .Where(product => product.Id == new ProductId(productId)
                 && !product.IsDeleted && product.Type == ProductType.Sewing)
             .Select(product => new SewingArticleList(product.Id.Value, product.ModelCode,
                 product.CompositionVersion,
@@ -64,9 +65,9 @@ internal sealed class SewingCompositionReadStore(CatalogDbContext db) : ISewingC
 
     internal IQueryable<CompositionReadRow> CompositionQuery(int productId, long? articleId)
     {
-        var selectedId = articleId.HasValue ? ArticleId.Create(articleId.Value) : (ArticleId?)null;
+        var selectedId = articleId.HasValue ? new ArticleId(articleId.Value) : (ArticleId?)null;
         return db.Products.AsNoTracking()
-            .Where(product => product.Id == ProductId.Create(productId)
+            .Where(product => product.Id == new ProductId(productId)
                 && !product.IsDeleted && product.Type == ProductType.Sewing)
             .Where(product => !selectedId.HasValue
                 || product.Articles.Any(article => article.Id == selectedId.Value))

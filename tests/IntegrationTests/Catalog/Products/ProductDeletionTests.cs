@@ -1,6 +1,6 @@
 using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
-using Catalog.Domain.Media;
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -65,9 +65,9 @@ public sealed class ProductDeletionTests
         const int productId = 701;
         const int mediaFileId = 801;
         await using var db = CreateContext();
-        var product = Product.Create(ProductId.Create(productId), "Product", "Товар",
+        var product = Product.Create(new ProductId(productId), "Product", "Товар",
             ProductSlug.Create("product").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
-        product.AddPhoto(ProductPhotoId.Create(1), MediaFileId.Create(mediaFileId), DateTimeOffset.UtcNow);
+        product.AddPhoto(ProductPhotoId.Create(1), new MediaFileId(mediaFileId), DateTimeOffset.UtcNow);
         db.Add(product);
         await db.SaveChangesAsync();
 
@@ -76,8 +76,8 @@ public sealed class ProductDeletionTests
 
         db.ChangeTracker.Clear();
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Ok));
-        Assert.That(await db.Products.AnyAsync(x => x.Id == ProductId.Create(productId)), Is.False);
-        Assert.That(await db.Set<ProductPhoto>().AnyAsync(x => x.ProductId == ProductId.Create(productId)), Is.False);
+        Assert.That(await db.Products.AnyAsync(x => x.Id == new ProductId(productId)), Is.False);
+        Assert.That(await db.Set<ProductPhoto>().AnyAsync(x => x.ProductId == new ProductId(productId)), Is.False);
     }
 
     [Test]

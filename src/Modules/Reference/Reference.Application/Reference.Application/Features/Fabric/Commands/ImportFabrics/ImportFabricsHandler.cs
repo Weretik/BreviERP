@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Application.DomainEvents;
 using Reference.Domain.GarmentAccessories;
 using FabricEntity = Reference.Domain.Fabrics.Fabric;
@@ -76,7 +77,7 @@ public sealed class ImportFabricsHandler(IDomainEventSuppression domainEvents,
                 if (target is null)
                 {
                     // Every planned row passed Validate, so these changes cannot fail.
-                    created.Add(FabricEntity.Create(FabricId.From(nextId++), details!, price, row.PriceUpdatedAt).Value);
+                    created.Add(FabricEntity.Create(new FabricId(nextId++), details!, price, row.PriceUpdatedAt).Value);
                     continue;
                 }
 
@@ -120,7 +121,7 @@ public sealed class ImportFabricsHandler(IDomainEventSuppression domainEvents,
             return "Немає назви тканини.";
         if (row.Price is < 0 or > 10_000)
             return "Ціна має бути від 0 до 10000 грн.";
-        return FabricEntity.Create(FabricId.From(1), details, MoneyAmount.From(row.Price), row.PriceUpdatedAt)
+        return FabricEntity.Create(new FabricId(1), details, MoneyAmount.From(row.Price), row.PriceUpdatedAt)
             .Error?.Message;
     }
 

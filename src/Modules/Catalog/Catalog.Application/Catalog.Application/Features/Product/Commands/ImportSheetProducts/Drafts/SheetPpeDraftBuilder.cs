@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Ppe;
@@ -60,9 +61,9 @@ public sealed class SheetPpeDraftBuilder(
         if (log.Problems.Count > before)
             return null;
         return new SheetProductDraft(row.RowNumber, ProductType.Ppe, code, row.Name.Trim(),
-            new ProductOverviewDetails(sectionId, null, row.IsActive,
+            new ProductOverviewDetails(ProductSectionId.FromNullable(sectionId), null, row.IsActive,
                 Trim(row.CurrentSiteUrl), Trim(row.QuoteDescription)),
-            new PpeSupplierDetails(SupplierReferenceId.Create(supplierId!.Value), Trim(row.SupplierSku),
+            new PpeSupplierDetails(new SupplierId(supplierId!.Value), Trim(row.SupplierSku),
                 Trim(row.SupplierUrl), row.SupplierPrice, row.AllowManualPrice, ruleCode, Trim(row.Unit)),
             null);
     }

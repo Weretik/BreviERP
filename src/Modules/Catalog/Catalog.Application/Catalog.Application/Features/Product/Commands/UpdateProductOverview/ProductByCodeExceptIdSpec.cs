@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.Products.Enums;
@@ -10,7 +11,7 @@ public sealed class ProductByCodeExceptIdSpec : Specification<ProductEntity>
 {
     public ProductByCodeExceptIdSpec(ProductType type, string code, int exceptId)
     {
-        var productId = ProductId.Create(exceptId);
+        var productId = new ProductId(exceptId);
         if (type == ProductType.Ppe)
             Query.Where(x => x.Id != productId && x.CatalogProfile != null && x.CatalogProfile.SaleSku == code);
         else

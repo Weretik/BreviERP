@@ -46,7 +46,7 @@ public sealed class GetSeoOverviewHandler(IContentDbContext db, IContentCatalogR
     private async Task<IEnumerable<SeoPage>> ProductsAsync(CancellationToken cancellationToken)
     {
         var shown = await db.ProductPages.AsNoTracking().Include(x => x.Texts).Where(x => x.ShowOnSite)
-            .ToDictionaryAsync(x => x.ProductId, cancellationToken);
+            .ToDictionaryAsync(x => x.ProductId.Value, cancellationToken);
         if (shown.Count == 0) return [];
         return (await catalog.GetAllAsync(cancellationToken))
             .Where(x => x.IsActive && shown.ContainsKey(x.Id))

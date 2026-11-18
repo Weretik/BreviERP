@@ -1,3 +1,6 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders.Enums;
 using Production.Domain.Orders.Errors;
@@ -68,19 +71,19 @@ public sealed class ProductionItem
         PlannedFabricMeters = plannedFabricMeters;
     }
 
-    public int Id { get; private set; }
+    public ProductionItemId Id { get; private set; }
     public ProductionOrderId OrderId { get; private set; }
     public int Position { get; private set; }
-    public long? QuoteItemId { get; private set; }
-    public long? QuoteOptionId { get; private set; }
-    public int? ProductId { get; private set; }
-    public long? ArticleId { get; private set; }
+    public QuoteItemId? QuoteItemId { get; private set; }
+    public QuoteOptionId? QuoteOptionId { get; private set; }
+    public ProductId? ProductId { get; private set; }
+    public ArticleId? ArticleId { get; private set; }
 
     /// <summary>Catalog model code (MOD-…); null for a «Виріб з нуля» of the КП.</summary>
     public string? ModelCode { get; private set; }
 
     public string ModelName { get; private set; } = null!;
-    public int? FabricId { get; private set; }
+    public FabricId? FabricId { get; private set; }
 
     /// <summary>Reference fabric code (FAB-…).</summary>
     public string? FabricCode { get; private set; }
@@ -180,13 +183,13 @@ public sealed class ProductionItem
 
 /// <summary>What the КП and Catalog gave the item when the order was created.</summary>
 public sealed record ItemSource(
-    long? QuoteItemId,
-    long? QuoteOptionId,
-    int? ProductId,
-    long? ArticleId,
+    QuoteItemId? QuoteItemId,
+    QuoteOptionId? QuoteOptionId,
+    ProductId? ProductId,
+    ArticleId? ArticleId,
     string? ModelCode,
     string ModelName,
-    int? FabricId,
+    FabricId? FabricId,
     string? FabricCode,
     string? FabricName,
     decimal? SewingRate,

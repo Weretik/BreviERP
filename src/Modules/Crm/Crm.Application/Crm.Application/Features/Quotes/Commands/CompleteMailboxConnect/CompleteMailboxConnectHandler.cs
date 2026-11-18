@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes.Sending;
 using Microsoft.Extensions.Logging;
 using Crm.Application.Features.Quotes.Commands.StartMailboxConnect;

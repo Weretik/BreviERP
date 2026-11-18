@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Quotes;
 using Microsoft.EntityFrameworkCore;

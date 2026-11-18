@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes.Settings;
 using Crm.Application.Features.Quotes.Commands.SaveQuoteSettings;
 using Crm.Application.Features.Quotes.Shared.Access;

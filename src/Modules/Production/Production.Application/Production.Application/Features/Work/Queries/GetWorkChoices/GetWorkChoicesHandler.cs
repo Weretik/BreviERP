@@ -21,7 +21,7 @@ public sealed class GetWorkChoicesHandler(IProductionDbContext db, WorkCards car
             .OrderBy(x => x.Number).ToListAsync(cancellationToken);
         var done = await cards.DoneAsync([.. orders.SelectMany(x => x.Items).Select(x => x.Id)], cancellationToken);
         var items = orders.SelectMany(o => o.Items.OrderBy(x => x.Position).Select(i => new WorkItemChoice(o.Id.Value, o.Number,
-            o.ClientName, i.Id, i.ModelName, i.Quantity, done[i.Id].Sewn, done[i.Id].Cut, i.SewingRate))).ToList();
+            o.ClientName, i.Id.Value, i.ModelName, i.Quantity, done[i.Id].Sewn, done[i.Id].Cut, i.SewingRate))).ToList();
         return Result.Success(new WorkChoicesResponse(employees, items, OverPlanReasons.All));
     }
 }

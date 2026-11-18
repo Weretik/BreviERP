@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Commands.ImportQuotes;
 using Crm.Application.Features.Quotes.Shared;
@@ -24,7 +25,7 @@ public sealed class RepriceQuoteHandler(
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Version != command.Version) return Result.Conflict(QuoteMessages.Stale);
 
-        var productIds = quote.Items.Where(x => x.ProductId is not null).Select(x => x.ProductId!.Value).Distinct()
+        var productIds = quote.Items.Where(x => x.ProductId is not null).Select(x => x.ProductId!.Value.Value).Distinct()
             .ToArray();
         var products = productIds.Length == 0
             ? new Dictionary<int, QuoteCatalogProduct>()
@@ -36,7 +37,7 @@ public sealed class RepriceQuoteHandler(
         foreach (var item in quote.Items.Where(x => x.ProductId is not null && x.Kind != QuoteItemKind.CustomSewing)
                      .OrderBy(x => x.Position))
         {
-            products.TryGetValue(item.ProductId!.Value, out var product);
+            products.TryGetValue(item.ProductId!.Value.Value, out var product);
             var otherFabrics = item.Options.Where(x => IsOtherFabric(item, x)).OrderBy(x => x.Position).ToArray();
             if (otherFabrics.Length > 0)
                 await RepriceOtherFabricsAsync(item, otherFabrics, command.Apply, now, changes, unavailable,
@@ -46,7 +47,7 @@ public sealed class RepriceQuoteHandler(
                 var current = CurrentPrices(item, option, product, out var reason);
                 if (current is null)
                 {
-                    unavailable.Add(new QuoteRepriceProblem(option.Id, item.Name, option.Title, reason));
+                    unavailable.Add(new QuoteRepriceProblem(option.Id.Value, item.Name, option.Title, reason));
                     continue;
                 }
 
@@ -55,7 +56,7 @@ public sealed class RepriceQuoteHandler(
 
                 var before = option.Sources();
                 if (command.Apply) option.ReplaceSourcePrices(current.Retail, current.Wholesale, current.Large, now);
-                changes.Add(new QuoteRepriceChange(option.Id, item.Name, option.Title, before,
+                changes.Add(new QuoteRepriceChange(option.Id.Value, item.Name, option.Title, before,
                     new QuoteTierPricesResponse(current.Retail, current.Wholesale, current.Large)));
             }
         }
@@ -91,11 +92,11 @@ public sealed class RepriceQuoteHandler(
         DateTimeOffset now, List<QuoteRepriceChange> changes, List<QuoteRepriceProblem> unavailable,
         CancellationToken cancellationToken)
     {
-        var model = sewing is null || models is null ? null : await models.ReadAsync(item.ProductId!.Value, cancellationToken);
+        var model = sewing is null || models is null ? null : await models.ReadAsync(item.ProductId!.Value.Value, cancellationToken);
         if (model is null)
         {
             unavailable.AddRange(options.Select(x =>
-                new QuoteRepriceProblem(x.Id, item.Name, x.Title, "Модель видалено з каталогу.")));
+                new QuoteRepriceProblem(x.Id.Value, item.Name, x.Title, "Модель видалено з каталогу.")));
             return;
         }
 
@@ -108,7 +109,7 @@ public sealed class RepriceQuoteHandler(
     }
 
     private static QuoteSewingVariant Variant(QuoteItemOption option) =>
-        new(option.Fabrics.OrderBy(f => f.Position).Select(f => new QuoteSewingFabric(f.FabricId, f.Meters)).ToArray());
+        new(option.Fabrics.OrderBy(f => f.Position).Select(f => new QuoteSewingFabric(f.FabricId.Value, f.Meters)).ToArray());
 
     /// <summary>A «Виріб з нуля» is priced again from its saved composition by the Catalog formula (R-20).</summary>
     private async Task RepriceCustomAsync(QuoteItem item, bool apply, DateTimeOffset now,
@@ -118,14 +119,14 @@ public sealed class RepriceQuoteHandler(
         if (sewing is null)
         {
             unavailable.AddRange(options.Select(x =>
-                new QuoteRepriceProblem(x.Id, item.Name, x.Title, "Розрахунок виробу з нуля недоступний.")));
+                new QuoteRepriceProblem(x.Id.Value, item.Name, x.Title, "Розрахунок виробу з нуля недоступний.")));
             return;
         }
 
         if (item.Lines.Count == 0 || options.Any(x => x.Fabrics.Count == 0))
         {
             unavailable.AddRange(options.Select(x =>
-                new QuoteRepriceProblem(x.Id, item.Name, x.Title, QuoteImportMapper.MissingCompositionReason)));
+                new QuoteRepriceProblem(x.Id.Value, item.Name, x.Title, QuoteImportMapper.MissingCompositionReason)));
             return;
         }
 
@@ -146,7 +147,7 @@ public sealed class RepriceQuoteHandler(
             var variant = calculation.Variants[index];
             if (variant.Prices is not { } current)
             {
-                unavailable.Add(new QuoteRepriceProblem(option.Id, item.Name, option.Title,
+                unavailable.Add(new QuoteRepriceProblem(option.Id.Value, item.Name, option.Title,
                     Problems(variant.Problems, "Не вдалося порахувати ціну.")));
                 continue;
             }
@@ -156,7 +157,7 @@ public sealed class RepriceQuoteHandler(
 
             var before = option.Sources();
             if (apply) option.ReplaceSourcePrices(current.Retail, current.Wholesale, current.Large, now);
-            changes.Add(new QuoteRepriceChange(option.Id, item.Name, option.Title, before,
+            changes.Add(new QuoteRepriceChange(option.Id.Value, item.Name, option.Title, before,
                 new QuoteTierPricesResponse(current.Retail, current.Wholesale, current.Large)));
         }
     }
@@ -178,7 +179,7 @@ public sealed class RepriceQuoteHandler(
             return product.Prices;
         }
 
-        var variant = product.Variants.FirstOrDefault(x => x.ArticleId == option.ArticleId);
+        var variant = product.Variants.FirstOrDefault(x => x.ArticleId == option.ArticleId?.Value);
         if (variant is null || !variant.IsActive)
         {
             reason = "Варіант тканини видалено або вимкнено.";

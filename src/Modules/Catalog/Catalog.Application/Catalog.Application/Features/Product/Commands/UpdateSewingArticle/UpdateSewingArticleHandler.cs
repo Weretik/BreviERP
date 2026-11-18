@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Reference;
@@ -17,7 +19,7 @@ public sealed class UpdateSewingArticleHandler(ISewingCompositionStore store, IP
     {
         var request = command.Request;
         var product = await store.LoadAsync(command.ProductId, cancellationToken);
-        var articleId = ArticleId.Create(command.ArticleId);
+        var articleId = new ArticleId(command.ArticleId);
         var article = product?.Articles.FirstOrDefault(x => x.Id == articleId);
         if (product is null || article is null)
             return Result.NotFound();
@@ -32,7 +34,7 @@ public sealed class UpdateSewingArticleHandler(ISewingCompositionStore store, IP
         var now = TimeProvider.System.GetUtcNow();
         var changed = product.UpdateArticle(articleId, sku, request.Active, now);
         if (changed.IsSuccess)
-            changed = product.SetArticleFabric(articleId, FabricReferenceId.Create(request.FabricId),
+            changed = product.SetArticleFabric(articleId, new FabricId(request.FabricId),
                 request.FabricQuantity, now);
         if (changed.IsFailure) return changed.Error!.ToResult<SewingArticleView>();
         if (!await store.SaveAsync(cancellationToken))

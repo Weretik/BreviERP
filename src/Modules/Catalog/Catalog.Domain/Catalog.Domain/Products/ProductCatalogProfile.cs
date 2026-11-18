@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 
 using Catalog.Domain.Products.Ppe;
 using Catalog.Domain.Products.ValueObjects;
@@ -12,7 +14,7 @@ public sealed class ProductCatalogProfile
     public bool IsActive { get; private set; }
     public string? Unit { get; private set; }
     public string? WebsiteUrl { get; private set; }
-    public SupplierReferenceId? SupplierId { get; private set; }
+    public SupplierId? SupplierId { get; private set; }
     public string? SupplierSku { get; private set; }
     public string? SupplierProductUrl { get; private set; }
     public decimal? SupplierPrice { get; private set; }
@@ -20,7 +22,7 @@ public sealed class ProductCatalogProfile
     public string? PricingRuleCode { get; private set; }
     public string? ShortDescription { get; private set; }
     /// <summary>Section ID from Reference «Типи і розділи»; no database relation across modules.</summary>
-    public int? SectionId { get; private set; }
+    public ProductSectionId? SectionId { get; private set; }
 
     private ProductCatalogProfile() { }
 
@@ -38,7 +40,7 @@ public sealed class ProductCatalogProfile
         WebsiteUrl = Normalize(websiteUrl, 2048);
     }
 
-    public void SetSupplierOffer(SupplierReferenceId supplierId, string? supplierSku, string? url,
+    public void SetSupplierOffer(SupplierId supplierId, string? supplierSku, string? url,
         decimal? price, bool allowManualPrice, string? pricingRuleCode, string? shortDescription)
     {
         if (price is <= 0 || (price.HasValue && decimal.Round(price.Value, 6) != price))
@@ -53,7 +55,7 @@ public sealed class ProductCatalogProfile
     }
 
     /// <summary>Sets the PPE supplier fields of the card; the quote description stays as it is.</summary>
-    public void SetSupplier(SupplierReferenceId supplierId, string? supplierSku, string? url, decimal? price,
+    public void SetSupplier(SupplierId supplierId, string? supplierSku, string? url, decimal? price,
         bool allowManualPrice, string? pricingRuleCode, string? unit)
     {
         if (price is <= 0 || (price.HasValue && decimal.Round(price.Value, 6) != price))
@@ -68,10 +70,10 @@ public sealed class ProductCatalogProfile
     }
 
     /// <summary>Sets the «Товари» page fields; the season text is «Літо» or «Зима» as in the sheet.</summary>
-    public void SetOverview(int? sectionId, string? season, bool isActive,
+    public void SetOverview(ProductSectionId? sectionId, string? season, bool isActive,
         string? websiteUrl, string? shortDescription)
     {
-        if (sectionId is <= 0) throw new ArgumentOutOfRangeException(nameof(sectionId));
+        if (sectionId?.Value is <= 0) throw new ArgumentOutOfRangeException(nameof(sectionId));
         SectionId = sectionId;
         Season = Normalize(season, 100);
         IsActive = isActive;

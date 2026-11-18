@@ -3,7 +3,7 @@ using BuildingBlocks.Domain.Events;
 using Crm.Application.Features.Activity.EventHandlers;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 
 namespace UnitTests.Crm.Activity;
 

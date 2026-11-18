@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Content;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Sewing;
@@ -9,7 +10,7 @@ public sealed class ProductAdminDetailSpec : Specification<ProductEntity, Produc
     public ProductAdminDetailSpec(int id)
     {
         Query.AsNoTracking().AsSplitQuery()
-            .Where(x => x.Id == Catalog.Domain.Products.ValueObjects.ProductId.Create(id))
+            .Where(x => x.Id == new ProductId(id))
             .Select(x => new ProductAdminDetailReadModel(
                 x.Id.Value,
                 x.Name,
@@ -30,12 +31,12 @@ public sealed class ProductAdminDetailSpec : Specification<ProductEntity, Produc
                 x.SewingDetails == null ? null : new SewingReadModel(
                     x.SewingDetails.MetersPerProduct,
                     x.SewingDetails.Fabrics.Select(fabric => new FabricReadModel(
-                        fabric.FabricId, fabric.IsPrimary, fabric.SortOrder)).ToList(),
+                        fabric.FabricId.Value, fabric.IsPrimary, fabric.SortOrder)).ToList(),
                     x.SewingDetails.Accessories.Select(accessory => new AccessoryReadModel(
-                        accessory.GarmentAccessoryId, accessory.Quantity, accessory.SortOrder)).ToList(),
-                    x.SewingDetails.Operations.Select(operation => operation.GarmentPartOperationId).ToList()),
+                        accessory.GarmentAccessoryId.Value, accessory.Quantity, accessory.SortOrder)).ToList(),
+                    x.SewingDetails.Operations.Select(operation => operation.GarmentPartOperationId.Value).ToList()),
                 x.PpeDetails == null ? null : new PpeReadModel(
-                    x.PpeDetails.SupplierId,
+                    x.PpeDetails.SupplierId.Value,
                     x.PpeDetails.BasePrice,
                     x.PpeDetails.RetailPercent.Source,
                     x.PpeDetails.RetailPercent.AdditionalReferenceId,

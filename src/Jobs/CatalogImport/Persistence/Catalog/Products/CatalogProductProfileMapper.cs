@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Catalog.Domain.Products;
 using CatalogImport.Planning;
 using CatalogImport.Source;
@@ -17,7 +19,7 @@ public static class CatalogProductProfileMapper
             sewing ? null : row.Text(3),
             sewing ? plan.Snapshot.ModelWebsiteUrls.GetValueOrDefault(row.Text(0)) : row.Text(4));
         if (!sewing)
-            profile.SetSupplierOffer(SupplierReferenceId.Create(references.Suppliers[row.Text(5)]),
+            profile.SetSupplierOffer(new SupplierId(references.Suppliers[row.Text(5)]),
                 row.Text(14), row.Text(6), row.Decimal(7), row.Flag(10), row.Text(13), row.Text(15));
         return profile;
     }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Domain.Quotes.Items;
@@ -20,7 +21,7 @@ internal static class QuoteResponseMapper
             : null);
 
     private static QuoteItemResponse ToResponse(QuoteItem item) => new(
-        item.Id, item.Kind.ToString(), item.ProductId, item.Code, item.Name, item.Subtitle, item.Description,
+        item.Id.Value, item.Kind.ToString(), item.ProductId?.Value, item.Code, item.Name, item.Subtitle, item.Description,
         item.SiteUrl, item.PhotoUrl, item.Season, item.SupplierUrl,
         item.Options.OrderBy(x => x.Position).Select(ToResponse).ToArray(),
         item.Lines.OrderBy(x => x.Position).Select(x => new QuoteItemLineResponse(x.Id, x.Kind.ToString(),
@@ -28,10 +29,10 @@ internal static class QuoteResponseMapper
         item.EmbroideryCalculationId?.Value);
 
     private static QuoteOptionResponse ToResponse(QuoteItemOption option) => new(
-        option.Id, option.ArticleId, option.FabricId, option.Title, option.Details, option.IsRecommended,
+        option.Id.Value, option.ArticleId?.Value, option.FabricId?.Value, option.Title, option.Details, option.IsRecommended,
         ToResponse(option.Retail), ToResponse(option.Wholesale), ToResponse(option.Large),
         option.ManualReason, option.ManualByName, option.ManualAt, option.PricesTakenAt, option.FabricMeters,
-        option.Fabrics.OrderBy(x => x.Position).Select(x => new QuoteOptionFabricResponse(x.FabricId, x.Name, x.Meters))
+        option.Fabrics.OrderBy(x => x.Position).Select(x => new QuoteOptionFabricResponse(x.FabricId.Value, x.Name, x.Meters))
             .ToArray());
 
     private static QuotePriceResponse ToResponse(QuotePrice price) =>

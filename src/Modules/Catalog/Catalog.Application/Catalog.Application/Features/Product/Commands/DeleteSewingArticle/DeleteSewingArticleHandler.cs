@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
 using Catalog.Domain.Products.Sewing.ValueObjects;
@@ -18,7 +19,7 @@ public sealed class DeleteSewingArticleHandler(ISewingCompositionStore store)
     public async ValueTask<Result> Handle(DeleteSewingArticleCommand command, CancellationToken cancellationToken)
     {
         var product = await store.LoadAsync(command.ProductId, cancellationToken);
-        var articleId = ArticleId.Create(command.ArticleId);
+        var articleId = new ArticleId(command.ArticleId);
         if (product is null || product.Articles.All(x => x.Id != articleId))
             return Result.NotFound();
         if (product.CompositionVersion != command.ExpectedVersion)

@@ -118,9 +118,9 @@ public sealed class ImportOldSiteRedirectsHandler(
             .ToListAsync(cancellationToken);
         var categorySlug = categories.ToDictionary(x => x.Id, x => x.Slug);
         var pages = await db.ProductPages.AsNoTracking().Select(x => new { x.ProductId, x.Slug })
-            .ToDictionaryAsync(x => x.ProductId, x => x.Slug, cancellationToken);
+            .ToDictionaryAsync(x => x.ProductId.Value, x => x.Slug, cancellationToken);
         var firstCategory = (await db.SiteCategoryProducts.AsNoTracking().ToListAsync(cancellationToken))
-            .GroupBy(x => x.ProductId)
+            .GroupBy(x => x.ProductId.Value)
             .ToDictionary(x => x.Key, x => categorySlug.GetValueOrDefault(x.OrderBy(link => link.SortOrder).First().CategoryId));
 
         var products = new Dictionary<string, ResolverProduct>(StringComparer.Ordinal);

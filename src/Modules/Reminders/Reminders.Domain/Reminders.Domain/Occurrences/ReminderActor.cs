@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Identifiers;
+using BuildingBlocks.Domain.Identifiers.People;
 namespace Reminders.Domain.Occurrences;
 
 /// <summary>Who pressed a button or acted in Admin. The name is kept as it was at that moment.</summary>

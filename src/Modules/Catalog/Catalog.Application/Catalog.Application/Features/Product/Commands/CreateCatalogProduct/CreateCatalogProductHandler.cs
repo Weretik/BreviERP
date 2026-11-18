@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using System.Globalization;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
@@ -59,7 +61,7 @@ public sealed class CreateCatalogProductHandler(
 
         var slug = await FreeSlugAsync(name, code, cancellationToken);
         var lastId = await repository.FirstOrDefaultAsync(new LastProductIdSpec(), cancellationToken);
-        var id = ProductId.Create(lastId.Value + 1);
+        var id = new ProductId(lastId.Value + 1);
         var now = timeProvider.GetUtcNow();
 
         // Russian names are not kept for new products; the column stays filled until the Content module owns texts.
@@ -70,10 +72,10 @@ public sealed class CreateCatalogProductHandler(
         var product = created.Value;
         var card = product.SetCode(code, now);
         if (card.IsSuccess)
-            card = product.SetOverview(new ProductOverviewDetails(command.SectionId, command.Season, command.IsActive,
+            card = product.SetOverview(new ProductOverviewDetails(new ProductSectionId(command.SectionId), command.Season, command.IsActive,
                 command.CurrentSiteUrl, command.QuoteDescription), now);
         if (card.IsSuccess && command.Ppe is { } supplier)
-            card = product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(supplier.SupplierId),
+            card = product.SetPpeSupplier(new PpeSupplierDetails(new SupplierId(supplier.SupplierId),
                 supplier.SupplierSku, supplier.SupplierUrl, supplier.SupplierPrice, supplier.AllowManualPrice,
                 supplier.RuleCode.Trim(), supplier.Unit), now);
         if (card.IsFailure) return card.Error!.ToResult<CreatedCatalogProduct>();

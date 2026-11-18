@@ -49,7 +49,7 @@ public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogRea
     private async ValueTask<PublicCatalogSnapshot> BuildAsync(CancellationToken cancellationToken)
     {
         var pages = await db.ProductPages.AsNoTracking().Include(x => x.Texts).Where(x => x.ShowOnSite)
-            .ToDictionaryAsync(x => x.ProductId, cancellationToken);
+            .ToDictionaryAsync(x => x.ProductId.Value, cancellationToken);
         var products = pages.Count == 0
             ? []
             : (await catalog.GetAllAsync(cancellationToken))
@@ -92,8 +92,8 @@ public sealed class PublicCatalogSource(IContentDbContext db, IContentCatalogRea
         var ids = shown.Select(x => x.Id).ToArray();
         var own = (await db.SiteCategoryProducts.AsNoTracking().Where(x => ids.Contains(x.CategoryId))
                 .OrderBy(x => x.SortOrder).ThenBy(x => x.ProductId).ToListAsync(cancellationToken))
-            .Where(x => byProduct.ContainsKey(x.ProductId))
-            .ToLookup(x => x.CategoryId, x => byProduct[x.ProductId]);
+            .Where(x => byProduct.ContainsKey(x.ProductId.Value))
+            .ToLookup(x => x.CategoryId, x => byProduct[x.ProductId.Value]);
 
         var result = new List<PublicCatalogSnapshotCategory>();
         foreach (var top in shown.Where(x => x.ParentId is null))

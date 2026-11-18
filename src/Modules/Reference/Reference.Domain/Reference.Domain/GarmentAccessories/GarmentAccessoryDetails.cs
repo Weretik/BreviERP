@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using Reference.Domain.Suppliers;
 
 namespace Reference.Domain.GarmentAccessories;

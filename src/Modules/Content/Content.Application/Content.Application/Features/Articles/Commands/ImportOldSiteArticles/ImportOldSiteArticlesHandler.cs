@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 using Content.Application.Abstractions;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
@@ -72,7 +73,7 @@ public sealed class ImportOldSiteArticlesHandler(
                 existing[item.Slug] = article;
             }
 
-            var replaced = article.Replace(item.Slug, item.PublishedOn, command.ShowOnSite || article.ShowOnSite, cover,
+            var replaced = article.Replace(item.Slug, item.PublishedOn, command.ShowOnSite || article.ShowOnSite, MediaFileId.FromNullable(cover),
                 texts, command.UpdatedBy, now);
             if (replaced.IsFailure) return replaced.Error!.ToResult<OldSiteArticleImportResponse>();
             await db.SaveChangesAsync(cancellationToken);

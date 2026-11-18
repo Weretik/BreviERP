@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers.Products;
 
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.Sewing.Composition;
@@ -43,9 +44,9 @@ public sealed class SewingProductDetails
             operationList.Any(x => x.ProductId != productId))
             return ProductErrors.DetailsBelongToAnotherProduct();
         var distinct = DomainResult.Combine(
-            CheckDistinct(fabricList.Select(x => x.FabricId), "Fabric"),
-            CheckDistinct(accessoryList.Select(x => x.GarmentAccessoryId), "Accessory"),
-            CheckDistinct(operationList.Select(x => x.GarmentPartOperationId), "Operation"));
+            CheckDistinct(fabricList.Select(x => x.FabricId.Value), "Fabric"),
+            CheckDistinct(accessoryList.Select(x => x.GarmentAccessoryId.Value), "Accessory"),
+            CheckDistinct(operationList.Select(x => x.GarmentPartOperationId.Value), "Operation"));
         if (distinct.IsFailure) return distinct.Error!;
         if (fabricList.Count(x => x.IsPrimary) > 2) return ProductErrors.TooManyPrimaryFabrics();
         var details = new SewingProductDetails(metersPerProduct, fabricList, accessoryList, operationList) { ProductId = productId };
