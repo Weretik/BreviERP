@@ -3,6 +3,7 @@ using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.ExternalIdentities;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 
 namespace Crm.Domain.Customers;
 
@@ -14,7 +15,7 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
     public string NormalizedName { get; private set; } = null!;
     public string? LegalName { get; private set; }
     public string? TaxIdentity { get; private set; }
-    public CrmUserId OwnerId { get; private set; }
+    public UserId OwnerId { get; private set; }
     public bool Active { get; private set; } = true;
     public long Revision { get; private set; } = 1;
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
@@ -30,7 +31,7 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
     private Customer() { }
 
     public static DomainResult<Customer> Create(string kind, string displayName, string? legalName, string? taxIdentity,
-        CrmUserId owner)
+        UserId owner)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(owner.Value);
         var customer = new Customer { OwnerId = owner };

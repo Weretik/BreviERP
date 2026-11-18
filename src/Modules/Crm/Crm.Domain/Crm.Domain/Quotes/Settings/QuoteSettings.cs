@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Crm.Domain.Quotes.Errors;
@@ -56,7 +57,7 @@ public sealed class QuoteSettings : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>The saved contact of a staff member, or null to use their account name, phone and email.</summary>
-    public QuoteStaffContact? ContactOf(int userId) => StaffContacts.FirstOrDefault(x => x.UserId == userId);
+    public QuoteStaffContact? ContactOf(UserId userId) => StaffContacts.FirstOrDefault(x => x.UserId == userId);
 }
 
 /// <summary>Everything the settings page edits.</summary>

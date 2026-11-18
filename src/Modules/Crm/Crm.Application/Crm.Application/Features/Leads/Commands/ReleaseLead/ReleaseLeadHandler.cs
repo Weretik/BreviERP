@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Leads.Shared.Access;
 using Crm.Application.Features.Leads.Shared.Calling;
@@ -18,7 +19,7 @@ public sealed class ReleaseLeadHandler(ILeadStore store, TimeProvider clock)
         if (lead.Version != command.Version) return Result.Conflict(LeadMessages.Stale);
         var now = clock.GetUtcNow();
         if (lead.OwnerUserId is null) return Result.Success(await store.DetailAsync(lead, now, cancellationToken));
-        if (!lead.IsOwnedBy(command.Actor.UserId) && !command.Actor.IsAdmin)
+        if (!lead.IsOwnedBy(new UserId(command.Actor.UserId)) && !command.Actor.IsAdmin)
             return Result.Forbidden(LeadMessages.ReleaseForbidden);
 
         lead.Release(now);

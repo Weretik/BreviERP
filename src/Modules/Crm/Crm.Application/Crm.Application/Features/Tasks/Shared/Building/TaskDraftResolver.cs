@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Shared;
 using Crm.Application.Features.Tasks.Shared.Access;
@@ -23,7 +24,7 @@ internal static class TaskDraftResolver
             if (customerName is null) return Result.Invalid(new ValidationError(TaskMessages.CustomerNotFound));
         }
 
-        return new ManagerTaskDraft(input.Title, input.Description, new ManagerTaskPerson(assignee.UserId, assignee.Name),
+        return new ManagerTaskDraft(input.Title, input.Description, new ManagerTaskPerson(new UserId(assignee.UserId), assignee.Name),
             input.DueAt, input.IsUrgent, input.CustomerPublicId, customerName,
             (input.Steps ?? []).Select(x => new ManagerTaskStepDraft(x.Text, x.IsDone)).ToArray());
     }
@@ -32,6 +33,6 @@ internal static class TaskDraftResolver
     public static async Task<ManagerTaskPerson?> PersonAsync(this ITaskStaffReader staff, TaskActor actor,
         CancellationToken cancellationToken) =>
         await staff.FindAsync(actor.UserId, cancellationToken) is { } member
-            ? new ManagerTaskPerson(member.UserId, member.Name)
+            ? new ManagerTaskPerson(new UserId(member.UserId), member.Name)
             : null;
 }

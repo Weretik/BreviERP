@@ -1,6 +1,7 @@
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 
 namespace Crm.Domain.Customers.ExternalIdentities;
 

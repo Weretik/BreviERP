@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
@@ -40,7 +41,7 @@ public sealed class CopyProductionOrderHandler(IProductionDbContext db, IProduct
         }
 
         var created = ProductionOrder.Create(await OrderNumbers.NextAsync(db, cancellationToken),
-            new OrderOrigin(source.QuoteId, source.QuoteNumber, source.CustomerId, person.UserId, person.Name,
+            new OrderOrigin(source.QuoteId, source.QuoteNumber, source.CustomerId, new UserId(person.UserId), person.Name,
                 command.Input.RequestId, CopiedFromOrderId: source.Id),
             new OrderHeader(source.ClientName, today, source.Comment), source.PriceTier, items, person.Name, now);
         if (created.IsFailure) return created.Error!.ToResult<ProductionOrderResponse>();

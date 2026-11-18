@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Building;
@@ -67,7 +68,7 @@ public sealed class QuoteImportMapper(
     {
         var email = person.Email?.Trim().ToLowerInvariant();
         if (email is { Length: > 0 } && _staff.TryGetValue(email, out var member))
-            return new QuotePerson(member.UserId, member.Name);
+            return new QuotePerson(new UserId(member.UserId), member.Name);
         _unknown.TryAdd(email ?? person.Name.Trim(), new QuoteImportPerson(email, person.Name.Trim()));
         return null;
     }

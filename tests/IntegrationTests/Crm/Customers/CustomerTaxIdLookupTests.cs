@@ -1,5 +1,6 @@
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Application.Features.Customers.Queries.GetCustomerLookup;
 using Crm.Application.Features.Customers.Queries.GetCustomersByTaxIds;
 using Crm.Infrastructure.Persistence.Repositories.Customers;
@@ -16,10 +17,10 @@ public sealed class CustomerTaxIdLookupTests : CrmDatabaseFixture
         Guid wanted;
         await using (var db = Context())
         {
-            var first = Customer.Create("organization", "ТОВ «Агро»", null, "12345678", new CrmUserId(1)).Value;
-            var archived = Customer.Create("organization", "ФОП Старий", null, "87654321", new CrmUserId(1)).Value;
+            var first = Customer.Create("organization", "ТОВ «Агро»", null, "12345678", new UserId(1)).Value;
+            var archived = Customer.Create("organization", "ФОП Старий", null, "87654321", new UserId(1)).Value;
             archived.Revise(archived.Revision, archived.Kind, archived.DisplayName, null, "87654321", active: false);
-            var other = Customer.Create("organization", "Інший код", null, "11112222", new CrmUserId(1)).Value;
+            var other = Customer.Create("organization", "Інший код", null, "11112222", new UserId(1)).Value;
             db.Customers.AddRange(first, archived, other);
             await db.SaveChangesAsync();
             wanted = first.PublicId;

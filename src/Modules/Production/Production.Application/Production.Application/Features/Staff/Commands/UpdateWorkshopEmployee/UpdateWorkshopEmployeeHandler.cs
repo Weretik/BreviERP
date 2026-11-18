@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Production.Domain.Staff;
 using Production.Application.Abstractions;
 using Production.Application.Features.Orders.Shared;
@@ -18,7 +19,7 @@ public sealed class UpdateWorkshopEmployeeHandler(IProductionDbContext db, TimeP
             && await EmployeeLookup.ActiveNameTakenAsync(db, command.Input.FullName, employee.Id, cancellationToken))
             return Result<WorkshopEmployeeResponse>.Conflict(StaffMessages.DuplicateName);
 
-        var updated = employee.Update(command.Input.FullName, command.Input.Position, command.UserId, clock.GetUtcNow());
+        var updated = employee.Update(command.Input.FullName, command.Input.Position, UserId.FromNullable(command.UserId), clock.GetUtcNow());
         if (updated.IsFailure) return updated.Error!.ToResult<WorkshopEmployeeResponse>();
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(employee.ToResponse());

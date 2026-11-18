@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Ardalis.Result;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 using Microsoft.EntityFrameworkCore;
 using Crm.Application.Abstractions.Customers;
 using Crm.Infrastructure.Persistence;
@@ -33,7 +34,7 @@ internal sealed class CustomerMutationJournal(CrmDbContext db)
         if (previous.PayloadHash != encoded.Hash) return Result.Conflict("Цей запит уже виконано з іншими даними. Оновіть сторінку.");
         var accessible = await db.Customers.AsNoTracking().AnyAsync(x =>
             x.PublicId == previous.CustomerPublicId && x.MergedIntoId == null
-            && (actor.IsAdmin || x.OwnerId == new CrmUserId(actor.UserId)), cancellationToken);
+            && (actor.IsAdmin || x.OwnerId == new UserId(actor.UserId)), cancellationToken);
         if (!accessible) return Result.NotFound();
         return Result.Success(JsonSerializer.Deserialize<CustomerDetail>(previous.ResponseJson, JsonOptions)!);
     }

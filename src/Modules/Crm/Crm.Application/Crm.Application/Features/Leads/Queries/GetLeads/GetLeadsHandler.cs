@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Leads.Shared.Mapping;
@@ -30,13 +31,13 @@ public sealed class GetLeadsHandler(ILeadStore store, TimeProvider clock)
         var counts = await leads.GroupBy(_ => 1).Select(g => new
         {
             All = g.Count(),
-            Mine = g.Count(x => x.OwnerUserId == userId),
+            Mine = g.Count(x => x.OwnerUserId == new UserId(userId)),
             Free = g.Count(x => x.OwnerUserId == null && x.Stage != LeadStage.Client && x.Stage != LeadStage.Closed),
         }).SingleOrDefaultAsync(cancellationToken);
 
         leads = query.Scope switch
         {
-            "Mine" => leads.Where(x => x.OwnerUserId == userId),
+            "Mine" => leads.Where(x => x.OwnerUserId == new UserId(userId)),
             "Free" => leads.Where(x => x.OwnerUserId == null && x.Stage != LeadStage.Client && x.Stage != LeadStage.Closed),
             _ => leads,
         };

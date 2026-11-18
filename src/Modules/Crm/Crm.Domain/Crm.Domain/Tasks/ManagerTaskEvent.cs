@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Tasks.Enums;
 using Crm.Domain.Tasks.ValueObjects;
 
@@ -20,7 +21,7 @@ public sealed class ManagerTaskEvent
     public long Id { get; private set; }
     public ManagerTaskId TaskId { get; private set; }
     public ManagerTaskEventKind Kind { get; private set; }
-    public int ByUserId { get; private set; }
+    public UserId ByUserId { get; private set; }
     public string ByName { get; private set; } = null!;
     public DateTimeOffset At { get; private set; }
 

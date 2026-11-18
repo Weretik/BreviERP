@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Ardalis.Result;
 using Crm.Domain.Quotes;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -70,7 +71,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
         await using var db = Context();
         var option = QuoteItemOption.Create(0, null, null, "Ціна", null, false, new QuotePrice(100m, null, true),
             new QuotePrice(90m, null, true), new QuotePrice(80m, null, true), _clock.GetUtcNow());
-        var quote = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(17, "Олена"),
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(new UserId(17), "Олена"),
             new QuoteHeader("Агро", null, null, "ТОВ «Агро»", null, null),
             [QuoteItem.Create(0, QuoteItemKind.OneOffPpe, null, new QuoteItemTexts(null, "Каска", null, null, null, null, null, null), [option])],
             _clock.GetUtcNow()).Value;
@@ -88,7 +89,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
         Assert.That(back, Is.EqualTo("https://office.brevi.test/crm/quote-settings?gmail=connected"));
         await using var db = Context();
         var mailbox = db.StaffMailboxes.Single();
-        Assert.That(mailbox.UserId, Is.EqualTo(17));
+        Assert.That(mailbox.UserId, Is.EqualTo(new UserId(17)));
         Assert.That(mailbox.Email, Is.EqualTo("olena.manager@brevi.test"));
         Assert.That(mailbox.ConnectedByName, Is.EqualTo("Директор"));
         Assert.That(mailbox.ProtectedRefreshToken, Is.EqualTo("protected:refresh-1"));

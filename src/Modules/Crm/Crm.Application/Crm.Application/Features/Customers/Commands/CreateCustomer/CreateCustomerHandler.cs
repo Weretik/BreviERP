@@ -2,6 +2,7 @@ using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.ExternalIdentities;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Application.Features.Customers.Shared.Mapping;
 using Crm.Application.Abstractions.Customers;
 using Crm.Application.Abstractions.Customers.Views;
@@ -16,7 +17,7 @@ public sealed class CreateCustomerHandler(ICustomerMutationStore store) : IComma
         {
 
             var created = Customer.Create(command.Input.Kind, command.Input.DisplayName, command.Input.LegalName,
-                command.Input.TaxIdentity, new CrmUserId(command.Actor.UserId));
+                command.Input.TaxIdentity, new UserId(command.Actor.UserId));
             if (created.IsFailure) return created.Error!.ToResult<CustomerDetail>();
             var customer = created.Value;
             foreach (var input in command.Input.ExternalIdentities)

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Ardalis.Result;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
@@ -8,7 +9,7 @@ namespace UnitTests.Crm.Quotes.Items;
 
 public sealed class QuoteItemsBuilderTests
 {
-    private static readonly QuotePerson Manager = new(17, "Олена");
+    private static readonly QuotePerson Manager = new(new UserId(17), "Олена");
     private static readonly DateTimeOffset Now = new(2026, 11, 4, 10, 0, 0, TimeSpan.Zero);
 
     private static QuotePriceInput Shown(decimal? manual = null) => new(true, manual);

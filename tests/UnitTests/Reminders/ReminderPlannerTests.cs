@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Reminders.Domain.Calendar;
 using Reminders.Domain.Dispatching;
 using Reminders.Domain.Identifiers;
@@ -70,7 +71,7 @@ public sealed class ReminderPlannerTests
         Assert.That(occurrence.Close(ReminderActor.Telegram(1, "Олена", "Бух", "olena"), Now), Is.True);
         Assert.That(occurrence.Close(ReminderActor.Telegram(2, "Марія", null, null), Now.AddMinutes(1)), Is.False);
         Assert.That(occurrence.ClosedBy!.Name, Is.EqualTo("Олена Бух"));
-        Assert.That(occurrence.Reopen(ReminderActor.Admin(5, "Віталій"), Now.AddHours(1)), Is.True);
+        Assert.That(occurrence.Reopen(ReminderActor.Admin(new UserId(5), "Віталій"), Now.AddHours(1)), Is.True);
         Assert.That(occurrence.Actions.Select(x => x.Kind), Is.EqualTo(new[] { ReminderActionKind.Done, ReminderActionKind.Reopened }));
     }
 

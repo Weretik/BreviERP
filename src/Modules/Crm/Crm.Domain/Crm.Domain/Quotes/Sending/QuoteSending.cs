@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Quotes.ValueObjects;
@@ -37,7 +38,7 @@ public sealed class QuoteSending : IAggregateRoot
     /// <summary>The КП version whose PDF went out.</summary>
     public int QuoteVersion { get; private set; }
 
-    public int SenderUserId { get; private set; }
+    public UserId SenderUserId { get; private set; }
     public string SenderName { get; private set; } = null!;
     public string FromEmail { get; private set; } = null!;
 

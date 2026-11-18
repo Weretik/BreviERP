@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Domain.Tasks;
@@ -34,7 +35,7 @@ public sealed class RecordLeadCallHandler(ILeadStore store, ITaskStaffReader sta
             return Result.Success(await store.DetailAsync(lead, clock.GetUtcNow(), cancellationToken));
         if (lead.Version != input.Version) return Result.Conflict(LeadMessages.Stale);
         if (!lead.IsOpen) return Result.Invalid(new ValidationError(LeadMessages.Closed));
-        if (lead.OwnerUserId is not null && !lead.IsOwnedBy(command.Actor.UserId))
+        if (lead.OwnerUserId is not null && !lead.IsOwnedBy(new UserId(command.Actor.UserId)))
             return Result.Forbidden(LeadMessages.NotOwner);
 
         var result = await store.LeadCallResults.SingleOrDefaultAsync(x => x.Id == new LeadCallResultId(input.ResultId) && x.IsActive,
@@ -50,8 +51,8 @@ public sealed class RecordLeadCallHandler(ILeadStore store, ITaskStaffReader sta
 
         var member = await staff.FindAsync(command.Actor.UserId, cancellationToken);
         if (member is null) return Result.Forbidden(LeadMessages.ActorUnknown);
-        var by = new LeadPerson(member.UserId, member.Name);
-        var taskPerson = new ManagerTaskPerson(member.UserId, member.Name);
+        var by = new LeadPerson(new UserId(member.UserId), member.Name);
+        var taskPerson = new ManagerTaskPerson(new UserId(member.UserId), member.Name);
 
         lead.Take(by, now);
         var call = lead.RecordCall(by, result, input.Comment, next, now, input.RequestId);

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Crm.Domain.Quotes.Enums;
@@ -43,7 +44,7 @@ public sealed class QuoteIntroTemplate : DomainEventSource, IAggregateRoot
     public QuoteIntroLayout Layout { get; private set; }
     public string? LetterName { get; private set; }
     public IReadOnlyList<QuoteIntroTemplatePage> Pages { get; private set; } = [];
-    public int AuthorUserId { get; private set; }
+    public UserId AuthorUserId { get; private set; }
     public string AuthorName { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; private set; }
 

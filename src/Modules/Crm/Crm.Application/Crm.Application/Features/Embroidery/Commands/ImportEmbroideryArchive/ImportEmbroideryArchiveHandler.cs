@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Embroidery.Calculation;
 using Crm.Domain.Embroidery.Saved;
 using Crm.Domain.Embroidery.Settings;
@@ -69,7 +70,7 @@ public sealed class ImportEmbroideryArchiveHandler(IEmbroideryStore store, IQuot
             }
 
             created.Add((lines.Count, EmbroiderySavedCalculation.Transferred(legacyId, row.Name, input, snapshot,
-                result, author?.UserId ?? actor.UserId, authorName, row.CreatedAt)));
+                result, new UserId(author?.UserId ?? actor.UserId), authorName, row.CreatedAt)));
             lines.Add(Line("created", null));
         }
 

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -12,7 +13,7 @@ namespace UnitTests.Crm.Quotes.Sending;
 [TestFixture]
 public sealed class QuotePdfTests
 {
-    private static readonly QuoteStaffContact Manager = new(5, "Олена Петренко", "+38 050 000 00 00", "office@brevi.test");
+    private static readonly QuoteStaffContact Manager = new(new UserId(5), "Олена Петренко", "+38 050 000 00 00", "office@brevi.test");
 
     private static Quote SampleQuote()
     {
@@ -30,11 +31,11 @@ public sealed class QuotePdfTests
         var ppeOption = QuoteItemOption.Create(0, null, null, "Ціна", null, false,
             new QuotePrice(100m, 95m, true), new QuotePrice(90m, null, true), new QuotePrice(80m, null, true),
             DateTimeOffset.UnixEpoch);
-        ppeOption.SetManualAudit("Знижка постійному клієнту", new QuotePerson(5, "Юлія"), DateTimeOffset.UnixEpoch);
+        ppeOption.SetManualAudit("Знижка постійному клієнту", new QuotePerson(new UserId(5), "Юлія"), DateTimeOffset.UnixEpoch);
         var ppe = QuoteItem.Create(1, QuoteItemKind.Ppe, 20,
             new QuoteItemTexts("PPE-1", "Рукавиці", "ЗІЗ · готовий товар", null, null, null, null, null), [ppeOption]);
 
-        return Quote.Create(new QuoteNumber(2026, 11, 3), QuoteKind.Request, new QuotePerson(5, "Юлія"),
+        return Quote.Create(new QuoteNumber(2026, 11, 3), QuoteKind.Request, new QuotePerson(new UserId(5), "Юлія"),
             new QuoteHeader("Саша — 50 курток", null, "Олександр", "ТОВ «Агро»", "Ціни дійсні 14 днів.", "Подзвонити в п'ятницю"),
             [sewing, ppe], new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero)).Value;
     }
@@ -186,7 +187,7 @@ public sealed class QuotePdfTests
                 null, null, null, null),
             [QuoteItemOption.Create(0, 100, 5, "Саржа", null, true, new QuotePrice(100m, null, true),
                 new QuotePrice(90m, null, true), new QuotePrice(80m, null, true), DateTimeOffset.UnixEpoch)]);
-        var quote = Quote.Create(new QuoteNumber(2026, 11, 24), QuoteKind.Request, new QuotePerson(5, "Юлія"),
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 24), QuoteKind.Request, new QuotePerson(new UserId(5), "Юлія"),
             new QuoteHeader("Довге", null, null, null, null, null), [item, item], DateTimeOffset.UnixEpoch).Value;
         var model = QuotePdfModelBuilder.Build(quote, QuoteSettingsDefaults.Content, Manager);
         var renderer = new QuotePdfRenderer(new QuotePdfImageLoader(new HttpClient(), NullLogger<QuotePdfImageLoader>.Instance));
@@ -274,7 +275,7 @@ public sealed class QuotePdfTests
         var item = QuoteItem.Create(0, QuoteItemKind.Sewing, 10,
             new QuoteItemTexts("MOD-1", "Вест Бери спина", null, null, null, null, null, null),
             [Option(0, true), Option(1, false)]);
-        var quote = Quote.Create(new QuoteNumber(2026, 11, 23), QuoteKind.Request, new QuotePerson(5, "Юлія"),
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 23), QuoteKind.Request, new QuotePerson(new UserId(5), "Юлія"),
             new QuoteHeader("Агробат", null, null, "Агробат ТОВ", null, null), [item], DateTimeOffset.UnixEpoch).Value;
         var model = QuotePdfModelBuilder.Build(quote, QuoteSettingsDefaults.Content, Manager);
         var renderer = new QuotePdfRenderer(new QuotePdfImageLoader(new HttpClient(), NullLogger<QuotePdfImageLoader>.Instance));

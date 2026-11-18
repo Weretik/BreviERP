@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads;
 using Crm.Application.Abstractions.Tasks;
 using Crm.Domain.Leads.ValueObjects;
@@ -16,7 +17,7 @@ public static class LeadSheetOwners
         var first = Words(sheetName).FirstOrDefault();
         if (first is null) return null;
         var found = managers.Where(x => Words(x.Name).Contains(first)).Take(2).ToList();
-        return found.Count == 1 ? new LeadPerson(found[0].UserId, found[0].Name) : null;
+        return found.Count == 1 ? new LeadPerson(new UserId(found[0].UserId), found[0].Name) : null;
     }
 
     private static IEnumerable<string> Words(string? name) =>

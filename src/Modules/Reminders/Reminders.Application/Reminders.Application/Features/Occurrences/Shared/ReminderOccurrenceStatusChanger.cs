@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Reminders.Application.Abstractions;
 using Reminders.Domain.Dispatching;
 using Reminders.Domain.Identifiers;
@@ -19,7 +20,7 @@ public sealed class ReminderOccurrenceStatusChanger(
             .FirstOrDefaultAsync(x => x.Id == new ReminderOccurrenceId(id), cancellationToken);
         if (occurrence is null) return Result<ReminderOccurrenceResponse>.NotFound();
         var task = await db.Tasks.FirstAsync(x => x.Id == occurrence.TaskId, cancellationToken);
-        var actor = ReminderActor.Admin(admin.UserId, admin.Name);
+        var actor = ReminderActor.Admin(UserId.FromNullable(admin.UserId), admin.Name);
         var changed = close ? occurrence.Close(actor, clock.Now) : occurrence.Reopen(actor, clock.Now);
         if (!changed)
             return Result<ReminderOccurrenceResponse>.Conflict(close ? "Період уже закрито." : "Період уже відкрито.");

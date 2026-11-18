@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Leads.Events;
@@ -70,7 +71,7 @@ public sealed class Lead : DomainEventSource, IAggregateRoot
     /// <summary>False when the row disappeared from the sheet; the lead and its calls stay.</summary>
     public bool InSheet { get; private set; }
 
-    public int? OwnerUserId { get; private set; }
+    public UserId? OwnerUserId { get; private set; }
     public string? OwnerName { get; private set; }
     public DateTimeOffset? TakenAt { get; private set; }
     public LeadStage Stage { get; private set; }
@@ -155,7 +156,7 @@ public sealed class Lead : DomainEventSource, IAggregateRoot
         SyncedAt = now;
     }
 
-    public bool IsOwnedBy(int userId) => OwnerUserId == userId;
+    public bool IsOwnedBy(UserId userId) => OwnerUserId == userId;
 
     /// <summary>Takes a free lead (R-04). False when somebody else already has it.</summary>
     public bool Take(LeadPerson by, DateTimeOffset now)

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Crm.Domain.Quotes.Enums;
@@ -72,9 +73,9 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
     public string? CompanyName { get; private set; }
     public string? ClientComment { get; private set; }
     public string? ManagerNote { get; private set; }
-    public int AuthorUserId { get; private set; }
+    public UserId AuthorUserId { get; private set; }
     public string AuthorName { get; private set; } = null!;
-    public int ResponsibleUserId { get; private set; }
+    public UserId ResponsibleUserId { get; private set; }
     public string ResponsibleName { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }

@@ -1,6 +1,7 @@
 using BuildingBlocks.Application.Outbox;
 using BuildingBlocks.Infrastructure.Outbox;
 using Crm.Domain.SiteRequests;
+using BuildingBlocks.Infrastructure.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -16,6 +17,9 @@ internal sealed class SiteRequestTestDb(DbContextOptions<SiteRequestTestDb> opti
 {
     public DbSet<SiteRequest> SiteRequests => Set<SiteRequest>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(SiteRequest).Assembly);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

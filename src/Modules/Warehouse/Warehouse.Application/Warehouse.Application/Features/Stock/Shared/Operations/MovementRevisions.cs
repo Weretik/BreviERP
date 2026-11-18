@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
@@ -58,7 +59,7 @@ public sealed class MovementRevisions(IWarehouseDbContext db, StockOperations op
         // Saved lines come back as the tracked, restated instances; a line this change created is not saved yet.
         var pair = await pairs.LoadAsync(to.FabricCode, to.Color, cancellationToken);
         var meters = pair.Lines.Contains(to) ? pair.Meters : pair.Meters + to.Meters;
-        db.StockOperations.Add(StockOperation.Create(operationId, kind, hash, actor.UserId, pair.Code, to.ColorKey,
+        db.StockOperations.Add(StockOperation.Create(operationId, kind, hash, new UserId(actor.UserId), pair.Code, to.ColorKey,
             to.Color, meters, pairs.Now));
         try
         {

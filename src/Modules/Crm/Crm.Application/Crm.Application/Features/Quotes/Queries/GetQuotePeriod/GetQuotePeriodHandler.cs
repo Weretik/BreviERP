@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Quotes.Shared;
@@ -20,14 +21,14 @@ public sealed class GetQuotePeriodHandler(IQuoteStore store, TimeProvider clock)
 
         var quotes = store.Quotes.AsNoTracking().Where(x => x.ArchivedAt == null);
         if (!query.Actor.CanSeeAll)
-            quotes = quotes.Where(x => x.ResponsibleUserId == query.Actor.UserId);
+            quotes = quotes.Where(x => x.ResponsibleUserId == new UserId(query.Actor.UserId));
 
         var sent = store.QuoteEvents.AsNoTracking()
             .Where(e => e.Kind == QuoteEventKind.Sent && e.At >= start && e.At < end)
             .Select(e => e.QuoteId);
         var rows = await quotes
             .Where(x => (x.CreatedAt >= start && x.CreatedAt < end) || sent.Contains(x.Id))
-            .Select(x => new QuotePeriodRow(x.ResponsibleUserId, x.ResponsibleName,
+            .Select(x => new QuotePeriodRow(x.ResponsibleUserId.Value, x.ResponsibleName,
                 x.CreatedAt >= start && x.CreatedAt < end, sent.Contains(x.Id)))
             .ToListAsync(cancellationToken);
 

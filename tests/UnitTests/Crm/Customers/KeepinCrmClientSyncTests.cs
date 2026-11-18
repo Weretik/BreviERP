@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json.Nodes;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
@@ -16,7 +17,7 @@ namespace UnitTests.Crm.Customers;
 [TestFixture]
 public sealed class KeepinCrmClientSyncTests
 {
-    private static readonly CrmUserId Owner = new(1);
+    private static readonly UserId Owner = new(1);
 
     private static KeepinCrmClientSnapshot Client(string id, string? company, string? person = null,
         string[]? phones = null, bool archived = false) =>

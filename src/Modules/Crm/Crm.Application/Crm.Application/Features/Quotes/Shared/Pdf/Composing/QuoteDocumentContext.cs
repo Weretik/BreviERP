@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes.Settings;
 using Crm.Application.Features.Quotes.Shared.Pdf;
 using Crm.Application.Features.Quotes.Shared.Settings;
@@ -10,7 +11,7 @@ public sealed record QuoteDocumentContext(QuoteSettingsContent Settings, QuoteSe
 {
     public QuotePdfContact ContactOf(QuoteStaffMember member)
     {
-        var contact = QuoteSettingsMapper.ContactOrAccount(member, Saved?.ContactOf(member.UserId));
+        var contact = QuoteSettingsMapper.ContactOrAccount(member, Saved?.ContactOf(new UserId(member.UserId)));
         return new QuotePdfContact(contact.Name, contact.Phone, contact.Email);
     }
 }

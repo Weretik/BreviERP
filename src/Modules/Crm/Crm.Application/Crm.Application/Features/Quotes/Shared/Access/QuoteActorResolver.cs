@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Domain.Quotes.ValueObjects;
@@ -10,6 +11,6 @@ internal static class QuoteActorResolver
     public static async Task<QuotePerson?> PersonAsync(this IQuoteStaffReader staff, QuoteActor actor,
         CancellationToken cancellationToken) =>
         await staff.FindAsync(actor.UserId, cancellationToken) is { } member
-            ? new QuotePerson(member.UserId, member.Name)
+            ? new QuotePerson(new UserId(member.UserId), member.Name)
             : null;
 }

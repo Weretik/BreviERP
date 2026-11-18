@@ -10,8 +10,8 @@ internal static class QuoteResponseMapper
     public static QuoteResponse ToResponse(this Quote quote) => new(
         quote.Id.Value, quote.Number, quote.Kind.ToString(), quote.Status.ToString(), quote.InternalName, quote.CustomerId,
         quote.RecipientName, quote.CompanyName, quote.ClientComment, quote.ManagerNote,
-        new QuotePersonResponse(quote.AuthorUserId, quote.AuthorName),
-        new QuotePersonResponse(quote.ResponsibleUserId, quote.ResponsibleName),
+        new QuotePersonResponse(quote.AuthorUserId.Value, quote.AuthorName),
+        new QuotePersonResponse(quote.ResponsibleUserId.Value, quote.ResponsibleName),
         quote.CreatedAt, quote.UpdatedAt, quote.LastSentAt, quote.Version,
         quote.Items.OrderBy(x => x.Position).Select(ToResponse).ToArray(),
         quote.IntroLayout is { } layout

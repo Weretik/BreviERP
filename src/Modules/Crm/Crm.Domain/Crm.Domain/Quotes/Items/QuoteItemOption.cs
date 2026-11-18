@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Domain.Quotes.Items;
@@ -55,7 +56,7 @@ public sealed class QuoteItemOption
 
     /// <summary>Why a manual PPE price was set (R-08), who and when.</summary>
     public string? ManualReason { get; private set; }
-    public int? ManualByUserId { get; private set; }
+    public UserId? ManualByUserId { get; private set; }
     public string? ManualByName { get; private set; }
     public DateTimeOffset? ManualAt { get; private set; }
 

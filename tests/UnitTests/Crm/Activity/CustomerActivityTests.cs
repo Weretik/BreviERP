@@ -3,6 +3,7 @@ using BuildingBlocks.Domain.Events;
 using Crm.Application.Features.Activity.EventHandlers;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 
 namespace UnitTests.Crm.Activity;
 
@@ -12,7 +13,7 @@ public sealed class CustomerActivityTests
     private readonly CustomerActivity _describer = new();
 
     private static Customer NewCustomer() =>
-        Customer.Create("organization", "ТОВ «Агро»", null, null, new CrmUserId(1)).Value;
+        Customer.Create("organization", "ТОВ «Агро»", null, null, new UserId(1)).Value;
 
     private ActivityDescription? Last(IHasDomainEvents source) => _describer.Describe(source.DomainEvents.Last());
 

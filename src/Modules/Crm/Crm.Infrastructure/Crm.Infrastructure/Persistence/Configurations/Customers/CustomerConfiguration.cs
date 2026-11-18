@@ -3,6 +3,7 @@ using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.ExternalIdentities;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,7 +17,7 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         b.ToTable("Customers", t => { t.HasCheckConstraint("CK_Customers_Revision", "\"Revision\" > 0"); t.HasCheckConstraint("CK_Customers_Kind", "\"Kind\" IN ('organization','person')"); });
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).HasConversion(x => x.Value, x => new CustomerId(x)).ValueGeneratedOnAdd();
-        b.Property(x => x.OwnerId).HasConversion(x => x.Value, x => new CrmUserId(x));
+        b.Property(x => x.OwnerId).HasConversion(x => x.Value, x => new UserId(x));
         b.Property(x => x.MergedIntoId).HasConversion(x => x.HasValue ? x.Value.Value : (long?)null, x => x.HasValue ? new CustomerId(x.Value) : null);
         b.HasOne<Customer>().WithMany().HasForeignKey(x => x.MergedIntoId).OnDelete(DeleteBehavior.Restrict);
         b.Property(x => x.Kind).HasMaxLength(20);

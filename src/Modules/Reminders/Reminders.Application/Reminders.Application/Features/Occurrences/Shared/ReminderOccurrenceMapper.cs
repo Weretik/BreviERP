@@ -21,5 +21,5 @@ public static class ReminderOccurrenceMapper
         occurrence.Actions.OrderByDescending(x => x.At)
             .Select(x => new ReminderActionResponse(ReminderCodes.Action(x.Kind), Actor(x.Actor), x.At, x.SnoozedUntil)).ToArray());
 
-    private static ReminderActorResponse Actor(ReminderActor actor) => new(actor.Name, actor.TelegramUserId, actor.AdminUserId);
+    private static ReminderActorResponse Actor(ReminderActor actor) => new(actor.Name, actor.TelegramUserId, actor.AdminUserId?.Value);
 }

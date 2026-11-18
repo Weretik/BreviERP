@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Colors.Shared;
@@ -70,7 +71,7 @@ public sealed class CreateProductionOrderHandler(
 
         var now = clock.GetUtcNow();
         var created = ProductionOrder.Create(await OrderNumbers.NextAsync(db, cancellationToken),
-            new OrderOrigin(quote.Id, quote.Number, quote.CustomerId, quote.ResponsibleUserId, quote.ResponsibleName,
+            new OrderOrigin(quote.Id, quote.Number, CustomerId.FromNullable(quote.CustomerId), new UserId(quote.ResponsibleUserId), quote.ResponsibleName,
                 input.RequestId),
             new OrderHeader(input.ClientName, input.OrderDate, input.Comment), tier, items, actorName, now);
         if (created.IsFailure) return created.Error!.ToResult<ProductionOrderResponse>();

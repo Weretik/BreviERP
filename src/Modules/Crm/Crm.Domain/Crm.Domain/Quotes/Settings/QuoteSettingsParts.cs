@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Domain.Quotes.Settings;
@@ -157,4 +158,4 @@ public sealed record QuoteIntroductionTexts(
 public sealed record QuoteLetterVariant(string Name, string Subject, string Body);
 
 /// <summary>What a staff member shows the client as their contact in a КП.</summary>
-public sealed record QuoteStaffContact(int UserId, string Name, string? Phone, string? Email);
+public sealed record QuoteStaffContact(UserId UserId, string Name, string? Phone, string? Email);

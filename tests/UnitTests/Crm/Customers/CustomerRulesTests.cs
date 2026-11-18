@@ -1,6 +1,7 @@
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.Identifiers;
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Customers.ExternalIdentities;
 
 namespace UnitTests.Crm.Customers;
@@ -66,5 +67,5 @@ public sealed class CustomerRulesTests
         Assert.That(survivor.ExternalIdentities.Select(x => x.ExternalId), Is.EquivalentTo(new[] { "client-1", "client-2" }));
     }
 
-    private static Customer NewCustomer() => Customer.Create("person", "Synthetic customer", null, null, new CrmUserId(1)).Value;
+    private static Customer NewCustomer() => Customer.Create("person", "Synthetic customer", null, null, new UserId(1)).Value;
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Commands.ImportQuotes;
 using Crm.Application.Features.Quotes.Shared.Access;
@@ -11,7 +12,7 @@ namespace UnitTests.Crm.Quotes;
 /// <summary>Transfer of calculator КП (R-25): links by code, frozen prices and warnings.</summary>
 public sealed class QuoteImportTests
 {
-    private static readonly QuotePerson Importer = new(1, "Директор");
+    private static readonly QuotePerson Importer = new(new UserId(1), "Директор");
     private static readonly DateTimeOffset Created = new(2026, 9, 16, 10, 0, 0, TimeSpan.Zero);
     private static readonly DateTimeOffset Now = new(2026, 11, 4, 10, 0, 0, TimeSpan.Zero);
 
@@ -75,7 +76,7 @@ public sealed class QuoteImportTests
             Assert.That(quote.LastSentAt, Is.EqualTo(Created.AddHours(1)));
             Assert.That(quote.CreatedAt, Is.EqualTo(Created));
             Assert.That(quote.UpdatedAt, Is.EqualTo(Created.AddHours(2)));
-            Assert.That(quote.AuthorUserId, Is.EqualTo(17));
+            Assert.That(quote.AuthorUserId, Is.EqualTo(new UserId(17)));
             Assert.That(quote.ResponsibleName, Is.EqualTo("Олена"));
             Assert.That(quote.CustomerId, Is.EqualTo(55));
             Assert.That(quote.NewEvents.Select(x => x.Kind),
@@ -183,7 +184,7 @@ public sealed class QuoteImportTests
             Assert.That(quote.Status, Is.EqualTo(QuoteStatus.Draft));
             Assert.That(quote.LastSentAt, Is.Null);
             Assert.That(quote.AuthorName, Is.EqualTo("Олена Стара"));
-            Assert.That(quote.ResponsibleUserId, Is.EqualTo(1));
+            Assert.That(quote.ResponsibleUserId, Is.EqualTo(new UserId(1)));
             Assert.That(quote.CustomerId, Is.Null);
             Assert.That(mapper.UnknownPeople.Single().Email, Is.EqualTo("gone@brevi.test"));
         });

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Identifiers;
 using BuildingBlocks.Domain.Results;
 using System.Globalization;
 using Production.Domain.Orders.Enums;
@@ -81,12 +82,12 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     public long? QuoteId { get; private set; }
 
     public string? QuoteNumber { get; private set; }
-    public long? CustomerId { get; private set; }
+    public CustomerId? CustomerId { get; private set; }
 
     /// <summary>The client as the workshop sees it; may differ from the КП (another company name for this order).</summary>
     public string ClientName { get; private set; } = null!;
 
-    public int? ManagerUserId { get; private set; }
+    public UserId? ManagerUserId { get; private set; }
     public string ManagerName { get; private set; } = null!;
     public ProductionOrderStatus Status { get; private set; }
 
@@ -409,8 +410,8 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
 public sealed record OrderOrigin(
     long? QuoteId,
     string? QuoteNumber,
-    long? CustomerId,
-    int? ManagerUserId,
+    CustomerId? CustomerId,
+    UserId? ManagerUserId,
     string ManagerName,
     Guid? RequestId,
     string? LegacyId = null,
