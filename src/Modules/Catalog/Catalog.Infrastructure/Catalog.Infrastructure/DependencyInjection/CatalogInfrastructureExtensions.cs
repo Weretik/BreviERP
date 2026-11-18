@@ -42,7 +42,8 @@ public static class CatalogInfrastructureExtensions
         services.AddDomainEvents();
         services.AddScoped<IActivityDescriber, ProductActivity>();
         services.AddScoped<IActivityDescriber, ProductCategoryActivity>();
-        services.AddDbContext<CatalogDbContext>((provider, options) => options.UseNpgsql(connectionString)
+        services.AddDbContext<CatalogDbContext>((provider, options) => options.UseNpgsql(connectionString,
+                x => x.MigrationsHistoryTable("__EFMigrationsHistory", CatalogDbContext.Schema))
             .AddInterceptors(provider.GetRequiredService<SewingPricingInputChangeInterceptor>())
             .AddDomainEvents(provider));
         services.AddOutbox<CatalogDbContext>();

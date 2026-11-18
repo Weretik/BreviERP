@@ -14,7 +14,8 @@ internal static class IdentityDbContextExtensions
         IConfiguration configuration)
     {
         services.AddDbContext<AppIdentityDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Default")));
+            options.UseNpgsql(configuration.GetConnectionString("Default"),
+                x => x.MigrationsHistoryTable("__EFMigrationsHistory", AppIdentityDbContext.Schema)));
         services.AddScoped<DbContext>(sp => sp.GetRequiredService<AppIdentityDbContext>());
 
         // Keys live in PostgreSQL so session cookies survive deploys and work on every Cloud Run instance.

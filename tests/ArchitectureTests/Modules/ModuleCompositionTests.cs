@@ -73,6 +73,19 @@ public sealed class ModuleCompositionTests
         Assert.That(offending, Is.Empty);
     }
 
+    // Database rules 5.1: every migrated context keeps its history in its own schema, never in public.
+    [Test]
+    public void Every_migrated_context_keeps_its_history_in_its_own_schema()
+    {
+        var offending = Directory.GetFiles(Path.Combine(Root(), "src"), "*.cs", SearchOption.AllDirectories)
+            .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"))
+            .SelectMany(f => Regex.Matches(File.ReadAllText(f), @"AddDbContext<(\w+)>[^;]*?UseNpgsql\([^;]*?;", RegexOptions.Singleline)
+                .Where(m => !m.Value.Contains("MigrationsHistoryTable(\"__EFMigrationsHistory\""))
+                .Select(m => $"{Path.GetRelativePath(Root(), f)}: {m.Groups[1].Value}"))
+            .ToArray();
+        Assert.That(offending, Is.Empty);
+    }
+
     private static string ApiPath(string module) => Path.Combine(Root(), "src", "Modules", module, $"{module}.Api", $"{module}.Api");
 
     private static string Root()

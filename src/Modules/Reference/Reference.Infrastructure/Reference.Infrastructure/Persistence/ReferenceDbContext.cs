@@ -16,6 +16,8 @@ namespace Reference.Infrastructure.Persistence;
 public partial class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
     : DbContext(options), IReadReferenceDbContext
 {
+    public const string Schema = "reference";
+
     public DbSet<PricingParameter> PricingParameters => Set<PricingParameter>();
     public DbSet<PpeMarkupRule> PpeMarkupRules => Set<PpeMarkupRule>();
     public DbSet<ProductSection> ProductSections => Set<ProductSection>();
@@ -34,7 +36,7 @@ public partial class ReferenceDbContext(DbContextOptions<ReferenceDbContext> opt
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.HasDefaultSchema("reference");
+        modelBuilder.HasDefaultSchema(Schema);
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(ReferenceDbContext).Assembly,

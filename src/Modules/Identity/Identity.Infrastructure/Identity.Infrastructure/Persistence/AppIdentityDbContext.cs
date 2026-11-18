@@ -8,6 +8,8 @@ public class AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options
     : IdentityDbContext<AppUser, AppRole, int, IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>,
         IdentityRoleClaim<int>, IdentityUserToken<int>>(options), IDataProtectionKeyContext
 {
+    public const string Schema = "identity";
+
     // Data Protection keys sign the session cookie; shared by every Cloud Run instance.
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
@@ -16,7 +18,7 @@ public class AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.HasDefaultSchema("identity");
+        builder.HasDefaultSchema(Schema);
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(
             typeof(AppIdentityDbContext).Assembly,
