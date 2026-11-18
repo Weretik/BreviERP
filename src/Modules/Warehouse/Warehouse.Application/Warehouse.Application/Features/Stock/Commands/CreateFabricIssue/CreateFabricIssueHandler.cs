@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.People;
 using Warehouse.Domain.Stock.Movements.Identifiers;

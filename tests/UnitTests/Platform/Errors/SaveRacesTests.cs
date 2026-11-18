@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using BuildingBlocks.Application;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;

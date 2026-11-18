@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Sending;
@@ -22,9 +23,11 @@ public sealed class SendQuoteHandler(IQuoteStore store, QuotePdfComposer compose
     {
         var quote = await store.LoadAsync(command.Id, cancellationToken);
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
-        if (command.Input.RequestId is { } requestId
-            && await store.QuoteSendings.AsNoTracking().AnyAsync(x => x.RequestId == requestId, cancellationToken))
-            return Result.Success(quote.ToResponse());
+        var request = RequestKeys.Of(command.Input.RequestId, command with { Input = command.Input with { RequestId = null } });
+        if (request is { } key
+            && RequestKeys.Same(key, await store.QuoteSendings.AsNoTracking().Where(x => x.RequestId == key.Id)
+                .Select(x => new RequestKeys.Saved(x.RequestHash)).SingleOrDefaultAsync(cancellationToken)) is { } same)
+            return same ? Result.Success(quote.ToResponse()) : RequestKeys.Conflict<QuoteResponse>();
         if (quote.Version != command.Input.Version) return Result.Conflict(QuoteMessages.Stale);
         if (!gmail.IsConfigured) return Result.Conflict(QuoteSendingMessages.NotConfigured);
 
@@ -49,7 +52,7 @@ public sealed class SendQuoteHandler(IQuoteStore store, QuotePdfComposer compose
         var now = clock.GetUtcNow();
         store.QuoteSendings.Add(QuoteSending.Create(quote.Id, quote.Version, new QuotePerson(new UserId(member.UserId), member.Name),
             mailbox.Email, string.Join(", ", recipients), subject, sent.Value, now,
-            command.Input.RequestId));
+            request));
         quote.MarkSent(now);
         quote.Record(QuoteEventKind.Sent, new QuotePerson(new UserId(member.UserId), member.Name), $"Кому: {string.Join(", ", recipients)}",
             now);

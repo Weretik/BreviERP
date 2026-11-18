@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using Crm.Domain.SiteRequests;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -29,5 +30,7 @@ public sealed class SiteRequestConfiguration : IEntityTypeConfiguration<SiteRequ
         b.HasIndex(x => x.Status);
         b.HasIndex(x => x.OwnerUserId);
         b.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
+
+        b.Property(x => x.RequestHash).HasMaxLength(RequestKey.HashLength);
     }
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Quotes;
@@ -12,9 +13,10 @@ public sealed class QuoteSending : IAggregateRoot
     private QuoteSending() { }
 
     private QuoteSending(QuoteId quoteId, int quoteVersion, QuotePerson sender, string fromEmail, string to, string subject,
-        string? providerMessageId, DateTimeOffset sentAt, Guid? requestId = null)
+        string? providerMessageId, DateTimeOffset sentAt, RequestKey? request = null)
     {
-        RequestId = requestId;
+        RequestId = request?.Id;
+        RequestHash = request?.Hash;
         QuoteId = quoteId;
         QuoteVersion = quoteVersion;
         SenderUserId = sender.UserId;
@@ -27,13 +29,15 @@ public sealed class QuoteSending : IAggregateRoot
     }
 
     public static QuoteSending Create(QuoteId quoteId, int quoteVersion, QuotePerson sender, string fromEmail, string to, string subject,
-        string? providerMessageId, DateTimeOffset sentAt, Guid? requestId = null) =>
-        new(quoteId, quoteVersion, sender, fromEmail, to, subject, providerMessageId, sentAt, requestId);
+        string? providerMessageId, DateTimeOffset sentAt, RequestKey? request = null) =>
+        new(quoteId, quoteVersion, sender, fromEmail, to, subject, providerMessageId, sentAt, request);
 
     public QuoteSendingId Id { get; private set; }
 
     /// <summary>The «Надіслати» press; a repeat with the same id sends nothing new (unique).</summary>
     public Guid? RequestId { get; private set; }
+    /// <summary>Hash of what the request asked for; a repeat with other data answers 409.</summary>
+    public string? RequestHash { get; private set; }
     public QuoteId QuoteId { get; private set; }
 
     /// <summary>The КП version whose PDF went out.</summary>

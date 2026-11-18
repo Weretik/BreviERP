@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.People;
 using BuildingBlocks.Domain.Entity;
@@ -26,11 +27,11 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
 
     /// <summary>A new draft; the author is also responsible.</summary>
     public static DomainResult<Quote> Create(QuoteNumber number, QuoteKind kind, QuotePerson author, QuoteHeader header,
-        IEnumerable<QuoteItem> items, DateTimeOffset now, Guid? requestId = null)
+        IEnumerable<QuoteItem> items, DateTimeOffset now, RequestKey? request = null)
     {
         var valid = CheckHeader(header);
         if (valid.IsFailure) return valid.Error!;
-        var quote = new Quote(number, kind, author, header, items, now) { CreateRequestId = requestId };
+        var quote = new Quote(number, kind, author, header, items, now) { CreateRequestId = request?.Id, CreateRequestHash = request?.Hash };
         quote.RaiseRecorded(QuoteEventKind.Created, null);
         return quote;
     }
@@ -119,6 +120,8 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
 
     /// <summary>The create or copy attempt; a repeat with the same id returns this КП (unique).</summary>
     public Guid? CreateRequestId { get; private init; }
+    /// <summary>Hash of what the create request asked for; a repeat with other data answers 409.</summary>
+    public string? CreateRequestHash { get; private init; }
 
     public IReadOnlyList<QuoteItem> Items => _items;
 
@@ -133,11 +136,11 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
     /// «Копіювати КП» (R-24): a new draft with the same header, introduction and items with their saved prices. The
     /// person who copies becomes its author and responsible.
     /// </summary>
-    public Quote CopyAs(QuoteNumber number, QuotePerson author, DateTimeOffset now, Guid? requestId = null)
+    public Quote CopyAs(QuoteNumber number, QuotePerson author, DateTimeOffset now, RequestKey? request = null)
     {
         var copy = new Quote(number, Kind, author,
             new QuoteHeader(InternalName, CustomerId, RecipientName, CompanyName, ClientComment, ManagerNote),
-            _items.OrderBy(x => x.Position).Select(x => x.Copy()), now) { CreateRequestId = requestId };
+            _items.OrderBy(x => x.Position).Select(x => x.Copy()), now) { CreateRequestId = request?.Id, CreateRequestHash = request?.Hash };
         if (Introduction is { } introduction) copy.ApplyIntroduction(introduction);
         copy._newEvents.Clear(); // the copy starts its history with «Копія КП N» instead of «Створено»
         copy.Record(QuoteEventKind.Copied, author, $"Копія КП {Number}", now);

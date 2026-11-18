@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Quotes;
@@ -46,6 +47,8 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
         b.HasIndex(x => x.ArchivedAt);
         b.HasIndex(x => x.CustomerId);
         b.HasIndex(x => x.CreateRequestId).IsUnique().HasFilter("\"CreateRequestId\" IS NOT NULL");
+
+        b.Property(x => x.CreateRequestHash).HasMaxLength(RequestKey.HashLength);
         b.HasSearchText(nameof(Quote.Number), nameof(Quote.InternalName), nameof(Quote.CompanyName),
             nameof(Quote.RecipientName));
 

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Infrastructure.Database;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Movements;
@@ -40,6 +41,7 @@ internal sealed class FinanceTransferConfiguration : IEntityTypeConfiguration<Fi
         builder.HasIndex(x => x.Fingerprint);
         builder.HasIndex(x => x.ExternalId);
         builder.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
+        builder.Property(x => x.RequestHash).HasMaxLength(RequestKey.HashLength);
         builder.HasSearchText(nameof(FinanceTransfer.Note));
     }
 }

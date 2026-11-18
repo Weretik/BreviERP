@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Identifiers.People;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
@@ -24,11 +25,12 @@ public sealed class SiteRequest : IAggregateRoot
     private SiteRequest() { }
 
     public static DomainResult<SiteRequest> Create(string? phone, string? workwear, string? quantity, string? comment,
-        string locale, string? fileName, string? fileUrl, DateTimeOffset now, Guid? requestId = null) =>
+        string locale, string? fileName, string? fileUrl, DateTimeOffset now, RequestKey? request = null) =>
         Cut(phone, PhoneMaxLength) is { } cleanPhone
             ? new SiteRequest(cleanPhone, workwear, quantity, comment, locale, fileName, fileUrl, now)
             {
-                RequestId = requestId
+                RequestId = request?.Id,
+                RequestHash = request?.Hash
             }
             : SiteRequestErrors.PhoneRequired();
 
@@ -51,6 +53,8 @@ public sealed class SiteRequest : IAggregateRoot
 
     /// <summary>The form the site sent; the same form sent again adds nothing (unique).</summary>
     public Guid? RequestId { get; private init; }
+    /// <summary>Hash of what the request asked for; a repeat with other data answers 409.</summary>
+    public string? RequestHash { get; private init; }
     public string Phone { get; private set; } = null!;
     public string? Workwear { get; private set; }
     public string? Quantity { get; private set; }

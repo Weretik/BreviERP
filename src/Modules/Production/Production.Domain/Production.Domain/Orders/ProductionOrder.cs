@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.People;
 using BuildingBlocks.Domain.Results;
@@ -53,7 +54,8 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         CustomerId = origin.CustomerId;
         ManagerUserId = origin.ManagerUserId;
         ManagerName = OrderText.Required(origin.ManagerName, PersonMaxLength);
-        CreateRequestId = origin.RequestId;
+        CreateRequestId = origin.Request?.Id;
+        CreateRequestHash = origin.Request?.Hash;
         LegacyId = OrderText.Optional(origin.LegacyId, LegacyIdMaxLength);
         CopiedFromOrderId = origin.CopiedFromOrderId;
         PriceTier = priceTier;
@@ -98,6 +100,8 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     public string? Comment { get; private set; }
     public ReportPriceTier? PriceTier { get; private set; }
     public Guid? CreateRequestId { get; private set; }
+    /// <summary>Hash of what the create request asked for; a repeat with other data answers 409.</summary>
+    public string? CreateRequestHash { get; private set; }
 
     /// <summary>Id of the order in the old «Цех»; null for orders made in Brevi.</summary>
     public string? LegacyId { get; private set; }
@@ -414,7 +418,7 @@ public sealed record OrderOrigin(
     CustomerId? CustomerId,
     UserId? ManagerUserId,
     string ManagerName,
-    Guid? RequestId,
+    RequestKey? Request,
     string? LegacyId = null,
     ProductionOrderId? CopiedFromOrderId = null);
 

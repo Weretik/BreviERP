@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Access;
@@ -22,11 +23,12 @@ public sealed class CreateQuoteHandler(
         var input = command.Input;
         var header = new QuoteHeader(input.InternalName, input.CustomerId, input.RecipientName, input.CompanyName,
             input.ClientComment, input.ManagerNote);
-        var added = await numbering.AddAsync(now, input.RequestId, async number =>
+        var request = RequestKeys.Of(input.RequestId, command with { Input = input with { RequestId = null } });
+        var added = await numbering.AddAsync(now, request, async number =>
         {
             var items = await builder.BuildAsync(input.Items, [], author, now, cancellationToken);
             if (!items.IsSuccess) return items.Map(_ => default(Quote)!);
-            var created = Quote.Create(number, QuoteKind.Request, author, header, items.Value, now, input.RequestId);
+            var created = Quote.Create(number, QuoteKind.Request, author, header, items.Value, now, request);
             return created.IsSuccess ? Result.Success(created.Value) : created.Error!.ToResult<Quote>();
         }, cancellationToken);
         return added.Map(quote => quote.ToResponse());

@@ -68,11 +68,13 @@ public sealed class SiteRequestsTests
 
         var first = await Submit(open).Handle(form, None);
         var repeat = await Submit(open).Handle(form, None);
+        var changed = await Submit(open).Handle(form with { Comment = "Інший коментар" }, None);
         await using var db = open();
 
         Assert.Multiple(() =>
         {
             Assert.That(repeat.Value.Id, Is.EqualTo(first.Value.Id));
+            Assert.That(changed.Status, Is.EqualTo(ResultStatus.Conflict), "the same id with other data is refused");
             Assert.That(db.SiteRequests.Count(), Is.EqualTo(1));
             Assert.That(files.Uploads, Has.Count.EqualTo(1), "the repeat uploads nothing");
             Assert.That(notifier.Messages, Has.Count.EqualTo(1), "and posts nothing");

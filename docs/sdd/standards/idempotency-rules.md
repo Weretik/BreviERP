@@ -70,7 +70,7 @@ Write them first (Red → Green), next to the use case's other tests:
 ## BreviERP specifics
 
 - **Wire format:** an optional body field `requestId` (UUID) made when the form opens; the admin and the site renew it after a success. New endpoints follow the same field, not a header, so the whole API reads one way.
-- **Storage:** a `RequestId` column on the created row with a unique partial index (`WHERE "RequestId" IS NOT NULL`). A repeat returns the saved row; a copy that loses the race catches the `DbUpdateException`, clears or detaches its changes, and reads the winner by `RequestId`. The request data of a repeat is not compared: the same id always answers with the first row.
+- **Storage:** a `RequestId` column on the created row with a unique partial index (`WHERE "RequestId" IS NOT NULL`). A repeat returns the saved row; a copy that loses the race catches the `DbUpdateException`, clears or detaches its changes, and reads the winner by `RequestId`. Beside it a `RequestHash` (SHA-256 of the request without the id, `RequestKeys.Of` in `BuildingBlocks.Application/Idempotency/`) is saved; a repeat whose hash differs answers 409 «Цей запит уже виконано з іншими даними» (`RequestKeys.Conflict`). Rows saved before the hash existed have none and answer with the first row.
 - **Warehouse:** stock commands carry an `OperationId`; `StockOperations.ReplayAsync` stores it with a hash of the actor, kind, and input, answers a repeat with the saved result, and refuses the same id with other data.
 - **Versions:** edits and order tracking send `Version`; a repeat after a success gets 409 «stale» and reloads (no double write).
 - **Outbox:** each module's outbox table is read with `FOR UPDATE SKIP LOCKED`, has a handler timeout, and a partial index on unsent rows; handlers check state before acting (section 3).
@@ -79,9 +79,9 @@ Write them first (Red → Green), next to the use case's other tests:
 
 | Operation or handler | What a repeat does | Verdict |
 | --- | --- | --- |
-| Finance operations and transfers, payroll payments and adjustments | The first row is returned | Protected (`RequestId`, database stage 4a) |
-| Work log entries, КП create / introduction / copy, «Надіслати КП» e-mail, lead calls, site requests | The first row is returned; no second e-mail or Telegram post | Protected (`RequestId`, database stage 4b); the site form sends it |
-| Production orders create and copy, customers create / contact / revise / merge, pricing versions and sewing calculations | The first row is returned | Protected (`RequestId`) |
+| Finance operations and transfers, payroll payments and adjustments | The first row is returned; other data answers 409 | Protected (`RequestId` + `RequestHash`, database stage 4a) |
+| Work log entries, КП create / introduction / copy, «Надіслати КП» e-mail, lead calls, site requests | The first row is returned; no second e-mail or Telegram post; other data answers 409 | Protected (`RequestId` + `RequestHash`, database stage 4b); the site form sends it |
+| Production orders create and copy, customers create / contact / revise / merge, pricing versions and sewing calculations | The first row is returned; production orders, customers and pricing answer 409 for the same id with other data | Protected (`RequestId` + `RequestHash` or a saved request hash) |
 | Fabric stock: receive, issue, adjust, transfer, issue to item, fabric issue | The saved result is replayed; the same id with other data is refused | Protected (`OperationId` + hash) |
 | Shipments, close / reopen / cancel order, payroll month close / reopen, voids | A repeat gets 409 «stale» or answers from the current state | Protected (row `Version`, state checks) |
 | Bank statement upload and booking | The same file is refused per account; booking re-checks duplicates by fingerprint and external id | Protected (unique `FileHash`, fingerprints) |
@@ -95,8 +95,6 @@ Write them first (Red → Green), next to the use case's other tests:
 
 ## Known deviations
 
-| Rule | Where | Risk | Plan |
-| --- | --- | --- | --- |
-| 2, comparing data | Every `requestId` handler | The same id with other data returns the first row instead of 409. With the admin keeping the id after a failed attempt, an edit sent after a lost answer is silently dropped (the answer shows the saved values). Rare | Either the admin renews the id when the form changes (brevi-web idempotency rules, known deviations) or the handlers compare the business fields and answer 409 |
+None open.
 
 Remove a row when it is fixed.

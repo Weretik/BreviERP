@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using Production.Domain.Forecast;
 using Production.Domain.Orders;
 using Production.Domain.Staff;
@@ -33,6 +34,8 @@ internal sealed class ProductionWorkConfiguration : IEntityTypeConfiguration<Pro
         builder.HasIndex(x => x.EmployeeId);
         builder.HasIndex(x => x.LegacyId).IsUnique();
         builder.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
+
+        builder.Property(x => x.RequestHash).HasMaxLength(RequestKey.HashLength);
     }
 }
 

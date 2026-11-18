@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using BuildingBlocks.Domain.Identifiers.Orders;
 using BuildingBlocks.Domain.Identifiers.People;
 using Production.Domain.Orders.ValueObjects;
@@ -21,9 +22,13 @@ public sealed class CopyProductionOrderHandler(IProductionDbContext db, IProduct
     {
         var actor = command.Actor;
         if (!actor.CanCreate) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotCreate);
+        var request = RequestKeys.Of(command.Input.RequestId, command with { Input = command.Input with { RequestId = Guid.Empty } })!.Value;
         var existing = await cards.Orders.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.CreateRequestId == command.Input.RequestId, cancellationToken);
-        if (existing is not null) return Result.Success(await cards.BuildAsync(existing, actor, cancellationToken));
+            .FirstOrDefaultAsync(x => x.CreateRequestId == request.Id, cancellationToken);
+        if (existing is not null)
+            return request.Matches(existing.CreateRequestHash)
+                ? Result.Success(await cards.BuildAsync(existing, actor, cancellationToken))
+                : RequestKeys.Conflict<ProductionOrderResponse>();
 
         var source = await db.Orders.AsNoTracking().Include(x => x.Items)
             .SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(command.Id) && x.DeletedAt == null, cancellationToken);
@@ -43,7 +48,7 @@ public sealed class CopyProductionOrderHandler(IProductionDbContext db, IProduct
 
         var created = ProductionOrder.Create(await OrderNumbers.NextAsync(db, cancellationToken),
             new OrderOrigin(source.QuoteId, source.QuoteNumber, source.CustomerId, new UserId(person.UserId), person.Name,
-                command.Input.RequestId, CopiedFromOrderId: source.Id),
+                request, CopiedFromOrderId: source.Id),
             new OrderHeader(source.ClientName, today, source.Comment), source.PriceTier, items, person.Name, now);
         if (created.IsFailure) return created.Error!.ToResult<ProductionOrderResponse>();
         var copy = created.Value;

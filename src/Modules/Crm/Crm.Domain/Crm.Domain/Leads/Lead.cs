@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Identifiers.People;
 using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Domain.Entity;
@@ -226,18 +227,18 @@ public sealed class Lead : DomainEventSource, IAggregateRoot
     /// result: required for callback, talking and offer, cleared when the result closes the lead.
     /// </summary>
     public LeadCall RecordCall(LeadPerson by, LeadCallResult result, string? comment, DateTimeOffset? nextContactAt,
-        DateTimeOffset now, Guid? requestId = null)
+        DateTimeOffset now, RequestKey? request = null)
     {
-        var call = Call(by, result, comment, nextContactAt, now, requestId);
+        var call = Call(by, result, comment, nextContactAt, now, request);
         Raise(new LeadCallRecorded(this, result.Name, call.Comment, call.NextContactAt));
         return call;
     }
 
     private LeadCall Call(LeadPerson by, LeadCallResult result, string? comment, DateTimeOffset? nextContactAt,
-        DateTimeOffset now, Guid? requestId)
+        DateTimeOffset now, RequestKey? request)
     {
         var next = result.Outcome.Closes() ? null : nextContactAt;
-        var call = new LeadCall(by, result, comment, next, now, requestId);
+        var call = new LeadCall(by, result, comment, next, now, request);
         _calls.Add(call);
         Stage = result.Outcome.Stage();
         LastResultName = result.Name;

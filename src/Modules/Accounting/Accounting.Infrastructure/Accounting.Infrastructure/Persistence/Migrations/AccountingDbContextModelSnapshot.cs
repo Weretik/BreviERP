@@ -632,6 +632,10 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid?>("RequestId")
                         .HasColumnType("uuid");
 
@@ -746,6 +750,10 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1500)
                         .HasColumnType("character varying(1500)");
 
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid?>("RequestId")
                         .HasColumnType("uuid");
 
@@ -850,7 +858,7 @@ namespace Accounting.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Accounting.Domain.Statements.BankStatementLine", b =>
                 {
                     b.HasOne("Accounting.Domain.Statements.BankStatement", null)
-                        .WithMany()
+                        .WithMany("Lines")
                         .HasForeignKey("StatementId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -883,6 +891,11 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ToAccountId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Accounting.Domain.Statements.BankStatement", b =>
+                {
+                    b.Navigation("Lines");
                 });
 #pragma warning restore 612, 618
         }

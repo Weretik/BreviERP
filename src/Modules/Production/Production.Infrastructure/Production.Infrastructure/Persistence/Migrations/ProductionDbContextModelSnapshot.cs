@@ -369,6 +369,10 @@ namespace Production.Infrastructure.Persistence.Migrations
                     b.Property<int?>("CopiedFromOrderId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("CreateRequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid?>("CreateRequestId")
                         .HasColumnType("uuid");
 
@@ -681,6 +685,10 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid?>("RequestId")
                         .HasColumnType("uuid");
 
@@ -819,6 +827,10 @@ namespace Production.Infrastructure.Persistence.Migrations
 
                     b.Property<DateOnly>("PaidOn")
                         .HasColumnType("date");
+
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<Guid?>("RequestId")
                         .HasColumnType("uuid");
@@ -1078,6 +1090,10 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid?>("RequestId")
                         .HasColumnType("uuid");
 
@@ -1127,7 +1143,7 @@ namespace Production.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Production.Domain.Orders.ProductionOrderChange", b =>
                 {
                     b.HasOne("Production.Domain.Orders.ProductionOrder", null)
-                        .WithMany("Changes")
+                        .WithMany("NewChanges")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1141,7 +1157,7 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Production.Domain.Orders.ProductionOrder", null)
-                        .WithMany()
+                        .WithMany("Files")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1255,9 +1271,11 @@ namespace Production.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Production.Domain.Orders.ProductionOrder", b =>
                 {
-                    b.Navigation("Changes");
+                    b.Navigation("Files");
 
                     b.Navigation("Items");
+
+                    b.Navigation("NewChanges");
 
                     b.Navigation("Shipments");
                 });

@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Idempotency;
 using BuildingBlocks.Domain.Identifiers.People;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;

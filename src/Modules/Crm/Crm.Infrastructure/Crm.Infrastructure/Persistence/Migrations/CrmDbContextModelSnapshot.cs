@@ -613,6 +613,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid?>("RequestId")
                         .HasColumnType("uuid");
 
@@ -1176,6 +1180,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("CreateRequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid?>("CreateRequestId")
                         .HasColumnType("uuid");
 
@@ -1361,6 +1369,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<int>("QuoteVersion")
                         .HasColumnType("integer");
 
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid?>("RequestId")
                         .HasColumnType("uuid");
 
@@ -1532,6 +1544,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<string>("Quantity")
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
+
+                    b.Property<string>("RequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<Guid?>("RequestId")
                         .HasColumnType("uuid");
@@ -1864,7 +1880,7 @@ namespace Crm.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Crm.Domain.Quotes.QuoteEvent", b =>
                 {
                     b.HasOne("Crm.Domain.Quotes.Quote", null)
-                        .WithMany("Events")
+                        .WithMany("NewEvents")
                         .HasForeignKey("QuoteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1882,7 +1898,7 @@ namespace Crm.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Crm.Domain.Tasks.ManagerTaskEvent", b =>
                 {
                     b.HasOne("Crm.Domain.Tasks.ManagerTask", null)
-                        .WithMany("Events")
+                        .WithMany("NewEvents")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1928,14 +1944,14 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Crm.Domain.Quotes.Quote", b =>
                 {
-                    b.Navigation("Events");
-
                     b.Navigation("Items");
+
+                    b.Navigation("NewEvents");
                 });
 
             modelBuilder.Entity("Crm.Domain.Tasks.ManagerTask", b =>
                 {
-                    b.Navigation("Events");
+                    b.Navigation("NewEvents");
 
                     b.Navigation("Steps");
                 });

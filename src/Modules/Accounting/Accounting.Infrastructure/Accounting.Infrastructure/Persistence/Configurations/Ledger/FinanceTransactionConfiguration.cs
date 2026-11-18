@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain;
 using BuildingBlocks.Infrastructure.Database;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Categories;
@@ -58,6 +59,7 @@ internal sealed class FinanceTransactionConfiguration : IEntityTypeConfiguration
         builder.HasIndex(x => x.Fingerprint);
         builder.HasIndex(x => x.ExternalId);
         builder.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
+        builder.Property(x => x.RequestHash).HasMaxLength(RequestKey.HashLength);
         builder.HasSearchText(nameof(FinanceTransaction.Description), nameof(FinanceTransaction.Comment),
             nameof(FinanceTransaction.OneoffName));
     }
