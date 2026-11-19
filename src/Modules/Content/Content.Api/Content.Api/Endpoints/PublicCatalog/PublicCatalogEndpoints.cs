@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogCategories;
 using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogCategory;
 using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogCategorySlugs;
@@ -20,7 +21,7 @@ internal static class PublicCatalogEndpoints
 
     public static IEndpointRouteBuilder MapPublicCatalogEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api/public/catalog").AllowAnonymous()
+        var group = app.MapGroup("api/public/catalog").AllowAnonymous().RequireRateLimiting("PublicRead")
             .WithPublicResponseCache(CacheSeconds)
             .WithTags("PublicCatalog");
         GetPublicCatalogTreeEndpoint.Map(group);

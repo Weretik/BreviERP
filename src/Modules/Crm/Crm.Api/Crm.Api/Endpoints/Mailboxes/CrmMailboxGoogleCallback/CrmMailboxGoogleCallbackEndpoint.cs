@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using BuildingBlocks.Api.Errors;
 using Crm.Application.Features.Quotes.Commands.CompleteMailboxConnect;
 
@@ -11,7 +12,7 @@ internal static class CrmMailboxGoogleCallbackEndpoint
         group.MapGet("google-callback", HandleAsync).WithName("crmMailboxGoogleCallback")
             .WithSummary("Google OAuth callback, anonymous; the signed state carries the staff member")
             .WithDescription("Google OAuth callback, anonymous; the signed state carries the staff member. Stores the Gmail address and the encrypted refresh token, then redirects to the Admin. Not called by the Admin code.")
-            .AllowAnonymous();
+            .AllowAnonymous().RequireRateLimiting("PublicRead");
 
     private static async Task<IResult> HandleAsync(HttpResponse response, [FromServices] ISender sender,
         string? code = null, string? state = null, string? error = null, CancellationToken cancellationToken = default)

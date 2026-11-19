@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Catalog.Application.Features.ProductCategory.Queries.GetStoreProductCategories;
 using BuildingBlocks.Api.Errors;
 
@@ -10,7 +11,7 @@ internal static class GetStoreProductCategoriesEndpoint
             .WithName("getStoreProductCategories")
             .WithSummary("List product categories of a store")
             .Produces<List<StoreProductCategoryRowDTO>>()
-            .AllowAnonymous();
+            .AllowAnonymous().RequireRateLimiting("PublicRead");
 
     private static async Task<IResult> HandleAsync(string language, [FromServices] ISender sender,
         CancellationToken cancellationToken)

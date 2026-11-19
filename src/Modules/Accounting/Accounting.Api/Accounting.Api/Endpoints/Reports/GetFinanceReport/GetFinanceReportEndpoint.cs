@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Accounting.Application.Features.Reports.Queries.GetFinanceReport;
 using Accounting.Application.Features.Reports.Shared;
 using Accounting.Domain.Categories;
@@ -12,7 +13,7 @@ namespace Accounting.Api.Endpoints.Reports.GetFinanceReport;
 internal static class GetFinanceReportEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getFinanceReport")
+        group.MapGet("", HandleAsync).WithName("getFinanceReport").RequireRateLimiting("HeavyOperation")
             .WithSummary("«Звіти» (stage 8): active income and expense of the inclusive period, grouped by the kind")
             .WithDescription("«Звіти» (stage 8): active income and expense of the inclusive period, grouped by the kind. Totals are per currency and never include transfers; the Accounts kind adds transfers in and out of the period, area and account to each row (type, category and counterparty do not filter them). An ExpenseStructure Group row already holds its Subcategory rows. Operations are oldest first, at most 100 rows (limited = more exist, totalRows = all).")
             .Produces<FinanceReportResponse>();

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Reference.Application.Features.ProductSection.Commands.ImportProductSections;
 using BuildingBlocks.Api.Errors;
 
@@ -9,7 +10,7 @@ internal static class ImportProductSectionsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("import", HandleAsync)
-            .WithName("importProductSections")
+            .WithName("importProductSections").RequireRateLimiting("HeavyOperation")
             .WithSummary("Import the Calculator sheet «Типи і розділи»")
             .WithDescription("Requires access:product-sections. Sections are matched by name (case and punctuation ignored); the row number becomes the display order. dryRun (default) returns the preview only. Otherwise nothing is saved when any row has an error. deleteMissing deletes sections that are not in the sheet. Repeating the same file changes nothing.")
             .Produces<ProductSectionImportResult>()

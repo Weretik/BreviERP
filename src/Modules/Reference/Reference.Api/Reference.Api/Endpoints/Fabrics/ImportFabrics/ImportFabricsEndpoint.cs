@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Reference.Application.Features.Fabric.Commands.ImportFabrics;
 using Reference.Application.Features.SheetImport.Shared;
 using BuildingBlocks.Api.Errors;
@@ -10,7 +11,7 @@ internal static class ImportFabricsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("import", HandleAsync)
-            .WithName("importFabrics")
+            .WithName("importFabrics").RequireRateLimiting("HeavyOperation")
             .WithSummary("Import the Calculator sheet «Тканини»")
             .WithDescription("Requires access:materials. The caller sends the sheet rows as JSON (one-time transfer from the Calculator sheet). A row is matched by code (FAB-…); an older fabric without a code is linked when its name matches (case and punctuation ignored); the rest are created with the next ID. Supplier names are matched like the KeepinCRM sync; an unknown one becomes a new manual supplier, an empty one «Не вказано». dryRun (default) returns the preview only. Otherwise nothing is saved when any row has an error. deactivateMissing marks fabrics that are not in the sheet as not used. Repeating the same file changes nothing.")
             .Produces<ReferenceImportResult>()

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Warehouse.Application.Features.Stock.Queries.GetFabricValuation;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Queries.GetFabricValuation.Results;
@@ -9,7 +10,7 @@ namespace Warehouse.Api.Endpoints.Reports.GetFabricValuation;
 internal static class GetFabricValuationEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("valuation", HandleAsync).WithName("getFabricValuation")
+        group.MapGet("valuation", HandleAsync).WithName("getFabricValuation").RequireRateLimiting("HeavyOperation")
             .WithSummary("«Вартість складу»: positive balances at today's prices of «Тканини»; owner only by default (access:fabric-valuation)").Produces<FabricValuationResponse>()
             .RequireAuthorization(WarehouseAccess.FabricValuation);
 

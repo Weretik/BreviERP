@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Content.Api.Endpoints.PublicSitePages.GetPublicSitePages;
 using BuildingBlocks.Api.Http;
 
@@ -14,7 +15,7 @@ internal static class PublicSitePagesEndpoints
 
     public static IEndpointRouteBuilder MapPublicSitePagesEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api/public/site-pages").AllowAnonymous()
+        var group = app.MapGroup("api/public/site-pages").AllowAnonymous().RequireRateLimiting("PublicRead")
             .WithPublicResponseCache(CacheSeconds)
             .WithTags("PublicSitePages");
         GetPublicSitePagesEndpoint.Map(group);

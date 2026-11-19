@@ -59,6 +59,7 @@ Do not run a full `dotnet build`/`dotnet test BreviERP.sln`, all integration tes
 | Database schema, migrations, and seed data | `$backend-database-change` | [Database rules](docs/sdd/standards/database-rules.md) and [data operations](docs/sdd/operations/data/migrations-and-seeding.md) |
 | Queries and N+1, indexes and search, transactions, concurrency, migration method | — | [Database rules](docs/sdd/standards/database-rules.md): what, where and how; every audit checks each section |
 | Double submit, retries, outbox and webhook handlers, imports (what a repeat does) | — | [Idempotency rules](docs/sdd/standards/idempotency-rules.md): decision table, `requestId` pattern, audit of every write operation |
+| Rate limits: a new public, expensive, or credential endpoint; tuning limits | — | [Rate limit rules](docs/sdd/standards/rate-limit-rules.md): decision per endpoint, policy table, configuration, edge layer |
 | Verify changes / hand off for review | `$backend-change-verification` / `$backend-pr-handoff` | [Testing rules](docs/sdd/standards/testing-rules.md) |
 | Differences between code and documentation | `$backend-docs-sync` | [Standards index](docs/sdd/standards/README.md) and [feature map](docs/sdd/features/README.md) |
 
@@ -69,6 +70,8 @@ The user's direct request and this repository's rules define the scope of work. 
 ## Scope and verification
 
 Complete all ready tasks within the agreed feature, phase, scenario, or task scope without a separate instruction for each file; stop at the scope boundary, an unresolved product decision, or a concrete blocker. The detailed procedure is in the [delivery rules](docs/sdd/standards/delivery-rules.md). Choose checks according to the [testing rules](docs/sdd/standards/testing-rules.md) and the configuration of affected projects. For new identifiers, read the [ID strategy](docs/sdd/standards/identifier-strategy.md).
+
+**Rate limits:** every endpoint gets a written rate limit decision in its SDD: the global soft limit is enough for a cheap signed-in call; anonymous, upload, import/sync/report/export, credential, and message-sending endpoints name a policy with `RequireRateLimiting` ([rate limit rules](docs/sdd/standards/rate-limit-rules.md)); `RateLimitCoverageTests` and the endpoint snapshot enforce it.
 
 **Idempotency:** a repeated request or message must not do the work twice. Creates of money, stock, orders, numbered documents, КП and e-mails, public site requests, and anything that sends a message outside take a `requestId` saved in the same transaction under a unique index (stock commands an `OperationId`); a repeat returns the first result and a racing copy is caught, never 500; outbox handlers, Telegram webhooks, the scheduler, and imports check state, dedupe, or upsert before acting ([idempotency rules](docs/sdd/standards/idempotency-rules.md)).
 

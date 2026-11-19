@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Accounting.Application.Features.Audit.Queries.GetFinanceAudit;
 using Accounting.Domain.Audit;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,7 @@ namespace Accounting.Api.Endpoints.Reports.GetFinanceAudit;
 internal static class GetFinanceAuditEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getFinanceAudit")
+        group.MapGet("", HandleAsync).WithName("getFinanceAudit").RequireRateLimiting("HeavyOperation")
             .WithSummary("«Журнал змін» (stage 8): changes of all finance records, newest first, 50 per page")
             .Produces<FinanceAuditPageResponse>();
 

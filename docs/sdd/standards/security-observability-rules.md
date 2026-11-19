@@ -4,6 +4,8 @@
 
 Follow the principle of least privilege. The host fallback policy requires authentication; mark intentionally public endpoints with `AllowAnonymous`. Preserve existing role and policy rules. See [Identity and access controls](../architecture/security/README.md) for model details.
 
+Rate limits follow the [rate limit rules](rate-limit-rules.md).
+
 Do not log tokens, passwords, connection strings, PII, or confidential request data. Do not return internal exception details in production responses.
 
 ## Package vulnerabilities

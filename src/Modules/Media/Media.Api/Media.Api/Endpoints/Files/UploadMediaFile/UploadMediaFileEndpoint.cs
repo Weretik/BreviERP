@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Media.Application.Features.Files.Commands.UploadMediaFile;
 using Media.Application.Features.Files.Shared;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,7 @@ namespace Media.Api.Endpoints.Files.UploadMediaFile;
 internal static class UploadMediaFileEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("uploadMediaFile")
+        group.MapPost("", HandleAsync).WithName("uploadMediaFile").RequireRateLimiting("Upload")
             .WithSummary("Upload one photo into a folder")
             .WithDescription("The file is stored on the CDN first; the library row is created only after the CDN accepted it. Upload several photos with several requests.").Produces<MediaFileResponse>()
             .Accepts<IFormFile>("multipart/form-data").ProducesProblem(StatusCodes.Status400BadRequest)

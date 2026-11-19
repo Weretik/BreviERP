@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Production.Application.Features.Staff.Commands.ImportWorkshopStaff;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,7 @@ namespace Production.Api.Endpoints.Staff.ImportWorkshopStaff;
 internal static class ImportWorkshopStaffEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("import", HandleAsync).WithName("importWorkshopStaff")
+        group.MapPost("import", HandleAsync).WithName("importWorkshopStaff").RequireRateLimiting("HeavyOperation")
             .WithSummary("Add workers from a list (up to 500); a worker with the same active name gets the new position")
             .Produces<WorkshopStaffImportResult>();
 

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Content.Application.Features.SiteCategories.Commands.ImportOldSiteCategories;
 using BuildingBlocks.Api.Errors;
 
@@ -10,7 +11,7 @@ namespace Content.Api.Endpoints.SiteCategories.ImportOldSiteCategories;
 internal static class ImportOldSiteCategoriesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("old-site-import", HandleAsync).WithName("importOldSiteCategories")
+        group.MapPost("old-site-import", HandleAsync).WithName("importOldSiteCategories").RequireRateLimiting("HeavyOperation")
             .WithSummary("One-time transfer of the old-site category tree with SEO, texts and products")
             .WithDescription("One-time transfer of the old-site category tree with SEO, texts and products. A category is matched by its address; a product by the old-site link of its Catalog card (the whole path, then the last part). With dryRun (the default) nothing is written and the answer says what would happen. Categories that already exist keep their texts unless overwrite is true. Products are added to a category and never removed. showOnSite switches transferred categories on and never switches one off. A repeated run continues where the previous one stopped. Needs the create right.")
             .WithMetadata(new RequestSizeLimitAttribute(20 * 1024 * 1024))

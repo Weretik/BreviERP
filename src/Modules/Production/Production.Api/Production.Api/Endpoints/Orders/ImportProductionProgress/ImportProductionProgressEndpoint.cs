@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Production.Application.Features.Orders.Commands.ImportProductionProgress;
 using Production.Application.Features.Orders.Commands.ImportProductionProgress.Rows;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,7 @@ namespace Production.Api.Endpoints.Orders.ImportProductionProgress;
 internal static class ImportProductionProgressEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("progress-import", HandleAsync).WithName("importProductionProgress")
+        group.MapPost("progress-import", HandleAsync).WithName("importProductionProgress").RequireRateLimiting("HeavyOperation")
             .WithSummary("Admin: move stages, file links and Telegram marks of the old «Цех»; dryRun only shows them; any error saves nothing")
             .Produces<ProductionProgressImportResult>();
 

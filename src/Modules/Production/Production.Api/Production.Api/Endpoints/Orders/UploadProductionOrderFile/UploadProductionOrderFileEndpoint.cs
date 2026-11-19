@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Production.Application.Features.Orders.Shared.Responses;
 using Production.Application.Features.Orders.Commands.UploadProductionOrderFile;
 using BuildingBlocks.Api.Errors;
@@ -11,7 +12,7 @@ internal static class UploadProductionOrderFileEndpoint
     private const long MaxRequestBytes = 21 * 1024 * 1024;
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("{id:int}/files", HandleAsync).WithName("uploadProductionOrderFile")
+        group.MapPost("{id:int}/files", HandleAsync).WithName("uploadProductionOrderFile").RequireRateLimiting("Upload")
             .WithSummary("Upload a file of the order or of one item to the CDN (up to 20 MB, any type)")
             .RequireAccessAction(AccessActionAttribute.Edit)
             .DisableAntiforgery()

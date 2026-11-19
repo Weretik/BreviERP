@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Content.Api.Endpoints.PublicRedirects.GetPublicRedirects;
 using BuildingBlocks.Api.Http;
 
@@ -14,7 +15,7 @@ internal static class PublicRedirectsEndpoints
 
     public static IEndpointRouteBuilder MapPublicRedirectsEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api/public/redirects").AllowAnonymous()
+        var group = app.MapGroup("api/public/redirects").AllowAnonymous().RequireRateLimiting("PublicRead")
             .WithPublicResponseCache(CacheSeconds)
             .WithTags("PublicRedirects");
         GetPublicRedirectsEndpoint.Map(group);

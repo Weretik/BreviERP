@@ -45,6 +45,19 @@ Both secrets must exist before the deploy that contains the cookie sign-in, beca
 4. Merge BreviERP and brevi-web together; the BreviERP merge deploys. The seed job creates `vitaliythupin@gmail.com` (`Identity:AdminUser:Email`) with the `admin-default-password` value.
 5. Sign in on `https://office.brevi.com.ua`, create the staff accounts on «Користувачі» and block old accounts that nobody uses.
 
+## Edge rate limiting
+
+The host limits requests too ([rate limit rules](../../standards/rate-limit-rules.md)), but only after Cloud Run has accepted them. One Cloudflare rate limiting rule on the zone stops a flood of sign-in attempts earlier. The rule is zone configuration, not code, so it is created in the Cloudflare dashboard. It is created for the brevi.com.ua zone (`api.brevi.com.ua` is a custom domain of this zone; the rule covers the cookie sign-in).
+
+On the Free plan the rule has no `Hostname` field (only `URI Path` and a few others), the period is fixed at 10 seconds, the counter is per IP, and only one rule is available. The zone also holds the public site, and the site has its own `/api/...` paths, so a rule on the whole `/api/` prefix would hit the site. The rule therefore covers only the sign-in paths, which exist on the API alone. Flood protection for the rest of the API is the soft global limit in the host.
+
+1. Open the `brevi.com.ua` zone → **Security** → **WAF** → **Rate limiting rules** → **Create rule**.
+2. Field `URI Path`, operator `equals`, value `/api/auth/cookie/login`.
+3. Characteristics: **IP**. Requests: `10` per `10 seconds`. Action: **Block**, duration `10 seconds`.
+4. Deploy. Watch **Security** → **Events** for a day: blocked requests from the office or a shared address mean the number is too low; raise it.
+
+The Worker needs no change. The Cloud Run URL stays reachable directly, which is why the host limits stay on.
+
 ## Limits
 
 - The Workers free plan allows 100,000 requests per day.
