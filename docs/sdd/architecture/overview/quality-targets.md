@@ -15,31 +15,32 @@ The **Current** column holds the last measured value with its date. "Not measure
 | --- | --- | --- |
 | Users | A small staff team in the admin (managers, accountant, workshop), visitors of the public site «Строчка» (phone orders only, no online checkout) | Product description, [glossary](../../../product/glossary.md) |
 | Catalogue | About 124 sewing models with 248 articles and 119 PPE items (import of November 2026) | Client spreadsheet import summary; confirm with the row count below |
-| КП per day, site requests per day, peak requests per minute | Not measured | Measurement plan, steps 2 and 4 |
-| Hosting | API `brevierp-api` on Cloud Run in `europe-central2`, one instance most of the time; PostgreSQL managed on adm.tools (outside Google Cloud, so every query crosses the network between the two); public site and the API front door `api.brevi.com.ua` on Cloudflare Workers | [Deploy workflow](../../../../.github/workflows/deploy-cloudrun.yml), [backups](../../operations/data/backups-and-restore.md) |
+| API requests | About 10 400 a day; peak 1 910 a minute (2026-11-12 19:05 UTC) and 17 180 an hour | Cloud Run request logs, 2026-10-30 → 2026-11-19 (measured 2026-11-19) |
+| КП per day, site requests per day | Not measured | Measurement plan, step 4 |
+| Hosting | API `brevierp-api` on Cloud Run in `europe-central2`, 0 to 20 instances (no minimum instance, so the first request after a quiet period waits for a cold start), 1 vCPU and 512 MiB each, 80 requests per instance, CPU only during requests; PostgreSQL managed on adm.tools (outside Google Cloud, so every query crosses the network between the two); public site and the API front door `api.brevi.com.ua` on Cloudflare Workers | [Deploy workflow](../../../../.github/workflows/deploy-cloudrun.yml), [backups](../../operations/data/backups-and-restore.md) |
 | Design horizon (proposed) | ×10 the current catalogue, КП and workshop volume without a change of architecture | Checked in reviews against the measured volume |
 
 ## Speed
 
 | Target | Value | Status | Current | Measured by |
 | --- | --- | --- | --- | --- |
-| Reads, P95 | 95% of `GET` requests answer within 1 second | confirmed | Not measured | Cloud Run request latency of `brevierp-api` (service and traces) |
-| Reads, P99 | 99% of `GET` requests answer within 3 seconds | proposed | Not measured | Same |
-| Writes, P95 | 95% of other requests answer within 2 seconds | confirmed | Not measured | Same |
-| Writes, P99 | 99% of other requests answer within 5 seconds | proposed | Not measured | Same |
-| Long operations | A КП PDF, a bank statement preview or an import preview answers within 10 seconds, or runs as a background task with progress | proposed | Not measured | Latency of those endpoints in the same logs |
+| Reads, P95 | 95% of `GET` requests answer within 1 second | confirmed | **Met:** 89 ms (P50 32 ms, 196 239 requests, 2026-10-30 → 2026-11-19) | Cloud Run request latency of `brevierp-api` (service and traces) |
+| Reads, P99 | 99% of `GET` requests answer within 3 seconds | proposed | **Met:** 627 ms (same window) | Same |
+| Writes, P95 | 95% of other requests answer within 2 seconds | confirmed | **Met:** 1 566 ms (2 547 requests, same window) | Same |
+| Writes, P99 | 99% of other requests answer within 5 seconds | proposed | **Missed:** 13 040 ms, caused by the long operations below | Same |
+| Long operations | A КП PDF, a bank statement preview or an import preview answers within 10 seconds, or runs as a background task with progress | proposed | **Missed:** P95 of sewing price recalculation 70 s, old-site photo import 59 s, `GET /api/v1/products/overview/prices` 54 s (median 4.4 s), AI recognition of a purchase file 32 s | Latency of those endpoints in the same logs |
 | Public site pages | At the 75th percentile of mobile visits: LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1 (Google's "good" Core Web Vitals) | proposed | Not measured | Search Console «Core Web Vitals»; PageSpeed Insights for the home, a category and a product page while field data is too small |
-| Peak capacity | The API holds three times the measured peak requests per minute with reads still under their P95 target | proposed | Peak not measured | Measurement plan, step 2 |
+| Peak capacity | The API holds three times the measured peak requests per minute with reads still under their P95 target | proposed | Measured peak 1 910 requests a minute (2026-11-12 19:05 UTC), 17 180 an hour; about 10 400 requests a day. The ×3 load was never tested | Measurement plan, step 2 |
 
-A cold start of a new Cloud Run instance falls into P99. If P99 misses because of cold starts, the decision (a minimum instance, which costs money every month) is made with the cost row below, not by changing the target.
+A cold start of a new Cloud Run instance falls into P99. Measured on 2026-11-19: the first request after more than 15 quiet minutes took 4.3 s at the median and 6.6 s at P95 (224 cases in 19 days); the CRM lead pages are slow only at this tail. If P99 misses because of cold starts, the decision (a minimum instance, which costs money every month) is made with the cost row below, not by changing the target.
 
 ## Availability and errors
 
 | Target | Value | Status | Current | Measured by |
 | --- | --- | --- | --- | --- |
-| Availability of the API | 99.5% of each month (about 3.5 hours of downtime a month) | confirmed | Not measured | Uptime check on the API's `/health/ready`; share of minutes without 5xx bursts in the Cloud Run request logs |
-| Server errors | Under 1% of requests answer 5xx in any 15 minutes | confirmed | Not measured | Cloud Run request logs, alert «API 5xx» |
-| Background tasks | A scheduled task that fails or does not run for twice its period is noticed within 1 hour | confirmed | Not measured | «Фонові задачі» page and job error logs, alert «Job failed» |
+| Availability of the API | 99.5% of each month (about 3.5 hours of downtime a month) | confirmed | Not measured: **no uptime check exists** | Uptime check on the API's `/health/ready`; share of minutes without 5xx bursts in the Cloud Run request logs |
+| Server errors | Under 1% of requests answer 5xx in any 15 minutes | confirmed | **Missed once:** 0.01% of all requests answered 5xx, but on 2026-11-08 23:00 one 15-minute window had 14% (3 of 21). **No alert exists** | Cloud Run request logs, alert «API 5xx» |
+| Background tasks | A scheduled task that fails or does not run for twice its period is noticed within 1 hour | confirmed | **No alert exists** | «Фонові задачі» page and job error logs, alert «Job failed» |
 
 ## Data freshness and delivery
 
@@ -68,21 +69,24 @@ These tasks are off by default in the code; a target counts only once its task i
 
 ## Gaps in measurement
 
-Found on 2026-11-19. Each is open until the target has a current value and an alert that is known to exist.
+Baseline measured on 2026-11-19 from 19 days of Cloud Run request logs (the newest 200 000 rows, 2026-10-30 → 2026-11-19). Each gap is open until the target has a current value and an alert that is known to exist.
 
-1. **No baseline.** No row has a measured current value, so nobody can say today whether a target is met.
-2. **Alerts are named, not verified.** «API 5xx», «Job failed», the P95 alert and the uptime check are named here and in [dependency failures](../../operations/diagnostics/dependency-failures.md), but no list of the real alert policies is kept, and the read-only account `claude-readonly` (Logs Viewer, Cloud Trace User) cannot list them or read Cloud Monitoring metrics. Only the outbox give-up alert in Telegram is in the code.
-3. **No dashboard** shows P95, P99 and the error share against these targets.
-4. **Restore never tried.** Backups run daily and are kept 2 months (owner, 2026-11-19), but a restore was never timed, so RTO is an assumption.
-5. **No budget alert,** no monthly cost figure, and no spending limit recorded for the AI recognition.
-6. **Core Web Vitals** of the public site were never checked against a target.
+1. **No alerts and no uptime check at all.** «API 5xx», «Job failed», the P95 alert and the uptime check are named here and in [dependency failures](../../operations/diagnostics/dependency-failures.md) but do not exist in Cloud Monitoring. Only the outbox give-up message in Telegram is in the code.
+2. **Four long operations miss their target** (sewing price recalculation, old-site photo import, the products price overview, AI recognition of a purchase file) and push write P99 to 13 s. Each needs a decision: make it faster, or run it as a background task with progress.
+3. **1 533 requests answered 429** (too many requests) in 19 days. Which endpoints and whether the limits or the Cloudflare rule are too tight for the staff is not yet known.
+4. **A 5xx burst went unnoticed:** 14% of requests failed in one 15-minute window on 2026-11-08 23:00 UTC; its cause is not recorded.
+5. **No availability figure** without an uptime check, and no dashboard shows P95, P99 and the error share against these targets.
+6. **Restore never tried.** Backups run daily and are kept 2 months (owner, 2026-11-19), but a restore was never timed, so RTO is an assumption.
+7. **No budget alert,** no monthly cost figure, and no spending limit recorded for the AI recognition.
+8. **Core Web Vitals** of the public site were never checked; freshness tasks were not checked as enabled.
+9. **`claude-readonly` cannot read Cloud Run settings** (`run.services.get` denied); the settings above come from the deploy audit log. Give it `roles/run.viewer` to read them directly.
 
 ## Measurement plan
 
 Read-only steps; none changes the system. The owner runs the console steps; an agent can run the `gcloud` steps through Remote Control on the owner's computer with impersonation (`--impersonate-service-account=claude-readonly@<project>.iam.gserviceaccount.com`).
 
-1. **Give the read-only account metrics.** Add the role `roles/monitoring.viewer` to `claude-readonly`. Then latency, request count and alert policies can be read without logs: `gcloud alpha monitoring policies list`, and the metrics `run.googleapis.com/request_latencies` and `run.googleapis.com/request_count` of service `brevierp-api`.
-2. **Latency and peak from request logs** (works with the current role): read 30 days of `resource.type="cloud_run_revision" AND resource.labels.service_name="brevierp-api"` with `--format="csv(timestamp,httpRequest.requestMethod,httpRequest.requestUrl,httpRequest.latency,httpRequest.status)"`, then compute P95 and P99 for `GET` and for other methods, the same for the long operations, the 5xx share per 15 minutes, and the busiest minute. Write the numbers and the date into **Current**.
+1. **Read-only access.** `claude-readonly` has `roles/monitoring.viewer` since 2026-11-19; add `roles/run.viewer` to read the Cloud Run settings too. With these, latency, request count and alert policies can be read without logs: `gcloud alpha monitoring policies list`, and the metrics `run.googleapis.com/request_latencies` and `run.googleapis.com/request_count` of service `brevierp-api`.
+2. **Latency and peak from request logs** (Logs Viewer is enough): read 30 days of `resource.type="cloud_run_revision" AND resource.labels.service_name="brevierp-api"` with `--format="csv(timestamp,httpRequest.requestMethod,httpRequest.requestUrl,httpRequest.latency,httpRequest.status)"`, then compute P95 and P99 for `GET` and for other methods, the same for the long operations, the 5xx share per 15 minutes, and the busiest minute. Write the numbers and the date into **Current**. A busy month has more than 200 000 log rows: export one day at a time, or the window is cut short.
 3. **Alerts.** In Cloud Monitoring → Alerting, list the policies. Create the missing ones from the thresholds above: uptime check on `/health/ready`, 5xx share over 1% for 15 minutes, P95 of `GET` over 1 s for 15 minutes, failed job. Name them as this document does and send them to the owner.
 4. **Data volume.** In the adm.tools database console, read-only: `SELECT pg_size_pretty(pg_database_size(current_database()));`, `SELECT schemaname, relname, n_live_tup FROM pg_stat_user_tables ORDER BY n_live_tup DESC LIMIT 15;`, and the number of rows in `crm."Quotes"` and `crm."SiteRequests"` created per day over the last 90 days.
 5. **Backups.** Frequency and retention are recorded (daily, 2 months). Once a quarter restore the latest backup into a new database and time it: that time is the current RTO.
