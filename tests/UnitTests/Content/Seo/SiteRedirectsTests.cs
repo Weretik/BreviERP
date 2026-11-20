@@ -14,6 +14,7 @@ using Content.Application.Features.Redirects.Queries.GetSiteRedirects;
 using Content.Application.Features.Redirects.Shared;
 using Content.Application.Features.SiteCategories.Commands.SaveSiteCategory;
 using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects.Results;
+using Content.Infrastructure.Persistence.Migrations;
 
 namespace UnitTests.Content.Seo;
 
@@ -306,6 +307,30 @@ public sealed class SiteRedirectsTests
         {
             Assert.That(PublicRedirectsSource.Final("/uk/1", next), Is.EqualTo("/uk/6"));
             Assert.That(PublicRedirectsSource.Final("/uk/0", next), Is.Null);
+        });
+    }
+
+    [Test]
+    public void City_page_redirects_lead_each_old_address_to_its_new_city_page_once()
+    {
+        var rows = AddCityPageRedirects.Rows;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(rows, Has.Count.EqualTo(26));
+            Assert.That(rows.Select(x => x.From).Distinct().Count(), Is.EqualTo(26));
+            foreach (var row in rows)
+            {
+                Assert.That(SiteRedirectRules.Normalize(row.From), Is.EqualTo(row.From), row.From);
+                Assert.That(SiteRedirectRules.Normalize(row.To), Is.EqualTo(row.To), row.To);
+                Assert.That(SiteRedirectRules.IsSitePath(row.To), Is.True, row.To);
+                Assert.That(row.To, Does.Match("^/uk/(sewing|workwear)/[a-z-]+$"), row.To);
+                Assert.That(row.Note.Length, Is.LessThanOrEqualTo(SiteRedirectRules.NoteMaxLength), row.Note);
+                Assert.That(row.From + row.Note, Does.Not.Contain("'"), "the rows go into SQL as they are");
+            }
+            Assert.That(rows.Count(x => x.To.StartsWith("/uk/sewing/", StringComparison.Ordinal)), Is.EqualTo(13));
+            Assert.That(rows.Single(x => x.From == "/robochyj-odyag/specodyag-harkiv").To,
+                Is.EqualTo("/uk/workwear/kharkiv"));
         });
     }
 }

@@ -27,6 +27,8 @@ src/Modules/Content/
 
 The save handlers of product pages, site categories and articles call `SiteRedirectWriter` when the address changed.
 
+The 26 old city pages of `brevi.com.ua` are added once by the migration `AddCityPageRedirects` (`Content.Infrastructure/Persistence/Migrations/`); see [data operations](../../operations/data/migrations-and-seeding.md#content).
+
 ## Tests
 
 ```text

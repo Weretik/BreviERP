@@ -38,6 +38,10 @@ Normal Host.Seed runs apply the `media` schema migrations (history in `media.__E
 
 Normal Host.Seed runs apply the `reminders` schema migrations (history in `reminders.__EFMigrationsHistory`). `DefaultReminderTaskSeeder` adds the 25 default reminder tasks only when the task table is empty, without a chat, so nothing is sent until a chat is approved and assigned. The `--reminders-dispatch=true` mode skips migrations and seeding; see the [Telegram reminders runbook](../jobs/telegram-reminders.md).
 
+## Content
+
+Normal Host.Seed runs apply the `content` schema migrations (history in `content.__EFMigrationsHistory`). `AddCityPageRedirects` adds once the 26 redirects from the old city pages of `brevi.com.ua` to the new site pages `/uk/sewing/{city}` and `/uk/workwear/{city}` (source `OldSite`, author «Дані сайту»). A redirect staff added or changed by hand for the same old address is kept; one made by the old-site transfer is pointed at the new page. Rollback removes only the rows the migration wrote and did not let staff change. The rows are listed in the migration and checked by `SiteRedirectsTests`.
+
 ## Change rules
 
 - Create a migration only when a feature changes the persistence schema or data contract.
