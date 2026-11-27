@@ -8,7 +8,7 @@ The tab «Довідники» → «Імпорт цін» lists PPE supplier pr
 flowchart LR
   Admin[Admin «Імпорт цін»] --> API[PpeSupplierPricesEndpoints]
   API --> List[GetPpePriceSources]
-  API --> Settings[UpdatePpePriceSource: RequireAdminRole]
+  API --> Settings[UpdatePpePriceSource: access:price-import]
   API --> Import[ImportPpeSupplierFiles: dryRun]
   API --> Refresh[RefreshPpeSupplierPrices: dryRun]
   Job[brevierp-sync: ppe-supplier-prices, Monday] --> Scheduled[RefreshDuePpeSupplierPricesCommand]
@@ -31,7 +31,7 @@ Catalog.Application/
   Abstractions/Pricing/                   # store port, file and online reader ports, run/problem records
   Features/Pricing/
     Queries/GetPpePriceSources/           # source rows with counts and last run
-    Commands/UpdatePpePriceSource/        # discount and supplier (admins, director)
+    Commands/UpdatePpePriceSource/        # discount and supplier (edit of «Імпорт цін»)
     Commands/ImportPpeSupplierFiles/      # file import command, planner, rows
     Commands/RefreshPpeSupplierPrices/    # «Оновити зараз» command, Monday schedule
     Shared/Ppe/SupplierPrices/            # Sources/ (fixed list, key normalization), Running/ (plan, save offers, record the run),

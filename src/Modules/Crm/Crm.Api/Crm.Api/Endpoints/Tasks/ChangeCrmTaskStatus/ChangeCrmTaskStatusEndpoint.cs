@@ -9,14 +9,14 @@ internal static class ChangeCrmTaskStatusEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:long}/status", HandleAsync).WithName("changeCrmTaskStatus")
-            .WithSummary("The assignee or Admin moves the task")
-            .WithDescription("The assignee or Admin moves the task. `Done` sets `completedAt`; leaving `Done` clears it. The same status changes nothing.")
+            .WithSummary("The assignee or «Завдання менеджерам» moves the task")
+            .WithDescription("The assignee or «Завдання менеджерам» moves the task. `Done` sets `completedAt`; leaving `Done` clears it. The same status changes nothing.")
             .Produces<TaskDetailResponse>();
 
-    private static async Task<IResult> HandleAsync(long id, ChangeTaskStatusRequest request, ClaimsPrincipal user,
+    private static async Task<IResult> HandleAsync(long id, ChangeTaskStatusRequest request, ClaimsPrincipal user, [FromServices] IAuthorizationService authorization,
         [FromServices] ISender sender, CancellationToken cancellationToken)
     {
-        var actor = TaskActorClaims.Read(user);
+        var actor = await TaskActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(
             new ChangeTaskStatusCommand(actor, id, request.Version, request.Status), cancellationToken)).ToHttpResult();

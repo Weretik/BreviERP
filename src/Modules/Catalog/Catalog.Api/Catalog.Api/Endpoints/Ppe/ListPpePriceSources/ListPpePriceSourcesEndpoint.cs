@@ -5,8 +5,8 @@ namespace Catalog.Api.Endpoints.Ppe.ListPpePriceSources;
 
 internal static class ListPpePriceSourcesEndpoint
 {
-    /// <summary>The director also holds Admin, so this covers both.</summary>
-    private const string AdminRole = "Admin";
+    /// <summary>Whoever may change a source (ACC-002 R-03); the director always may.</summary>
+    private const string EditPolicy = "access:price-import:edit";
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("", HandleAsync).WithName("listPpePriceSources")
@@ -15,12 +15,12 @@ internal static class ListPpePriceSourcesEndpoint
             .RequireAuthorization("CatalogRead")
             .Produces<PpePriceSourcesResponse>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
-        CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] IAuthorizationService authorization,
+        [FromServices] ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetPpePriceSourcesQuery(), cancellationToken);
-        return result.IsSuccess
-            ? Results.Ok(new PpePriceSourcesResponse(user.IsInRole(AdminRole), result.Value))
-            : result.ToHttpResult();
+        if (!result.IsSuccess) return result.ToHttpResult();
+        var canEdit = (await authorization.AuthorizeAsync(user, EditPolicy)).Succeeded;
+        return Results.Ok(new PpePriceSourcesResponse(canEdit, result.Value));
     }
 }

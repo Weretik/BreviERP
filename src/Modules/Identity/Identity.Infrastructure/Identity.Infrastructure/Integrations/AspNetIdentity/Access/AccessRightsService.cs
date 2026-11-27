@@ -31,14 +31,15 @@ public sealed class AccessRightsService(
     public async Task<AccessRightsDto> GetAsync(CancellationToken cancellationToken = default)
     {
         var roles = await StaffRolesAsync(cancellationToken);
-        var counts = await UserCountsAsync(roles.Select(x => x.Name!).ToArray(), cancellationToken);
+        var holders = await HoldersAsync(roles.Select(x => x.Name!).ToArray(), cancellationToken);
         var saved = await dbContext.RoleAccess.AsNoTracking().ToDictionaryAsync(x => x.RoleId, cancellationToken);
         var areas = AccessCatalog.Areas
-            .Select(x => new AccessAreaDto(x.Key, x.Group, x.Title, AccessActions.Split(x.Actions)))
+            .Select(x => new AccessAreaDto(x.Key, x.Group, x.Title, AccessActions.Split(x.Actions), LabelsOf(x)))
             .ToList();
+        var adminOnly = AccessCatalog.AdminOnly.Select(x => new AdminOnlyItemDto(x.Group, x.Title, x.Reason)).ToList();
         return new AccessRightsDto(areas, roles
-            .Select(role => ToDto(role, counts.GetValueOrDefault(role.Name!), saved.GetValueOrDefault(role.Id)))
-            .ToList());
+            .Select(role => ToDto(role, holders.GetValueOrDefault(role.Name!) ?? [], saved.GetValueOrDefault(role.Id)))
+            .ToList(), adminOnly);
     }
 
     public async Task<Result<AccessRoleDto>> SaveAsync(
@@ -91,8 +92,7 @@ public sealed class AccessRightsService(
 
         await cache.InvalidateAsync(AccessGrantSource.CacheTag, CancellationToken.None);
         logger.LogInformation("AUDIT: Access rights of role {Role} saved (version {Version}) by {Actor}", role, row.Version, row.UpdatedByName);
-        var counts = await UserCountsAsync([appRole.Name!], cancellationToken);
-        return Result.Success(ToDto(appRole, counts.GetValueOrDefault(appRole.Name!), row));
+        return Result.Success(ToDto(appRole, await HoldersOfAsync(appRole.Name!, cancellationToken), row));
     }
 
     public async Task<Result<AccessRoleDto>> CreateRoleAsync(string title, CancellationToken cancellationToken = default)
@@ -118,7 +118,48 @@ public sealed class AccessRightsService(
         }
 
         logger.LogInformation("AUDIT: Role {Role} «{Title}» created by {Actor}", role.Name, title, await ActorNameAsync());
-        return Result.Success(ToDto(role, 0, null));
+        return Result.Success(ToDto(role, [], null));
+    }
+
+    public async Task<Result<AccessRoleDto>> RenameRoleAsync(string role, string title, CancellationToken cancellationToken = default)
+    {
+        if (AccessCatalog.IsBuiltIn(role))
+        {
+            return Result.Invalid(new ValidationError("Вбудовану роль перейменувати не можна."));
+        }
+
+        var appRole = await roleManager.FindByNameAsync(role);
+        if (appRole is null || appRole.Scope != AppRole.CustomScope)
+        {
+            return Result.NotFound();
+        }
+
+        var roles = await StaffRolesAsync(cancellationToken);
+        if (roles.Any(x => x.Id != appRole.Id && string.Equals(TitleOf(x), title, StringComparison.OrdinalIgnoreCase)))
+        {
+            return Result.Conflict(TitleTakenMessage);
+        }
+
+        var saved = await dbContext.RoleAccess.AsNoTracking().FirstOrDefaultAsync(x => x.RoleId == appRole.Id, cancellationToken);
+        if (appRole.Description == title)
+        {
+            return Result.Success(ToDto(appRole, await HoldersOfAsync(role, cancellationToken), saved));
+        }
+
+        var before = appRole.Description;
+        appRole.Description = title;
+        // The role's concurrency stamp is the race guard: a parallel rename or delete fails here instead of winning silently.
+        var updated = await roleManager.UpdateAsync(appRole);
+        if (!updated.Succeeded)
+        {
+            return updated.Errors.Any(x => x.Code == nameof(IdentityErrorDescriber.ConcurrencyFailure))
+                ? Result.Conflict(StaleMessage)
+                : Result.Invalid(updated.Errors.Select(x => new ValidationError(x.Description)).ToList());
+        }
+
+        await cache.InvalidateAsync(AccessGrantSource.CacheTag, CancellationToken.None);
+        logger.LogInformation("AUDIT: Role {Role} renamed from «{Before}» to «{Title}» by {Actor}", role, before, title, await ActorNameAsync());
+        return Result.Success(ToDto(appRole, await HoldersOfAsync(role, cancellationToken), saved));
     }
 
     public async Task<Result> DeleteRoleAsync(string role, CancellationToken cancellationToken = default)
@@ -181,22 +222,39 @@ public sealed class AccessRightsService(
             .ToList();
     }
 
-    /// <summary>People per role; the director also holds Admin but is counted only as the director.</summary>
-    private async Task<IReadOnlyDictionary<string, int>> UserCountsAsync(string[] roleNames, CancellationToken cancellationToken)
+    /// <summary>
+    /// People per role by name, in one query (ACC-002 R-06); the director also holds Admin but is listed only as the director.
+    /// </summary>
+    private async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> HoldersAsync(string[] roleNames,
+        CancellationToken cancellationToken)
     {
         var pairs = await (
                 from userRole in dbContext.UserRoles
                 join role in dbContext.Roles on userRole.RoleId equals role.Id
+                join user in dbContext.Users on userRole.UserId equals user.Id
                 where roleNames.Contains(role.Name!) || role.Name == RoleNames.Director
-                select new { userRole.UserId, Role = role.Name! })
+                select new { userRole.UserId, Role = role.Name!, user.FullName, user.Email })
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
         var directors = pairs.Where(x => x.Role == RoleNames.Director).Select(x => x.UserId).ToHashSet();
         return pairs
             .Where(x => roleNames.Contains(x.Role))
             .Where(x => x.Role != RoleNames.Admin || !directors.Contains(x.UserId))
             .GroupBy(x => x.Role)
-            .ToDictionary(x => x.Key, x => x.Select(y => y.UserId).Distinct().Count(), StringComparer.Ordinal);
+            .ToDictionary(
+                x => x.Key,
+                x => (IReadOnlyList<string>)x.DistinctBy(y => y.UserId)
+                    .Select(y => string.IsNullOrWhiteSpace(y.FullName) ? y.Email ?? string.Empty : y.FullName)
+                    .Order(StringComparer.CurrentCultureIgnoreCase)
+                    .ToList(),
+                StringComparer.Ordinal);
     }
+
+    private async Task<IReadOnlyList<string>> HoldersOfAsync(string roleName, CancellationToken cancellationToken) =>
+        (await HoldersAsync([roleName], cancellationToken)).GetValueOrDefault(roleName) ?? [];
+
+    private static IReadOnlyDictionary<AccessAction, string> LabelsOf(AccessArea area) =>
+        AccessActions.Ordered.Where(x => area.Actions.HasFlag(x)).ToDictionary(x => x, x => area.LabelOf(x)!);
 
     private async Task<AppRole?> FindEditableAsync(string role)
     {
@@ -204,7 +262,7 @@ public sealed class AccessRightsService(
         return appRole is not null && (AccessCatalog.IsBuiltIn(role) || appRole.Scope == AppRole.CustomScope) ? appRole : null;
     }
 
-    private static AccessRoleDto ToDto(AppRole role, int userCount, RoleAccess? saved)
+    private static AccessRoleDto ToDto(AppRole role, IReadOnlyList<string> holders, RoleAccess? saved)
     {
         var name = role.Name!;
         var grants = AccessCatalog.IsLocked(name) ? AccessCatalog.Everything()
@@ -215,7 +273,8 @@ public sealed class AccessRightsService(
             TitleOf(role),
             AccessCatalog.IsLocked(name),
             AccessCatalog.IsBuiltIn(name),
-            userCount,
+            holders.Count,
+            holders,
             saved?.Version ?? 0,
             saved?.UpdatedByName,
             saved?.UpdatedAt,

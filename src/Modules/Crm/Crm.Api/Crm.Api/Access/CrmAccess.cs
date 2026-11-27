@@ -21,8 +21,20 @@ internal static class CrmAccess
     /// <summary>«Ціна вишивки».</summary>
     public const string Embroidery = "access:embroidery";
 
-    /// <summary>«Мої завдання».</summary>
+    /// <summary>«Ціна вишивки: собівартість і налаштування» (ACC-002 R-02).</summary>
+    public const string EmbroiderySettings = "access:embroidery-settings";
+
+    /// <summary>Seeing the cost and rates of «Ціна вишивки» (was the Admin role, EMB-001 R-02).</summary>
+    public const string EmbroideryCostView = "access:embroidery-settings:view";
+
+    /// <summary>«Мої завдання»: own tasks, status and steps.</summary>
     public const string Tasks = "access:tasks";
+
+    /// <summary>«Завдання менеджерам»: give, change, mark urgent and delete tasks (ACC-002 R-01).</summary>
+    public const string ManagerTasks = "access:manager-tasks";
+
+    /// <summary>Seeing every manager's tasks (was the Admin role, TSK-001 R-01).</summary>
+    public const string ManagerTasksView = "access:manager-tasks:view";
 
     /// <summary>«Ліди»: «Мій день» and «Усі ліди» (LEAD-001).</summary>
     public const string Leads = "access:leads";

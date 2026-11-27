@@ -3,14 +3,14 @@ using Catalog.Application.Features.Pricing.Commands.UpdatePpePriceSource;
 
 namespace Catalog.Api.Endpoints.Ppe.UpdatePpePriceSource;
 
-/// <summary>Changes the discount and supplier of a source; administrators and the director only.</summary>
+/// <summary>Changes the discount and supplier of a source; «Імпорт цін: Редагування» (ACC-002 R-03).</summary>
 internal static class UpdatePpePriceSourceEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{key}", HandleAsync).WithName("updatePpePriceSource")
-            .WithSummary("RequireAdminRole (administrators and the director)")
-            .WithDescription("RequireAdminRole (administrators and the director). Saves the discount and, optionally, the «Постачальники» row.")
-            .RequireAuthorization("RequireAdminRole");
+            .WithSummary("Change a PPE price source")
+            .WithDescription("Needs «Імпорт цін: Редагування». Saves the discount and, optionally, the «Постачальники» row.")
+            .RequireAuthorization("access:price-import");
 
     private static async Task<IResult> HandleAsync(string key, UpdatePpePriceSourceRequest request,
         ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken)

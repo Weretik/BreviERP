@@ -2,31 +2,6 @@ using Identity.Domain.Authorization.Roles;
 
 namespace Identity.Domain.Authorization;
 
-/// <summary>What a role may do on a page of «Права доступу».</summary>
-[Flags]
-public enum AccessAction
-{
-    None = 0,
-    View = 1,
-    Create = 2,
-    Edit = 4,
-    Delete = 8
-}
-
-/// <summary>
-/// A page (area) of the admin whose API is guarded by «Права доступу». <paramref name="Defaults"/> are the rights the built-in
-/// roles had before the page existed (the admin menu they saw), so nothing changes until someone saves other rights.
-/// With <paramref name="DefaultsForSavedRoles"/> a role saved before the page existed also gets the page's defaults, and a
-/// save keeps the page even when it is unticked, so the director's choice wins from then on (DESK-001).
-/// </summary>
-public sealed record AccessArea(
-    string Key,
-    string Group,
-    string Title,
-    AccessAction Actions,
-    IReadOnlyDictionary<string, AccessAction> Defaults,
-    bool DefaultsForSavedRoles = false);
-
 /// <summary>
 /// The pages of «Права доступу» in the groups and order of the admin menu (ACC-RIGHTS, client corrections item 11).
 /// A page whose menu item moves moves here too; a page that gains «Створення» or «Видалення» needs a data migration
@@ -48,7 +23,9 @@ public static class AccessCatalog
     public const string Quotes = "quotes";
     public const string QuoteSettings = "quote-settings";
     public const string Embroidery = "embroidery";
+    public const string EmbroiderySettings = "embroidery-settings";
     public const string Tasks = "tasks";
+    public const string ManagerTasks = "manager-tasks";
     public const string Leads = "leads";
     public const string SiteRequests = "site-requests";
     public const string ProductionOrders = "production-orders";
@@ -103,6 +80,8 @@ public static class AccessCatalog
     private const string ReportsGroup = "Загальні звіти";
     private const string Administration = "Адміністрування";
 
+    private static readonly AccessActionLabels Desk = new(View: "Бачить блок на головній");
+
     private static Dictionary<string, AccessAction> Grant(params (string Role, AccessAction Actions)[] grants) =>
         grants.ToDictionary(x => x.Role, x => x.Actions, StringComparer.Ordinal);
 
@@ -111,50 +90,76 @@ public static class AccessCatalog
     [
         // «Робочий стіл» (DESK-001): which desks a role sees on the admin home; each block also needs its own page. Roles saved
         // before the desks existed get their defaults, so nobody loses the home page on deploy.
-        new(DeskMain, Desks, "Головний стіл директора", V, Grant((RoleNames.Admin, V)), DefaultsForSavedRoles: true),
-        new(DeskSales, Desks, "Стіл менеджера", V, Grant((RoleNames.Admin, V), (RoleNames.Manager, V)), DefaultsForSavedRoles: true),
-        new(DeskWorkshop, Desks, "Стіл цеху", V, Grant((RoleNames.Admin, V), (RoleNames.WorkshopChief, V)), DefaultsForSavedRoles: true),
-        new(DeskSeo, Desks, "Стіл SEO", V, Grant((RoleNames.Admin, V), (RoleNames.Seo, V)), DefaultsForSavedRoles: true),
-        new(DeskAccounting, Desks, "Стіл бухгалтера", V, Grant((RoleNames.Accountant, V)), DefaultsForSavedRoles: true),
+        new(DeskMain, Desks, "Головний стіл директора", V, Grant((RoleNames.Admin, V)), DefaultsForSavedRoles: true, Labels: Desk),
+        new(DeskSales, Desks, "Стіл менеджера", V, Grant((RoleNames.Admin, V), (RoleNames.Manager, V)), DefaultsForSavedRoles: true, Labels: Desk),
+        new(DeskWorkshop, Desks, "Стіл цеху", V, Grant((RoleNames.Admin, V), (RoleNames.WorkshopChief, V)), DefaultsForSavedRoles: true, Labels: Desk),
+        new(DeskSeo, Desks, "Стіл SEO", V, Grant((RoleNames.Admin, V), (RoleNames.Seo, V)), DefaultsForSavedRoles: true, Labels: Desk),
+        new(DeskAccounting, Desks, "Стіл бухгалтера", V, Grant((RoleNames.Accountant, V)), DefaultsForSavedRoles: true, Labels: Desk),
 
         // Groups and order follow the admin menu (legacy-menu.ts), so each page sits where people find it in the menu.
-        new(Leads, Service, "Ліди", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
-        new(SiteRequests, Service, "Заявки з сайту", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
+        new(Leads, Service, "Ліди", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE)),
+            Labels: new(Edit: "Працювати з лідами")),
+        new(SiteRequests, Service, "Заявки з сайту", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE)),
+            Labels: new(Edit: "Брати в роботу і закривати заявки")),
         new(Quotes, Service, "Комерційні пропозиції", All,
-            Grant((RoleNames.Admin, VCE), (RoleNames.Manager, VCE))),
-        new(Embroidery, Service, "Ціна вишивки", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, All))),
-        new(Tasks, Service, "Мої завдання", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, All))),
+            Grant((RoleNames.Admin, VCE), (RoleNames.Manager, VCE)),
+            Labels: new(Create: "Створювати і копіювати КП", Edit: "Змінювати, перераховувати і надсилати КП",
+                Delete: "Видаляти КП і чистити старий архів")),
+        new(Embroidery, Service, "Ціна вишивки", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, All)),
+            Labels: new(View: "Бачить і рахує ціну", Create: "Зберігати розрахунки", Edit: "Додавати макет до розрахунку",
+                Delete: "Видаляти збережені розрахунки")),
+        // ACC-002 R-02: cost, rates and «Налаштування» were the Admin role; a role saved earlier keeps them.
+        new(EmbroiderySettings, Service, "Ціна вишивки: собівартість і налаштування", VE, Grant((RoleNames.Admin, VE)),
+            DefaultsForSavedRoles: true,
+            Labels: new(View: "Бачить собівартість і ставки", Edit: "Змінювати налаштування вишивки")),
+        // ACC-002 R-01: giving, changing and deleting tasks is «Завдання менеджерам» in «Адміністрування».
+        new(Tasks, Service, "Мої завдання", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE)),
+            Labels: new(View: "Бачить свої завдання", Edit: "Змінювати статус і відмічати кроки")),
 
         new(ProductionOrders, Workshop, "Виробничі завдання", All,
-            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.WorkshopChief, All))),
-        new(WorkLog, Workshop, "Журнал робіт", VCE, Grant((RoleNames.Admin, VCE), (RoleNames.WorkshopChief, VCE))),
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.WorkshopChief, All)),
+            Labels: new(Create: "Створювати завдання", Edit: "Змінювати, закривати, скасовувати, файли і Telegram",
+                Delete: "Видаляти завдання")),
+        new(WorkLog, Workshop, "Журнал робіт", VCE, Grant((RoleNames.Admin, VCE), (RoleNames.WorkshopChief, VCE)),
+            Labels: new(Create: "Додавати записи робіт", Edit: "Виправляти і анулювати записи")),
         new(Forecast, Workshop, "Прогноз пошиття", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE), (RoleNames.WorkshopChief, VE))),
         new(WorkshopStaff, Workshop, "Персонал цеху: працівники", VCE,
-            Grant((RoleNames.Admin, VCE), (RoleNames.WorkshopChief, VCE))),
+            Grant((RoleNames.Admin, VCE), (RoleNames.WorkshopChief, VCE)),
+            Labels: new(Create: "Додавати працівників", Edit: "Змінювати працівників")),
         new(Timesheet, Workshop, "Персонал цеху: робочий час", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
-        new(Payroll, Workshop, "Персонал цеху: зарплата", VCE, Grant((RoleNames.Admin, VCE), (RoleNames.WorkshopChief, VCE))),
+        new(Payroll, Workshop, "Персонал цеху: зарплата", VCE, Grant((RoleNames.Admin, VCE), (RoleNames.WorkshopChief, VCE)),
+            Labels: new(Create: "Виплати і коригування", Edit: "Анулювати і закривати місяць")),
         new(FabricNorms, Workshop, "Норми витрати тканини", All,
-            Grant((RoleNames.Admin, All), (RoleNames.WorkshopChief, All))),
+            Grant((RoleNames.Admin, All), (RoleNames.WorkshopChief, All)),
+            Labels: new(Delete: "Видаляти норму")),
         new(WorkshopArchive, Workshop, "Архів цеху", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE), (RoleNames.WorkshopChief, VE))),
 
         new(FabricStock, WarehouseGroup, "Залишки, рух тканини і витрата за період", All,
-            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.WorkshopChief, All))),
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.WorkshopChief, All)),
+            Labels: new(Create: "Прихід, видача, залишки на початок, коригування", Edit: "Сторно, анулювання, відновлення",
+                Delete: "Видаляти рядок")),
         new(FabricBooking, WarehouseGroup, "Що замовити: тканина (бронь)", V,
             Grant((RoleNames.Admin, V), (RoleNames.Manager, V), (RoleNames.WorkshopChief, V))),
         new(HardwareOrder, WarehouseGroup, "Що замовити: фурнітура", V,
             Grant((RoleNames.Admin, V), (RoleNames.WorkshopChief, V))),
 
         new(Accounting, Finance, "Бухгалтерія: облік, перекази, рахунки і каси, звіти", All,
-            Grant((RoleNames.Accountant, All)), DefaultsForSavedRoles: true),
+            Grant((RoleNames.Accountant, All)), DefaultsForSavedRoles: true,
+            Labels: new(Create: "Нові операції, перекази, рахунки, категорії, виписки",
+                Edit: "Змінювати, анулювати, архівувати, об'єднувати, проводити",
+                Delete: "Видаляти рахунки, категорії і вкладення")),
         new(PurchaseInvoices, Finance, "Рахунки на закупку", VE, Grant((RoleNames.Accountant, VE)),
             DefaultsForSavedRoles: true),
 
-        new(Reminders, RemindersGroup, "Нагадування: задачі, періоди, чати, неробочі дні", All, Grant((RoleNames.Admin, All))),
+        new(Reminders, RemindersGroup, "Нагадування: задачі, періоди, чати, неробочі дні", All, Grant((RoleNames.Admin, All)),
+            Labels: new(Create: "Нові задачі і неробочі дні", Edit: "Закривати, відкривати, перевіряти чат",
+                Delete: "Архівувати задачі, прибирати дні")),
 
         new(Products, References, "Товари", All,
-            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V))),
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V)),
+            Labels: new(Edit: "Редагувати товари, ціни і фото")),
         new(ProductSections, References, "Типи і розділи", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V))),
         new(Materials, References, "Тканини та фурнітура", All,
@@ -166,10 +171,12 @@ public static class AccessCatalog
         new(PricingParameters, References, "Параметри ціноутворення", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V))),
         new(PriceImport, References, "Імпорт цін", All,
-            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V))),
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V)),
+            Labels: new(Create: "Завантажувати і оновлювати ціни", Edit: "Знижки і постачальники джерел")),
 
         new(Media, Photos, "Бібліотека фото", All,
-            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Seo, VC))),
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Seo, VC)),
+            Labels: new(Create: "Завантажувати фото і створювати папки")),
 
         new(ContentProducts, SiteContent, "Товари сайту", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, V), (RoleNames.Seo, VCE))),
@@ -197,14 +204,36 @@ public static class AccessCatalog
             Grant((RoleNames.Admin, V), (RoleNames.Manager, V), (RoleNames.WorkshopChief, V))),
         new(FabricValuation, ReportsGroup, "Звіти складу: вартість", V, Grant((RoleNames.Admin, V))),
 
-        new(LeadStats, Administration, "Статистика лідів", VCE, Grant((RoleNames.Admin, VCE))),
+        // In the order of the menu group «Адміністрування»; «Користувачі», «Налаштування ШІ» and «Права доступу» are AdminOnly.
+        // ACC-002 R-01: «Перегляд» also means seeing every manager's tasks; the reads stay on «Мої завдання».
+        new(ManagerTasks, Administration, "Завдання менеджерам", All, Grant((RoleNames.Admin, All)), DefaultsForSavedRoles: true,
+            Labels: new(View: "Бачить завдання всіх менеджерів", Create: "Давати завдання",
+                Edit: "Змінювати завдання і «Терміново»", Delete: "Видаляти завдання")),
+        new(LeadStats, Administration, "Статистика лідів", VCE, Grant((RoleNames.Admin, VCE)),
+            Labels: new(Create: "Синхронізувати зараз", Edit: "Змінювати довідники")),
+        // SCH-001 R-11: Create = «Запустити зараз», Edit = schedule and on/off.
+        new(BackgroundTasks, Administration, "Фонові задачі", VCE, Grant((RoleNames.Admin, VCE)),
+            Labels: new(Create: "Запускати зараз", Edit: "Змінювати розклад, вмикати і вимикати")),
+        // ACT-001 R-10: view only; entries come from the outbox, nobody edits them.
+        new(ActivityLog, Administration, "Журнал дій", V, Grant((RoleNames.Admin, V))),
         new(QuoteSettings, Administration, "Налаштування КП", VE, Grant((RoleNames.Admin, VE))),
         new(WorkshopSettings, Administration, "Налаштування цеху", VE,
-            Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
-        // SCH-001 R-11: Create = «Запустити зараз», Edit = schedule and on/off.
-        new(BackgroundTasks, Administration, "Фонові задачі", VCE, Grant((RoleNames.Admin, VCE))),
-        // ACT-001 R-10: view only; entries come from the outbox, nobody edits them.
-        new(ActivityLog, Administration, "Журнал дій", V, Grant((RoleNames.Admin, V)))
+            Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE)))
+    ];
+
+    /// <summary>
+    /// What only Admin (and the director) may use, on purpose (ACC-002 R-04): system pages and one-time or «бачить усі»
+    /// actions. «Права доступу» shows them without switches.
+    /// </summary>
+    public static readonly IReadOnlyList<AdminOnlyItem> AdminOnly =
+    [
+        new(Administration, "Користувачі", "Облікові записи і ролі співробітників"),
+        new(Administration, "Права доступу", "Ця сторінка"),
+        new(Administration, "Налаштування ШІ", "Ключі і моделі ШІ"),
+        new(Service, "Передати КП іншому менеджеру", "Потрібно бачити всі КП"),
+        new(References, "Об'єднати двох клієнтів", "Потрібно бачити всіх клієнтів"),
+        new(Service, "Перенесення старих архівів КП і вишивки", "Одноразове перенесення даних"),
+        new(References, "Перенесення фото зі старого сайту", "Одноразове перенесення даних")
     ];
 
     private static readonly Dictionary<string, AccessArea> ByKey = Areas.ToDictionary(x => x.Key, StringComparer.Ordinal);

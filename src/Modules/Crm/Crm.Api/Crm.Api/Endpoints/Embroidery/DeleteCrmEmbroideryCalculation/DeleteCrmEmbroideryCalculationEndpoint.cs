@@ -8,13 +8,13 @@ internal static class DeleteCrmEmbroideryCalculationEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("calculations/{id:long}", HandleAsync).WithName("deleteCrmEmbroideryCalculation")
-            .WithSummary("Removes a saved calculation for good")
-            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
+            .WithSummary("Removes a saved calculation for good");
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, long id, [FromServices] ISender sender,
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user,
+        [FromServices] IAuthorizationService authorization, long id, [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        var actor = EmbroideryActorClaims.Read(user);
+        var actor = await EmbroideryActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         var result = await sender.Send(new DeleteEmbroideryCalculationCommand(actor, id), cancellationToken);
         return result.IsSuccess ? Results.NoContent() : result.ToHttpResult();
