@@ -31,6 +31,7 @@ public sealed class GetProductionOrdersHandler(IProductionDbContext db, IProduct
         orders = ProductionOrderFiltering.ByStatus(orders, query.Status);
 
         var total = await orders.CountAsync(cancellationToken);
+        var totalQuantity = await orders.SumAsync(x => x.Items.Sum(item => item.Quantity), cancellationToken);
         var rows = await Sorted(orders, query.Sort)
             .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
             .Select(x => new ProductionOrderSummaryResponse(x.Id.Value, x.Number, x.Status.ToString(), x.ClientName,
@@ -41,14 +42,40 @@ public sealed class GetProductionOrdersHandler(IProductionDbContext db, IProduct
                 (x.Items.Min(item => (ProductionStage?)item.CurrentStage) ?? ProductionStage.New).ToString(),
                 x.Shipments.Sum(shipment => shipment.Quantity),
                 x.Items.OrderBy(item => item.Position)
-                    .Select(item => new ProductionOrderSummaryItem(item.ModelName, item.Quantity,
-                        item.CurrentStage.ToString()))
+                    .Select(item => new ProductionOrderSummaryItem(item.ModelCode, item.ModelName, item.Quantity,
+                        item.CurrentStage.ToString(), item.FabricName, item.MainColor, new List<string>(),
+                        new List<string>()))
                     .ToList()))
             .ToListAsync(cancellationToken);
+        rows = await WithDetailsAsync(rows, cancellationToken);
         var managers = await db.Orders.AsNoTracking().Where(x => x.DeletedAt == null)
             .Select(x => x.ManagerName).Distinct().OrderBy(x => x).ToListAsync(cancellationToken);
         return Result.Success(new ProductionOrderPageResponse(rows, query.Page, query.PageSize, total, counts, managers,
-            stages, attention));
+            stages, attention, totalQuantity));
+    }
+
+    /// <summary>
+    /// Adds the additional colours and the kinds of «нанесення» of the page's items; they are stored as JSON, so the
+    /// few orders of the page are read as entities.
+    /// </summary>
+    private async Task<List<ProductionOrderSummaryResponse>> WithDetailsAsync(
+        List<ProductionOrderSummaryResponse> rows, CancellationToken cancellationToken)
+    {
+        var ids = rows.Select(x => new ProductionOrderId(x.Id)).ToList();
+        var orders = await db.Orders.AsNoTracking().Include(x => x.Items).Where(x => ids.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+        var details = orders.ToDictionary(x => x.Id.Value,
+            x => x.Items.OrderBy(item => item.Position).ToList());
+        return [.. rows.Select(row => details.TryGetValue(row.Id, out var items) && items.Count == row.Items.Count
+            ? row with
+            {
+                Items = [.. row.Items.Zip(items, (summary, item) => summary with
+                {
+                    AdditionalColors = item.AdditionalColors,
+                    Applications = [.. item.Applications.Select(x => x.Kind.ToString()).Distinct()]
+                })]
+            }
+            : row)];
     }
 
     private static IQueryable<ProductionOrder> Sorted(IQueryable<ProductionOrder> orders, string? sort) => sort switch

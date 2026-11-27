@@ -196,6 +196,24 @@ public sealed class ProductionWorkHandlerTests
     }
 
     [Test]
+    public async Task Forecast_leaves_out_an_order_that_is_fully_sewn()
+    {
+        using var workshop = Workshop(out var employeeId);
+        var sewn = await Order(workshop);
+        var open = await Order(workshop);
+        workshop.Parameters.Values.AddRange([
+            new(PayrollParameterCodes.SeamstressCount, "Швачок", 1m, "шт", null),
+            new(PayrollParameterCodes.ShiftMinutes, "Хвилин", 480m, "хв", null),
+            new(PayrollParameterCodes.MinuteCost, "Вартість", 1m, "грн", null)
+        ]);
+        await Record(workshop, Chief, sewn.Id, sewn.Items[0].Id, new(employeeId, "Sewing", 3, Day, false, null, null));
+
+        var forecast = await Forecast(workshop, Chief);
+
+        Assert.That(forecast.Value.Rows.Select(x => x.OrderId), Is.EqualTo(new[] { open.Id }));
+    }
+
+    [Test]
     public async Task Work_repeated_with_the_same_request_id_is_recorded_once()
     {
         using var workshop = Workshop(out var employeeId);

@@ -20,10 +20,14 @@ public static class ProductionStages
         _ => ((int)stage).ToString(CultureInfo.InvariantCulture)
     };
 
-    /// <summary>Distinct stages in workshop order; nothing ticked means «Нове».</summary>
+    /// <summary>
+    /// Distinct stages in workshop order; nothing ticked means «Нове». «Завершено» ticks every stage before it, even
+    /// those nobody ticked.
+    /// </summary>
     public static List<ProductionStage> Normalize(IEnumerable<ProductionStage> stages)
     {
         var list = stages.Where(Enum.IsDefined).Distinct().Order().ToList();
+        if (list.Contains(ProductionStage.Complete)) return [.. Enum.GetValues<ProductionStage>().Order()];
         return list.Count == 0 ? [ProductionStage.New] : list;
     }
 
