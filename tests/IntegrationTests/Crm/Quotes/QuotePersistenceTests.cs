@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.People;
+using Crm.Domain.Customers;
 using BuildingBlocks.Domain.Identifiers.Orders;
 using Ardalis.Result;
 using Crm.Domain.Quotes;
@@ -40,17 +42,17 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     public void ResetCatalog() => _catalog.Retail = 900;
 
     private static SaveQuoteInput Input(int version = 0, string name = "ТОВ «Агро»", long? itemId = null,
-        long? optionId = null, long? customerId = null) =>
+        long? optionId = null, Guid? customerId = null) =>
         new(version, name, customerId, "Іван", "Агро", null, null,
         [
             new QuoteItemInput(itemId, "Sewing", 10, null, null, null, null,
                 [new QuoteOptionInput(optionId, 100, true, new(true, null), new(true, null), new(true, null), null)]),
         ]);
 
-    private async Task<QuoteResponse> Create(QuoteActor actor, string name = "ТОВ «Агро»", long? customerId = null)
+    private async Task<QuoteResponse> Create(QuoteActor actor, string name = "ТОВ «Агро»", Guid? customerId = null)
     {
         await using var db = Context();
-        var result = await new CreateQuoteHandler(_staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock)
+        var result = await new CreateQuoteHandler(db, _staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock)
             .Handle(new CreateQuoteCommand(actor, Input(name: name, customerId: customerId)), default);
         Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors.Concat(result.ValidationErrors.Select(x => x.ErrorMessage))));
         return result.Value;
@@ -105,18 +107,56 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     [Test]
     public async Task ClientCardListsOnlyThatClientsQuotesWithinTheActorsAccess()
     {
-        var olenas = await Create(Olena, customerId: 40);
-        await Create(Petro, "Будівельник", customerId: 40);
-        await Create(Olena, "Інший клієнт", customerId: 41);
+        var agro = await AddCustomer("ТОВ «Агро»");
+        var other = await AddCustomer("ТОВ «Інший»");
+        var olenas = await Create(Olena, customerId: agro);
+        await Create(Petro, "Будівельник", customerId: agro);
+        await Create(Olena, "Інший клієнт", customerId: other);
 
         await using var db = Context();
         var forDirector = await new GetQuotesHandler(db)
-            .Handle(new GetQuotesQuery(Director, null, null, null, CustomerId: 40), default);
+            .Handle(new GetQuotesQuery(Director, null, null, null, CustomerPublicId: agro), default);
         var forOlena = await new GetQuotesHandler(db)
-            .Handle(new GetQuotesQuery(Olena, null, null, null, CustomerId: 40), default);
+            .Handle(new GetQuotesQuery(Olena, null, null, null, CustomerPublicId: agro), default);
+        var beforePeriod = await new GetQuotesHandler(db)
+            .Handle(new GetQuotesQuery(Director, null, null, null, CustomerPublicId: agro,
+                To: new DateOnly(2026, 11, 3)), default);
+        var inPeriod = await new GetQuotesHandler(db)
+            .Handle(new GetQuotesQuery(Director, null, null, null, CustomerPublicId: agro,
+                From: new DateOnly(2026, 11, 4), To: new DateOnly(2026, 11, 4)), default);
 
-        Assert.That(forDirector.Value.Total, Is.EqualTo(2));
-        Assert.That(forOlena.Value.Items.Select(x => x.Id), Is.EqualTo(new[] { olenas.Id }));
+        Assert.Multiple(() =>
+        {
+            Assert.That(olenas.CustomerPublicId, Is.EqualTo(agro));
+            Assert.That(forDirector.Value.Total, Is.EqualTo(2));
+            Assert.That(forOlena.Value.Items.Select(x => x.Id), Is.EqualTo(new[] { olenas.Id }));
+            Assert.That(beforePeriod.Value.Total, Is.Zero, "created on 4 November in Kyiv");
+            Assert.That(inPeriod.Value.Total, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public async Task UnknownClientIsRejectedAndATypedNameStaysUnlinked()
+    {
+        await using var db = Context();
+        var handler = new CreateQuoteHandler(db, _staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock);
+        var unknown = await handler.Handle(new CreateQuoteCommand(Olena, Input(customerId: Guid.NewGuid())), default);
+        var typed = await Create(Olena, "Просто запит");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(unknown.Status, Is.EqualTo(ResultStatus.Invalid));
+            Assert.That(typed.CustomerPublicId, Is.Null);
+        });
+    }
+
+    private async Task<Guid> AddCustomer(string name)
+    {
+        await using var db = Context();
+        var customer = Customer.Create("organization", name, null, null, new UserId(1)).Value;
+        db.Customers.Add(customer);
+        await db.SaveChangesAsync();
+        return customer.PublicId;
     }
 
     [Test]
@@ -217,7 +257,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         QuoteResponse created;
         await using (var db = Context())
         {
-            var result = await new CreateQuoteHandler(_staff, new QuoteItemsBuilder(_catalog, sewing),
+            var result = await new CreateQuoteHandler(db, _staff, new QuoteItemsBuilder(_catalog, sewing),
                 new QuoteNumbering(db), _clock).Handle(new CreateQuoteCommand(Olena, input), default);
             Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
             created = result.Value;
@@ -264,7 +304,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         QuoteResponse created;
         await using (var db = Context())
         {
-            var result = await new CreateQuoteHandler(_staff, new QuoteItemsBuilder(_catalog, sewing),
+            var result = await new CreateQuoteHandler(db, _staff, new QuoteItemsBuilder(_catalog, sewing),
                 new QuoteNumbering(db), _clock).Handle(new CreateQuoteCommand(Olena, input), default);
             Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
             created = result.Value;
@@ -401,7 +441,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     private async Task<QuoteResponse> CreateWith(SaveQuoteInput input)
     {
         await using var db = Context();
-        var result = await new CreateQuoteHandler(_staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock)
+        var result = await new CreateQuoteHandler(db, _staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock)
             .Handle(new CreateQuoteCommand(Olena, input), default);
         Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
         return result.Value;

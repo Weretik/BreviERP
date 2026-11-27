@@ -34,8 +34,10 @@ public sealed class QuoteImportTests
 
     private static readonly QuoteStaffMember[] Staff = [new(1, "Директор", "director@brevi.test"), new(17, "Олена", "O@Brevi.test")];
 
+    private static readonly Guid KeepinCustomer = Guid.Parse("5e0c6b8e-58b9-4e43-a3a8-0d7d2f0c5a11");
+
     private static QuoteImportMapper Mapper() =>
-        new(References, Staff, new Dictionary<string, long> { ["18701991"] = 55 }, Importer);
+        new(References, Staff, new Dictionary<string, QuoteCustomer> { ["18701991"] = new(new CustomerId(55), KeepinCustomer) }, Importer);
 
     private static ImportPricesInput Prices(decimal? retail = 2507.73m, decimal? manual = null) =>
         new(new(retail, manual, true), new(retail - 300, null, false), new(retail - 400, null, true));
@@ -80,7 +82,8 @@ public sealed class QuoteImportTests
             Assert.That(quote.UpdatedAt, Is.EqualTo(Created.AddHours(2)));
             Assert.That(quote.AuthorUserId, Is.EqualTo(new UserId(17)));
             Assert.That(quote.ResponsibleName, Is.EqualTo("Олена"));
-            Assert.That(quote.CustomerId, Is.EqualTo(55));
+            Assert.That(quote.CustomerId, Is.EqualTo(new CustomerId(55)));
+            Assert.That(quote.CustomerPublicId, Is.EqualTo(KeepinCustomer));
             Assert.That(quote.NewEvents.Select(x => x.Kind),
                 Is.EqualTo(new[] { QuoteEventKind.Created, QuoteEventKind.Sent, QuoteEventKind.Imported }));
             Assert.That(quote.NewEvents[^1].ActorName, Is.EqualTo("Директор"));

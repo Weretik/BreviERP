@@ -68,8 +68,15 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
     /// <summary>«Внутрішня назва клієнта / запиту»; only staff see it.</summary>
     public string InternalName { get; private set; } = null!;
 
-    /// <summary>A Crm customer (KeepinCRM client).</summary>
-    public long? CustomerId { get; private set; }
+    /// <summary>A Crm customer (KeepinCRM client); set together with <see cref="CustomerPublicId"/>.</summary>
+    public CustomerId? CustomerId { get; private set; }
+
+    /// <summary>The same customer's public id: the client card lists its КП by it (CARD-001 R-02).</summary>
+    public Guid? CustomerPublicId { get; private set; }
+
+    /// <summary>The linked customer, or null for a КП typed by hand.</summary>
+    public QuoteCustomer? Customer =>
+        CustomerId is { } id && CustomerPublicId is { } publicId ? new QuoteCustomer(id, publicId) : null;
 
     public string? RecipientName { get; private set; }
     public string? CompanyName { get; private set; }
@@ -139,7 +146,7 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
     public Quote CopyAs(QuoteNumber number, QuotePerson author, DateTimeOffset now, RequestKey? request = null)
     {
         var copy = new Quote(number, Kind, author,
-            new QuoteHeader(InternalName, CustomerId, RecipientName, CompanyName, ClientComment, ManagerNote),
+            new QuoteHeader(InternalName, Customer, RecipientName, CompanyName, ClientComment, ManagerNote),
             _items.OrderBy(x => x.Position).Select(x => x.Copy()), now) { CreateRequestId = request?.Id, CreateRequestHash = request?.Hash };
         if (Introduction is { } introduction) copy.ApplyIntroduction(introduction);
         copy._newEvents.Clear(); // the copy starts its history with «Копія КП N» instead of «Створено»
@@ -186,7 +193,7 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
     public void MarkDeleted() => Raise(new QuoteDeleted(Id.Value, Number, InternalName));
 
     /// <summary>The fields «Журнал дій» compares.</summary>
-    public QuoteSnapshot Snapshot() => new(InternalName, CustomerId, RecipientName, CompanyName, ClientComment,
+    public QuoteSnapshot Snapshot() => new(InternalName, CustomerPublicId, RecipientName, CompanyName, ClientComment,
         ManagerNote, _items.Count, IntroLayout, RecipientEmail, LetterName, LetterSubject, LetterBody);
 
     private void AddHistory(QuoteEventKind kind, QuotePerson actor, string? details, DateTimeOffset at) =>
@@ -280,7 +287,8 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
     private void ApplyHeader(QuoteHeader header)
     {
         InternalName = header.InternalName.Trim();
-        CustomerId = header.CustomerId;
+        CustomerId = header.Customer?.Id;
+        CustomerPublicId = header.Customer?.PublicId;
         RecipientName = QuoteText.Normalize(header.RecipientName);
         CompanyName = QuoteText.Normalize(header.CompanyName);
         ClientComment = QuoteText.Normalize(header.ClientComment);
@@ -324,7 +332,7 @@ public sealed record QuoteImportedEvent(QuoteEventKind Kind, QuotePerson Actor, 
 /// <summary>The fields above the items (R-04).</summary>
 public sealed record QuoteHeader(
     string InternalName,
-    long? CustomerId,
+    QuoteCustomer? Customer,
     string? RecipientName,
     string? CompanyName,
     string? ClientComment,

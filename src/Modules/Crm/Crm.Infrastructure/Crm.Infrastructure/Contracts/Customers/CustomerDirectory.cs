@@ -1,5 +1,6 @@
 using Crm.Contracts.Customers;
 using Mediator;
+using Crm.Application.Features.Customers.Queries.GetCustomerInternalId;
 using Crm.Application.Features.Customers.Queries.GetCustomerLookup;
 using Crm.Application.Features.Customers.Queries.GetCustomersByKeepinIds;
 using Crm.Application.Features.Customers.Queries.GetCustomersByTaxIds;
@@ -26,6 +27,9 @@ internal sealed class CustomerDirectory(ISender sender) : ICustomerDirectory
         return rows.Select(x => new CustomerInfo(x.PublicId, x.DisplayName, x.TaxIdentity, x.Active, x.KeepinId))
             .ToArray();
     }
+
+    public async Task<long?> FindInternalIdAsync(Guid publicId, CancellationToken cancellationToken) =>
+        publicId == Guid.Empty ? null : await sender.Send(new GetCustomerInternalIdQuery(publicId), cancellationToken);
 
     public async Task<IReadOnlyList<CustomerInfo>> FindByTaxIdsAsync(IReadOnlyCollection<string> taxIds,
         CancellationToken cancellationToken)

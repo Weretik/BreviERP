@@ -11,7 +11,7 @@ using BuildingBlocks.Application;
 namespace Crm.Application.Features.Quotes.Commands.CreateQuote;
 
 public sealed class CreateQuoteHandler(
-    IQuoteStaffReader staff, QuoteItemsBuilder builder, QuoteNumbering numbering, TimeProvider clock)
+    IQuoteStore store, IQuoteStaffReader staff, QuoteItemsBuilder builder, QuoteNumbering numbering, TimeProvider clock)
     : ICommandHandler<CreateQuoteCommand, Result<QuoteResponse>>
 {
     public async ValueTask<Result<QuoteResponse>> Handle(CreateQuoteCommand command, CancellationToken cancellationToken)
@@ -21,7 +21,9 @@ public sealed class CreateQuoteHandler(
 
         var now = clock.GetUtcNow();
         var input = command.Input;
-        var header = new QuoteHeader(input.InternalName, input.CustomerId, input.RecipientName, input.CompanyName,
+        var customer = await store.ResolveCustomerAsync(input.CustomerPublicId, cancellationToken);
+        if (!customer.IsSuccess) return customer.Map(_ => default(QuoteResponse)!);
+        var header = new QuoteHeader(input.InternalName, customer.Value, input.RecipientName, input.CompanyName,
             input.ClientComment, input.ManagerNote);
         var request = RequestKeys.Of(input.RequestId, command with { Input = input with { RequestId = null } });
         var added = await numbering.AddAsync(now, request, async number =>

@@ -1,4 +1,5 @@
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Quotes.Shared.Building;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Access;
 using Crm.Application.Features.Quotes.Shared.Introductions;
@@ -32,7 +33,9 @@ public sealed class SaveQuoteIntroductionHandler(
         var items = await builder.BuildAsync(introduction, input.Pages, quote.Items, actor, now, cancellationToken);
         if (!items.IsSuccess) return items.Map(_ => default(QuoteResponse)!);
 
-        var updated = quote.Update(input.ToHeader(), items.Value, now);
+        var customer = await store.ResolveCustomerAsync(input.CustomerPublicId, cancellationToken);
+        if (!customer.IsSuccess) return customer.Map(_ => default(QuoteResponse)!);
+        var updated = quote.Update(input.ToHeader(customer.Value), items.Value, now);
         if (updated.IsFailure) return updated.Error!.ToResult<QuoteResponse>();
         var introduced = quote.SetIntroduction(introduction);
         if (introduced.IsFailure) return introduced.Error!.ToResult<QuoteResponse>();

@@ -11,7 +11,7 @@ public sealed class SaveQuoteInputValidator : AbstractValidator<SaveQuoteInput>
     {
         RuleFor(x => x.InternalName).NotEmpty().WithMessage("Вкажіть клієнта або назву запиту.")
             .MaximumLength(QuoteLimits.NameMaxLength);
-        RuleFor(x => x.CustomerId).GreaterThan(0).When(x => x.CustomerId is not null);
+        RuleFor(x => x.CustomerPublicId).NotEqual(Guid.Empty).When(x => x.CustomerPublicId is not null);
         RuleFor(x => x.RecipientName).MaximumLength(QuoteLimits.NameMaxLength);
         RuleFor(x => x.CompanyName).MaximumLength(QuoteLimits.NameMaxLength);
         RuleFor(x => x.ClientComment).MaximumLength(QuoteLimits.TextMaxLength);

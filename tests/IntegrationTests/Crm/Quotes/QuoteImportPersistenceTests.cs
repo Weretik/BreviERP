@@ -64,7 +64,7 @@ public sealed class QuoteImportPersistenceTests : CrmDatabaseFixture
         // A new Brevi КП already holds 1-11-2026.
         await using (var db = Context())
         {
-            var created = await new CreateQuoteHandler(new QuoteTestStaff(), new QuoteItemsBuilder(new NoCatalog()),
+            var created = await new CreateQuoteHandler(db, new QuoteTestStaff(), new QuoteItemsBuilder(new NoCatalog()),
                     new QuoteNumbering(db), _clock)
                 .Handle(new CreateQuoteCommand(Director, new SaveQuoteInput(0, "Новий", null, null, null, null, null, [])),
                     default);

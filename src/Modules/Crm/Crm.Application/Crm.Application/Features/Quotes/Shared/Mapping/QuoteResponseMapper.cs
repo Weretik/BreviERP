@@ -9,7 +9,7 @@ namespace Crm.Application.Features.Quotes.Shared.Mapping;
 internal static class QuoteResponseMapper
 {
     public static QuoteResponse ToResponse(this Quote quote) => new(
-        quote.Id.Value, quote.Number, quote.Kind.ToString(), quote.Status.ToString(), quote.InternalName, quote.CustomerId,
+        quote.Id.Value, quote.Number, quote.Kind.ToString(), quote.Status.ToString(), quote.InternalName, quote.CustomerPublicId,
         quote.RecipientName, quote.CompanyName, quote.ClientComment, quote.ManagerNote,
         new QuotePersonResponse(quote.AuthorUserId.Value, quote.AuthorName),
         new QuotePersonResponse(quote.ResponsibleUserId.Value, quote.ResponsibleName),

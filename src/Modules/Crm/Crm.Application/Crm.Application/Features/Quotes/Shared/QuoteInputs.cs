@@ -5,11 +5,12 @@ namespace Crm.Application.Features.Quotes.Shared;
 /// Catalog, an existing row keeps its own. Only PPE rows carry manual prices.
 /// </summary>
 /// <param name="Version">The version the editor loaded; ignored on create.</param>
+/// <param name="CustomerPublicId">The client chosen from the list; null for a name typed by hand (CARD-001 R-02).</param>
 /// <param name="RequestId">Create only: new for every form; a repeat with the same id returns the same КП.</param>
 public sealed record SaveQuoteInput(
     int Version,
     string InternalName,
-    long? CustomerId,
+    Guid? CustomerPublicId,
     string? RecipientName,
     string? CompanyName,
     string? ClientComment,

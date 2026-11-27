@@ -50,7 +50,7 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
     private async Task<QuoteResponse> CreateQuote()
     {
         await using var db = Context();
-        return (await new CreateQuoteHandler(_staff, _builder, new QuoteNumbering(db), _clock)
+        return (await new CreateQuoteHandler(db, _staff, _builder, new QuoteNumbering(db), _clock)
             .Handle(new CreateQuoteCommand(Olena, OneOff()), default)).Value;
     }
 

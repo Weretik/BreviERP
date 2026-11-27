@@ -57,7 +57,7 @@ public sealed class QuoteActivity : IActivityDescriber
         if (before is null) return changes;
         return changes
             .Add("Назва", before.InternalName, after.InternalName)
-            .Add("Клієнт", Customer(before.CustomerId), Customer(after.CustomerId))
+            .Add("Клієнт", Customer(before.CustomerPublicId), Customer(after.CustomerPublicId))
             .Add("Отримувач", before.RecipientName, after.RecipientName)
             .Add("Компанія", before.CompanyName, after.CompanyName)
             .Add("Коментар для клієнта", before.ClientComment, after.ClientComment)
@@ -75,7 +75,7 @@ public sealed class QuoteActivity : IActivityDescriber
     private static string? LetterBody(string? value, string? other, string word) =>
         string.Equals(value, other, StringComparison.Ordinal) || value is null ? null : word + " текст";
 
-    private static string? Customer(long? id) => id is { } value ? $"клієнт #{value}" : null;
+    private static string? Customer(Guid? id) => id is { } value ? $"клієнт {value.ToString()[..8]}" : null;
 
     private static string? Layout(QuoteIntroLayout? layout) => layout switch
     {

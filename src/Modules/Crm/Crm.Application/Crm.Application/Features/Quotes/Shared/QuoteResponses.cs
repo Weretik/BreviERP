@@ -23,7 +23,7 @@ public sealed record QuoteResponse(
     string Kind,
     string Status,
     string InternalName,
-    long? CustomerId,
+    Guid? CustomerPublicId,
     string? RecipientName,
     string? CompanyName,
     string? ClientComment,
