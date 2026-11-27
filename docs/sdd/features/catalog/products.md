@@ -2,6 +2,8 @@
 
 **Static code review:** 2026-10-16. **Module:** catalog.
 
+Supplier card ([CARD-001](../../specs/crm/008-counterparty-cards/README.md)): `GET /api/v1/products?supplierId=` lists PPE and sewing products whose supplier is that supplier.
+
 Create, read, full replacement, and deletion of Sewing and PPE products.
 
 The «Товари» page ([CAT-006](../../specs/catalog/006-products-page/README.md)) lists products per type with their working fields kept in the product catalog profile: code (model ID or PPE site article), section from Reference «Типи і розділи», season, active, the director's check and date, the link to the current public site (quotes take photos from it, temporary) and the short description for a quote. Site texts, SEO and photos stay in the database for the planned [Content module](../../specs/content/001-site-content/README.md).

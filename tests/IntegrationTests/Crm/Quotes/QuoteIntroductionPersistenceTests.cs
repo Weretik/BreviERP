@@ -41,7 +41,7 @@ public sealed class QuoteIntroductionPersistenceTests : CrmDatabaseFixture
     {
         await using var db = Context();
         var builder = new QuoteIntroductionBuilder(new QuoteItemsBuilder(_catalog), db);
-        return await new CreateQuoteIntroductionHandler(_staff, builder, new QuoteNumbering(db), _clock)
+        return await new CreateQuoteIntroductionHandler(db, _staff, builder, new QuoteNumbering(db), _clock)
             .Handle(new CreateQuoteIntroductionCommand(Olena, input), default);
     }
 

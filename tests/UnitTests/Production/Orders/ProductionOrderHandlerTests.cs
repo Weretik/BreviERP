@@ -228,7 +228,7 @@ public sealed class ProductionOrderHandlerTests
 
         var manager = await handler.Handle(new(Manager, created.Id, created.Version), CancellationToken.None);
         var admin = await handler.Handle(new(Admin, created.Id, created.Version), CancellationToken.None);
-        var list = (await new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time)
+        var list = (await new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Customers, workshop.Time)
             .Handle(new(null, null, null, null), CancellationToken.None)).Value;
         var detail = await new GetProductionOrderHandler(workshop.Cards())
             .Handle(new(Admin, created.Id), CancellationToken.None);
@@ -248,15 +248,29 @@ public sealed class ProductionOrderHandlerTests
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
         await Import(workshop, false, Row("a", 1, "New", "Геофізика"));
-        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Customers, workshop.Time);
+
+        var clientCard = Guid.Parse("2f0d8f2a-6a0e-4a43-9c71-5d6b1b0e2a09");
+        var otherCard = Guid.Parse("71a0c2c9-4a1b-4f5e-8e6a-0b7c5f9d1e33");
+        workshop.Customers.Ids[clientCard] = 9;
+        workshop.Customers.Ids[otherCard] = 8;
 
         var client = (await handler.Handle(new(null, null, null, null, CustomerId: 9), CancellationToken.None)).Value;
         var other = (await handler.Handle(new(null, null, null, null, CustomerId: 8), CancellationToken.None)).Value;
+        var byCard = (await handler.Handle(new(null, null, null, null, CustomerPublicId: clientCard),
+            CancellationToken.None)).Value;
+        var byOtherCard = (await handler.Handle(new(null, null, null, null, CustomerPublicId: otherCard),
+            CancellationToken.None)).Value;
+        var unknownCard = (await handler.Handle(new(null, null, null, null, CustomerPublicId: Guid.NewGuid()),
+            CancellationToken.None)).Value;
 
         Assert.Multiple(() =>
         {
             Assert.That(client.Items.Select(x => x.Id), Is.EqualTo(new[] { created.Id }));
             Assert.That(other.Total, Is.Zero);
+            Assert.That(byCard.Items.Select(x => x.Id), Is.EqualTo(new[] { created.Id }), "the card passes the public id");
+            Assert.That(byOtherCard.Total, Is.Zero);
+            Assert.That(unknownCard.Total, Is.Zero, "an unknown client lists nothing, not everything");
         });
     }
 
@@ -265,7 +279,7 @@ public sealed class ProductionOrderHandlerTests
     {
         using var workshop = Workshop();
         await Import(workshop, false, Row("a", 1, "Closed", "Геофізика"), Row("b", 2, "New", "School 5"));
-        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Customers, workshop.Time);
 
         var newOnly = (await handler.Handle(new(null, "New", null, null), CancellationToken.None)).Value;
         var search = (await handler.Handle(new("school", null, null, null), CancellationToken.None)).Value;
@@ -286,7 +300,7 @@ public sealed class ProductionOrderHandlerTests
     {
         using var workshop = Workshop();
         await Import(workshop, false, Row("a", 1, "New", "Геофізика"), Row("b", 2, "New", "School 5"));
-        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Customers, workshop.Time);
 
         async Task<int[]> Find(string text) =>
             [.. (await handler.Handle(new(text, null, null, null), CancellationToken.None)).Value.Items.Select(x => x.Number)];

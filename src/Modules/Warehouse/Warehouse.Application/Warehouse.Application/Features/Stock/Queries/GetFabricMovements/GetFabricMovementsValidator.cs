@@ -17,6 +17,7 @@ public sealed class GetFabricMovementsValidator : AbstractValidator<GetFabricMov
         RuleFor(x => x.FabricCode).MaximumLength(FabricStock.CodeMaxLength);
         RuleFor(x => x.Color).MaximumLength(StockColor.MaxLength);
         RuleFor(x => x.ItemId).GreaterThan(0).When(x => x.ItemId is not null);
+        RuleFor(x => x.SupplierId).GreaterThan(0).When(x => x.SupplierId is not null);
         RuleFor(x => x.Search).MaximumLength(SearchMaxLength);
         RuleFor(x => x.To).GreaterThanOrEqualTo(x => x.From!.Value)
             .When(x => x.From is not null && x.To is not null)

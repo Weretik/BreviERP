@@ -10,6 +10,7 @@ using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Introductions;
 using Crm.Domain.Quotes.Sending;
 using Crm.Domain.Quotes.Settings;
+using Crm.Domain.Quotes.ValueObjects;
 using Crm.Domain.SiteRequests;
 using Crm.Domain.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -89,18 +90,25 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
             .Select(x => x.DisplayName)
             .SingleOrDefaultAsync(cancellationToken);
 
-    public async Task<IReadOnlyDictionary<string, long>> FindKeepinCustomersAsync(
+    public Task<QuoteCustomer?> FindQuoteCustomerAsync(Guid publicId, CancellationToken cancellationToken) =>
+        Customers.AsNoTracking()
+            .Where(x => x.PublicId == publicId && x.Active && x.MergedIntoId == null)
+            .Select(x => (QuoteCustomer?)new QuoteCustomer(x.Id, x.PublicId))
+            .SingleOrDefaultAsync(cancellationToken);
+
+    public async Task<IReadOnlyDictionary<string, QuoteCustomer>> FindKeepinCustomersAsync(
         IReadOnlyCollection<string> keepinIds, CancellationToken cancellationToken)
     {
-        if (keepinIds.Count == 0) return new Dictionary<string, long>();
+        if (keepinIds.Count == 0) return new Dictionary<string, QuoteCustomer>();
         var rows = await Customers.AsNoTracking()
             .Where(x => x.Active && x.MergedIntoId == null)
             .SelectMany(x => x.ExternalIdentities
                 .Where(i => i.Source == KeepinCrmClientIdentity.Source && i.Type == KeepinCrmClientIdentity.Type &&
                     keepinIds.Contains(i.ExternalId))
-                .Select(i => new { i.ExternalId, i.CustomerId }))
+                .Select(i => new { i.ExternalId, x.Id, x.PublicId }))
             .ToListAsync(cancellationToken);
-        return rows.GroupBy(x => x.ExternalId).ToDictionary(x => x.Key, x => x.First().CustomerId.Value);
+        return rows.GroupBy(x => x.ExternalId)
+            .ToDictionary(x => x.Key, x => new QuoteCustomer(x.First().Id, x.First().PublicId));
     }
 
     public bool IsDuplicateNumber(DbUpdateException exception) => QuoteStoreErrors.IsDuplicateNumber(exception);

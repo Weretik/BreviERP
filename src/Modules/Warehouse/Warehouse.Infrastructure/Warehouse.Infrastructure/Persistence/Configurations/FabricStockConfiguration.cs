@@ -54,6 +54,7 @@ internal sealed class FabricMovementConfiguration : IEntityTypeConfiguration<Fab
         builder.Property(x => x.Revision).HasDefaultValue(0).IsConcurrencyToken();
         builder.HasIndex(x => new { x.StockId, x.Id });
         builder.HasIndex(x => x.OperationDate);
+        builder.HasIndex(x => new { x.SupplierId, x.OperationDate });
         builder.HasIndex(x => x.ItemId);
         builder.HasIndex(x => x.LegacyId).IsUnique();
         builder.HasIndex(x => x.OperationId);

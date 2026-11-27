@@ -14,6 +14,7 @@ public sealed class GetAdminProductsValidator : AbstractValidator<GetAdminProduc
         When(x => x.Search is not null, () => RuleFor(x => x.Search!).NotEmpty().WithMessage(_ => ProductValidationMessages.Localize("Пошуковий рядок не може бути порожнім.", "Строка поиска не может быть пустой.")).MaximumLength(200).WithMessage(_ => ProductValidationMessages.MaximumLength("Пошуковий рядок", "Строка поиска", 200)));
         When(x => x.Type.HasValue, () => RuleFor(x => x.Type!.Value).IsInEnum().WithMessage(_ => ProductValidationMessages.Invalid("Тип товару", "Тип товара")));
         When(x => x.CategoryId.HasValue, () => RuleFor(x => x.CategoryId).Must(value => value is > 0).WithMessage(_ => ProductValidationMessages.Positive("ID категорії", "ID категории")));
+        When(x => x.SupplierId.HasValue, () => RuleFor(x => x.SupplierId).Must(value => value is > 0).WithMessage(_ => ProductValidationMessages.Positive("ID постачальника", "ID поставщика")));
         RuleFor(x => x.SortBy).NotEmpty().WithMessage(_ => ProductValidationMessages.Required("Поле сортування", "Поле сортировки"))
             .Must(sortBy => SortFields.Contains(sortBy.Trim(), StringComparer.OrdinalIgnoreCase)).WithMessage(_ => ProductValidationMessages.Localize("Поле сортування має бути id, name, createdAt або updatedAt.", "Поле сортировки должно быть id, name, createdAt или updatedAt."));
     }

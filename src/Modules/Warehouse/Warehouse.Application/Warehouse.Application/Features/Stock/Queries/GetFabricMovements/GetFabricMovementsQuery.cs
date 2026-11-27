@@ -11,6 +11,7 @@ namespace Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
 /// filters: a kind, a fabric (any code of its group), its colour, an order item, a text search and an operation-date
 /// period. Counts per kind follow every filter but the kind.
 /// </summary>
+/// <param name="SupplierId">The supplier card tab «Прихід на склад» (CARD-001 R-08): only this supplier's movements.</param>
 public sealed record GetFabricMovementsQuery(
     WarehouseActor Actor,
     int Page,
@@ -20,4 +21,5 @@ public sealed record GetFabricMovementsQuery(
     int? ItemId,
     string? Search = null,
     DateOnly? From = null,
-    DateOnly? To = null) : IQuery<Result<FabricMovementPageResponse>>;
+    DateOnly? To = null,
+    int? SupplierId = null) : IQuery<Result<FabricMovementPageResponse>>;

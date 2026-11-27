@@ -33,7 +33,8 @@ public static class GetProductListRequestMapper
                 productType,
                 request.CategoryId,
                 request.SortBy,
-                request.SortDirection == "desc"));
+                request.SortDirection == "desc",
+                request.SupplierId));
     }
 
     private static bool TryParseProductType(string type, out ProductType productType)

@@ -207,7 +207,7 @@ public sealed class WarehouseIssueByCuttingTests
     private static async Task<FabricMovementRowResponse> IssueRow(WarehouseTestHarness workshop, int itemId)
     {
         workshop.Db.ChangeTracker.Clear();
-        return (await new GetFabricMovementsHandler(workshop.Db)
+        return (await new GetFabricMovementsHandler(workshop.Db, workshop.Reference)
                 .Handle(new(Chief, 1, FabricMovementFilter.Issue, null, null, itemId), CancellationToken.None)).Value
             .Rows.OrderBy(x => x.Id).First();
     }

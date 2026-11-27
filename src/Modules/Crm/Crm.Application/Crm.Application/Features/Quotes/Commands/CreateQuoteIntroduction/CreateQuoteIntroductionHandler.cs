@@ -13,7 +13,7 @@ using BuildingBlocks.Application;
 namespace Crm.Application.Features.Quotes.Commands.CreateQuoteIntroduction;
 
 public sealed class CreateQuoteIntroductionHandler(
-    IQuoteStaffReader staff, QuoteIntroductionBuilder builder, QuoteNumbering numbering, TimeProvider clock)
+    IQuoteStore store, IQuoteStaffReader staff, QuoteIntroductionBuilder builder, QuoteNumbering numbering, TimeProvider clock)
     : ICommandHandler<CreateQuoteIntroductionCommand, Result<QuoteResponse>>
 {
     public async ValueTask<Result<QuoteResponse>> Handle(CreateQuoteIntroductionCommand command,
@@ -25,12 +25,14 @@ public sealed class CreateQuoteIntroductionHandler(
         var now = clock.GetUtcNow();
         var input = command.Input;
         var introduction = input.ToIntroduction();
+        var customer = await store.ResolveCustomerAsync(input.CustomerPublicId, cancellationToken);
+        if (!customer.IsSuccess) return customer.Map(_ => default(QuoteResponse)!);
         var request = RequestKeys.Of(input.RequestId, command with { Input = input with { RequestId = null } });
         var added = await numbering.AddAsync(now, request, async number =>
         {
             var items = await builder.BuildAsync(introduction, input.Pages, [], author, now, cancellationToken);
             if (!items.IsSuccess) return items.Map(_ => default(Quote)!);
-            var created = Quote.Create(number, QuoteKind.Introduction, author, input.ToHeader(), items.Value, now,
+            var created = Quote.Create(number, QuoteKind.Introduction, author, input.ToHeader(customer.Value), items.Value, now,
                 request);
             if (created.IsFailure) return created.Error!.ToResult<Quote>();
             var introduced = created.Value.SetIntroduction(introduction);

@@ -1193,6 +1193,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<long?>("CustomerId")
                         .HasColumnType("bigint");
 
+                    b.Property<Guid?>("CustomerPublicId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("InternalName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1292,6 +1295,8 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("UpdatedAt");
+
+                    b.HasIndex("CustomerPublicId", "CreatedAt");
 
                     b.HasIndex("ResponsibleUserId", "UpdatedAt");
 
@@ -1664,6 +1669,8 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
                     NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
+
+                    b.HasIndex("CustomerPublicId", "CreatedAt");
 
                     b.HasIndex("LeadId", "Status");
 

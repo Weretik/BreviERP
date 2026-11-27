@@ -16,6 +16,9 @@ public sealed class GetTasksValidator : AbstractValidator<GetTasksQuery>
                 Enum.IsDefined(filter))
             .When(x => !string.IsNullOrEmpty(x.Filter)).WithMessage("Невідомий фільтр завдань.");
         RuleFor(x => x.AssigneeUserId).GreaterThan(0).When(x => x.AssigneeUserId is not null);
+        RuleFor(x => x.CustomerPublicId).NotEqual(Guid.Empty).When(x => x.CustomerPublicId is not null);
+        RuleFor(x => x.To).GreaterThanOrEqualTo(x => x.From).When(x => x.From is not null && x.To is not null)
+            .WithMessage("Кінець періоду не може бути раніше за початок.");
         RuleFor(x => x.Page).InclusiveBetween(1, 100_000);
         RuleFor(x => x.PageSize).InclusiveBetween(1, MaxPageSize);
     }

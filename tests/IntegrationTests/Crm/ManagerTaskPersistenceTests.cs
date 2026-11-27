@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Identifiers.People;
+using Crm.Domain.Customers;
 using Ardalis.Result;
 using Crm.Application.Features.Tasks.Commands.ChangeTaskStatus;
 using Crm.Application.Features.Tasks.Commands.CreateTask;
@@ -264,6 +266,37 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
 
         public Task<TaskStaffMember?> FindAsync(int userId, CancellationToken cancellationToken) =>
             Task.FromResult(userId == 1 ? Director : Managers.FirstOrDefault(x => x.UserId == userId));
+    }
+
+    [Test]
+    public async Task ClientCardListsOpenAndDoneTasksOfThatClientInThePeriod()
+    {
+        Guid agro;
+        await using (var db = Context())
+        {
+            var customer = Customer.Create("organization", "ТОВ «Агро»", null, null, new UserId(1)).Value;
+            db.Customers.Add(customer);
+            await db.SaveChangesAsync();
+            agro = customer.PublicId;
+        }
+        var linked = await Create(Input() with { CustomerPublicId = agro });
+        var done = await Create(Input(title: "Закрито") with { CustomerPublicId = agro });
+        await Status(Director, done, "Done");
+        await Create(Input(title: "Без клієнта"));
+
+        await using var read = Context();
+        var handler = new GetTasksHandler(read, _clock);
+        var all = (await handler.Handle(new GetTasksQuery(Director, null, "All", null, CustomerPublicId: agro),
+            default)).Value;
+        var today = DateOnly.FromDateTime(_clock.GetUtcNow().UtcDateTime);
+        var later = (await handler.Handle(new GetTasksQuery(Director, null, "All", null, CustomerPublicId: agro,
+            From: today.AddDays(1)), default)).Value;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(all.Items.Select(x => x.Id), Is.EquivalentTo(new[] { linked.Id, done.Id }));
+            Assert.That(later.Total, Is.Zero);
+        });
     }
 
     private sealed class MovableClock(DateTimeOffset now) : TimeProvider

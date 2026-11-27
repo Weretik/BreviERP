@@ -86,9 +86,14 @@ public sealed class QuoteRulesTests
             Is.False);
 
     [Test]
-    public void ClientFilterNeedsAPositiveId() =>
-        Assert.That(new GetQuotesValidator().Validate(new GetQuotesQuery(Manager, null, null, null, CustomerId: 0))
-            .IsValid, Is.False);
+    public void ClientFilterNeedsARealPublicId() =>
+        Assert.That(new GetQuotesValidator().Validate(new GetQuotesQuery(Manager, null, null, null,
+            CustomerPublicId: Guid.Empty)).IsValid, Is.False);
+
+    [Test]
+    public void PeriodEndsNotBeforeItStarts() =>
+        Assert.That(new GetQuotesValidator().Validate(new GetQuotesQuery(Manager, null, null, null,
+            From: new DateOnly(2026, 11, 20), To: new DateOnly(2026, 11, 1))).IsValid, Is.False);
 
     [Test]
     public void ManagerAccessesOnlyOwnQuote()
@@ -100,6 +105,25 @@ public sealed class QuoteRulesTests
         Assert.That(new QuoteActor(5, false).CanAccess(quote), Is.True);
     }
 
+    private static readonly QuoteCustomer ClientSeven =
+        new(new CustomerId(7), Guid.Parse("8a6f4bd2-2f0e-4e7f-9d3f-6f0a3e1c2b77"));
+
+    [Test]
+    public void HeaderLinksBothIdsOfTheChosenClientOrNone()
+    {
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 3), QuoteKind.Request, new QuotePerson(new UserId(1), "Олена"),
+            new QuoteHeader("Клієнт", ClientSeven, null, null, null, null), [], DateTimeOffset.UnixEpoch).Value;
+        Assert.That((quote.CustomerId, quote.CustomerPublicId), Is.EqualTo((ClientSeven.Id, ClientSeven.PublicId)));
+
+        quote.Update(new QuoteHeader("Інший запит", null, null, null, null, null), [], DateTimeOffset.UnixEpoch);
+        Assert.Multiple(() =>
+        {
+            Assert.That(quote.CustomerId, Is.Null);
+            Assert.That(quote.CustomerPublicId, Is.Null);
+            Assert.That(quote.Customer, Is.Null);
+        });
+    }
+
     [Test]
     public void CopyKeepsManualPricesAndCompositionButNotTheStatus()
     {
@@ -109,7 +133,7 @@ public sealed class QuoteRulesTests
         var item = QuoteItem.Create(0, QuoteItemKind.CustomSewing, null, new QuoteItemTexts(null, "Фартух", null, null,
             null, null, null, null), [option], [QuoteItemLine.Create(0, QuoteItemLineKind.Operation, 155, "Шов", "хв", 1m, 12m)]);
         var source = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(new UserId(5), "Олена"),
-            new QuoteHeader("Клієнт", 7, "Іван", "Агро", null, null), [item], DateTimeOffset.UnixEpoch).Value;
+            new QuoteHeader("Клієнт", ClientSeven, "Іван", "Агро", null, null), [item], DateTimeOffset.UnixEpoch).Value;
         source.MarkSent(DateTimeOffset.UnixEpoch);
 
         var copy = source.CopyAs(new QuoteNumber(2026, 11, 2), new QuotePerson(new UserId(1), "Директор"), DateTimeOffset.UnixEpoch);
@@ -120,7 +144,7 @@ public sealed class QuoteRulesTests
             Assert.That(copy.Status, Is.EqualTo(QuoteStatus.Draft));
             Assert.That(copy.Number, Is.EqualTo("2-11-2026"));
             Assert.That(copy.ResponsibleName, Is.EqualTo("Директор"));
-            Assert.That(copy.CustomerId, Is.EqualTo(7));
+            Assert.That(copy.Customer, Is.EqualTo(ClientSeven));
             Assert.That(copied, Is.Not.SameAs(item));
             Assert.That(copied.Options.Single().Retail.Amount, Is.EqualTo(120m));
             Assert.That(copied.Options.Single().ManualReason, Is.EqualTo("Знижка"));

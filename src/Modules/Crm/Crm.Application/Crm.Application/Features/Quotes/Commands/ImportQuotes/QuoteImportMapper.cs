@@ -20,7 +20,7 @@ namespace Crm.Application.Features.Quotes.Commands.ImportQuotes;
 public sealed class QuoteImportMapper(
     QuoteImportReferences references,
     IReadOnlyList<QuoteStaffMember> staff,
-    IReadOnlyDictionary<string, long> customers,
+    IReadOnlyDictionary<string, QuoteCustomer> customers,
     QuotePerson importer)
 {
     public const string MissingCompositionReason = "Склад не перенесено з калькулятора.";
@@ -42,14 +42,14 @@ public sealed class QuoteImportMapper(
         var responsible = Person(input.Responsible) ?? importer;
         var kind = Enum.Parse<QuoteKind>(input.Kind);
 
-        long? customerId = null;
+        QuoteCustomer? customer = null;
         if (!string.IsNullOrWhiteSpace(input.KeepinClientId))
         {
-            if (customers.TryGetValue(input.KeepinClientId.Trim(), out var id)) customerId = id;
+            if (customers.TryGetValue(input.KeepinClientId.Trim(), out var found)) customer = found;
             else warnings.Add(new(shown, null, $"Клієнта KeepinCRM {input.KeepinClientId} немає в Brevi; КП без клієнта."));
         }
 
-        var header = new QuoteHeader(input.InternalName, customerId, input.RecipientName, input.CompanyName,
+        var header = new QuoteHeader(input.InternalName, customer, input.RecipientName, input.CompanyName,
             input.ClientComment, input.ManagerNote);
         var items = input.Items.Select((item, index) => Item(index, item, input.UpdatedAt, author, shown, warnings))
             .ToArray();

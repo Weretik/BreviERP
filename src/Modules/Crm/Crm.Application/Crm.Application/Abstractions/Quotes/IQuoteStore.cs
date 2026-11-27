@@ -2,6 +2,7 @@ using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Introductions;
 using Crm.Domain.Quotes.Sending;
 using Crm.Domain.Quotes.Settings;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Application.Abstractions.Quotes;
 
@@ -26,8 +27,11 @@ public interface IQuoteStore
     DbSet<QuoteIntroTemplate> QuoteIntroTemplates { get; }
 
     /// <summary>Active Brevi customers by KeepinCRM client id, for the transfer of old КП (R-25).</summary>
-    Task<IReadOnlyDictionary<string, long>> FindKeepinCustomersAsync(IReadOnlyCollection<string> keepinIds,
+    Task<IReadOnlyDictionary<string, QuoteCustomer>> FindKeepinCustomersAsync(IReadOnlyCollection<string> keepinIds,
         CancellationToken cancellationToken);
+
+    /// <summary>An active, not merged customer chosen in «Кому» (CARD-001 R-02); null when there is none.</summary>
+    Task<QuoteCustomer?> FindQuoteCustomerAsync(Guid publicId, CancellationToken cancellationToken);
 
     /// <summary>Saves; a stale <see cref="Quote.Version"/> throws <see cref="DbUpdateConcurrencyException"/>.</summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

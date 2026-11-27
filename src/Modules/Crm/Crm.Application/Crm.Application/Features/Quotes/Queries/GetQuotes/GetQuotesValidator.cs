@@ -15,7 +15,9 @@ public sealed class GetQuotesValidator : AbstractValidator<GetQuotesQuery>
         RuleFor(x => x.Status).Must(x => Enum.TryParse<QuoteStatus>(x, false, out var status) && Enum.IsDefined(status))
             .When(x => !string.IsNullOrEmpty(x.Status)).WithMessage("Невідомий статус КП.");
         RuleFor(x => x.ResponsibleUserId).GreaterThan(0).When(x => x.ResponsibleUserId is not null);
-        RuleFor(x => x.CustomerId).GreaterThan(0).When(x => x.CustomerId is not null);
+        RuleFor(x => x.CustomerPublicId).NotEqual(Guid.Empty).When(x => x.CustomerPublicId is not null);
+        RuleFor(x => x.To).GreaterThanOrEqualTo(x => x.From).When(x => x.From is not null && x.To is not null)
+            .WithMessage("Кінець періоду не може бути раніше за початок.");
         RuleFor(x => x.Page).InclusiveBetween(1, 100_000);
         RuleFor(x => x.PageSize).InclusiveBetween(1, MaxPageSize);
     }

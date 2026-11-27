@@ -1,3 +1,4 @@
+using Crm.Contracts.Customers;
 using Crm.Contracts.Quotes;
 using Mediator;
 using Crm.Application.Features.Quotes.Queries.GetQuote;
@@ -8,7 +9,7 @@ using Crm.Application.Features.Quotes.Shared.Access;
 namespace Crm.Infrastructure.Contracts.Quotes;
 
 /// <summary>КП for other modules through the Crm quote queries, under the reader's access rule.</summary>
-internal sealed class QuoteDirectory(ISender sender) : IQuoteReader
+internal sealed class QuoteDirectory(ISender sender, ICustomerDirectory customers) : IQuoteReader
 {
     public async Task<IReadOnlyList<QuoteSummaryInfo>> ListAsync(QuoteReader reader,
         string? search, int max, CancellationToken cancellationToken)
@@ -26,8 +27,11 @@ internal sealed class QuoteDirectory(ISender sender) : IQuoteReader
         var result = await sender.Send(new GetQuoteQuery(Actor(reader), quoteId), cancellationToken);
         if (!result.IsSuccess) return null;
         var quote = result.Value;
+        var customerId = quote.CustomerPublicId is { } publicId
+            ? await customers.FindInternalIdAsync(publicId, cancellationToken)
+            : null;
         return new QuoteInfo(quote.Id, quote.Number, quote.Kind, quote.CompanyName, quote.InternalName,
-            quote.CustomerId, quote.Responsible.UserId, quote.Responsible.Name, quote.Items.Select(Item).ToArray());
+            customerId, quote.Responsible.UserId, quote.Responsible.Name, quote.Items.Select(Item).ToArray());
     }
 
     private static QuoteActor Actor(QuoteReader reader) =>

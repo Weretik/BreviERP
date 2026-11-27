@@ -31,10 +31,12 @@ public sealed class GetAdminProductsHandler(
             categoryIds = [category.Id, .. descendants.Select(x => x.Id)];
         }
 
-        var filter = new GetAdminProductsSpec(query.Search, query.Type, categoryIds, query.SortBy, query.Descending);
+        var filter = new GetAdminProductsSpec(query.Search, query.Type, categoryIds, query.SortBy, query.Descending,
+            supplierId: query.SupplierId);
         var total = await repository.CountAsync(filter, cancellationToken);
         var rows = await repository.ListAsync(
-            new GetAdminProductsSpec(query.Search, query.Type, categoryIds, query.SortBy, query.Descending, page, pageSize),
+            new GetAdminProductsSpec(query.Search, query.Type, categoryIds, query.SortBy, query.Descending, page, pageSize,
+                query.SupplierId),
             cancellationToken);
 
         if (rows.Count == 0)

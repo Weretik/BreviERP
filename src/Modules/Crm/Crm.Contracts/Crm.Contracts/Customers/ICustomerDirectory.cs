@@ -16,6 +16,12 @@ public interface ICustomerDirectory
     Task<IReadOnlyList<CustomerInfo>> FindByKeepinIdsAsync(IReadOnlyCollection<string> keepinIds,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    /// The internal id of a client by its public id, for a module that stores the internal one (CARD-001 R-04);
+    /// null when there is no such client.
+    /// </summary>
+    Task<long?> FindInternalIdAsync(Guid publicId, CancellationToken cancellationToken);
+
     Task<IReadOnlyList<CustomerInfo>> FindByTaxIdsAsync(IReadOnlyCollection<string> taxIds,
         CancellationToken cancellationToken);
 }

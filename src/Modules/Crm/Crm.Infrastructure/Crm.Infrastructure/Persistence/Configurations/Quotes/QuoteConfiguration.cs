@@ -1,5 +1,6 @@
 using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.People;
 using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Quotes;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,9 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
         b.Property(x => x.LetterBody).HasMaxLength(QuoteLimits.LetterBodyMaxLength);
         b.Property(x => x.ArchivedByName).HasMaxLength(QuoteLimits.NameMaxLength);
         b.Ignore(x => x.IsLegacyArchived);
+        b.Ignore(x => x.Customer);
+        b.Property(x => x.CustomerId)
+            .HasConversion(x => x.HasValue ? x.Value.Value : (long?)null, x => x.HasValue ? new CustomerId(x.Value) : null);
         b.Property(x => x.Version).IsConcurrencyToken();
 
         b.HasIndex(x => x.Number).IsUnique();
@@ -46,6 +50,7 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
         b.HasIndex(x => x.UpdatedAt);
         b.HasIndex(x => x.ArchivedAt);
         b.HasIndex(x => x.CustomerId);
+        b.HasIndex(x => new { x.CustomerPublicId, x.CreatedAt });
         b.HasIndex(x => x.CreateRequestId).IsUnique().HasFilter("\"CreateRequestId\" IS NOT NULL");
 
         b.Property(x => x.CreateRequestHash).HasMaxLength(RequestKey.HashLength);

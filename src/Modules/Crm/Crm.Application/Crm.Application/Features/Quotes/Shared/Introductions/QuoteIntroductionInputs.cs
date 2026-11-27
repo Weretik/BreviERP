@@ -13,7 +13,7 @@ namespace Crm.Application.Features.Quotes.Shared.Introductions;
 public sealed record SaveQuoteIntroductionInput(
     int Version,
     string InternalName,
-    long? CustomerId,
+    Guid? CustomerPublicId,
     string? RecipientEmail,
     string? RecipientName,
     string? CompanyName,

@@ -14,12 +14,13 @@ internal static class GetCrmQuotesEndpoint
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         string? search = null, string? status = null, int? responsibleUserId = null, int page = 1, int pageSize = 50,
-        long? customerId = null, CancellationToken cancellationToken = default)
+        Guid? customerPublicId = null, DateOnly? from = null, DateOnly? to = null,
+        CancellationToken cancellationToken = default)
     {
         var actor = QuoteActorClaims.Read(user);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(
-            new GetQuotesQuery(actor, search, status, responsibleUserId, page, pageSize, customerId),
+            new GetQuotesQuery(actor, search, status, responsibleUserId, page, pageSize, customerPublicId, from, to),
             cancellationToken)).ToHttpResult();
     }
 }

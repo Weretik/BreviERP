@@ -250,6 +250,8 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StockId", "Id");
 
+                    b.HasIndex("SupplierId", "OperationDate");
+
                     b.ToTable("FabricMovements", "warehouse");
                 });
 

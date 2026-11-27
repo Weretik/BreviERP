@@ -5,7 +5,7 @@ namespace Crm.Domain.Quotes.ValueObjects;
 /// <summary>The fields of a КП a person sees above the items, the item count and the introduction (ACT-001 R-03).</summary>
 public sealed record QuoteSnapshot(
     string InternalName,
-    long? CustomerId,
+    Guid? CustomerPublicId,
     string? RecipientName,
     string? CompanyName,
     string? ClientComment,

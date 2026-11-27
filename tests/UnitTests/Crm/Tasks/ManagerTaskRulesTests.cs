@@ -94,7 +94,8 @@ public sealed class ManagerTaskRulesTests
 
     [TestCase(null, true)]
     [TestCase("Overdue", true)]
-    [TestCase("All", false)]
+    [TestCase("All", true)]
+    [TestCase("Everything", false)]
     [TestCase("2", false)]
     public void OnlyKnownListFilters(string? filter, bool valid) =>
         Assert.That(new GetTasksValidator().Validate(new GetTasksQuery(Admin, null, filter, null)).IsValid,
