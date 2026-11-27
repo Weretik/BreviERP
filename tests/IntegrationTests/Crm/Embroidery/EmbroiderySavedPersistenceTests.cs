@@ -130,8 +130,9 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
         Assert.That((await Get(Olena, 99)).Status, Is.EqualTo(ResultStatus.NotFound));
     }
 
+    // ACC-002: who may delete is the endpoint's «Ціна вишивки: Видаляти»; the handler no longer asks for the Admin role.
     [Test]
-    public async Task OnlyDirectorOrAdminDeletes()
+    public async Task AManagerWithTheDeleteRightDeletes()
     {
         var saved = (await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form(), "Категорія 1"))).Value;
 
@@ -139,9 +140,7 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
         {
             var handler = new DeleteEmbroideryCalculationHandler(db);
             Assert.That((await handler.Handle(new DeleteEmbroideryCalculationCommand(Olena, saved.Summary.Id), default))
-                .Status, Is.EqualTo(ResultStatus.Forbidden));
-            Assert.That((await handler.Handle(new DeleteEmbroideryCalculationCommand(Director, saved.Summary.Id),
-                default)).IsSuccess, Is.True);
+                .IsSuccess, Is.True);
         }
 
         Assert.That((await Get(Director, saved.Summary.Id)).Status, Is.EqualTo(ResultStatus.NotFound));
