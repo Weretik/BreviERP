@@ -14,8 +14,9 @@ using Crm.Api.Endpoints.Tasks.SetCrmTaskUrgent;
 namespace Crm.Api.Endpoints.Tasks;
 
 /// <summary>
-/// Manager tasks (TSK-001): Director and Admin give, change and delete them in «Адміністрування»; a Manager sees
-/// only own tasks on «Мої завдання», moves them and ticks steps. `assigneeUserId` is ignored for a Manager.
+/// Manager tasks (TSK-001): «Мої завдання» (`tasks`) shows own tasks, moves them and ticks steps; «Завдання менеджерам»
+/// (`manager-tasks`, ACC-002 R-01) gives, changes, marks urgent and deletes them, and its «Перегляд» shows every manager's
+/// tasks on the same reads. `assigneeUserId` is ignored without it.
 /// </summary>
 internal static class ManagerTasksEndpoints
 {
@@ -26,14 +27,17 @@ internal static class ManagerTasksEndpoints
         GetCrmTasksEndpoint.Map(group);
         GetCrmTaskBoardEndpoint.Map(group);
         GetCrmTaskOverviewEndpoint.Map(group);
-        GetCrmTaskAssigneesEndpoint.Map(group);
         GetCrmTaskEndpoint.Map(group);
-        CreateCrmTaskEndpoint.Map(group);
-        EditCrmTaskEndpoint.Map(group);
         ChangeCrmTaskStatusEndpoint.Map(group);
-        SetCrmTaskUrgentEndpoint.Map(group);
         MarkCrmTaskStepEndpoint.Map(group);
-        DeleteCrmTaskEndpoint.Map(group);
+
+        var manage = app.MapGroup("api/crm/tasks").RequireAuthorization(CrmAccess.ManagerTasks)
+            .WithTags("ManagerTasks");
+        GetCrmTaskAssigneesEndpoint.Map(manage);
+        CreateCrmTaskEndpoint.Map(manage);
+        EditCrmTaskEndpoint.Map(manage);
+        SetCrmTaskUrgentEndpoint.Map(manage);
+        DeleteCrmTaskEndpoint.Map(manage);
         return app;
     }
 }

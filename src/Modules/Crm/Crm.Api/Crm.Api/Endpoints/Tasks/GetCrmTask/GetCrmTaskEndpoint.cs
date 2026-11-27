@@ -12,10 +12,11 @@ internal static class GetCrmTaskEndpoint
             .WithSummary("Get CRM task")
             .Produces<TaskDetailResponse>();
 
-    private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,
+    private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user,
+        [FromServices] IAuthorizationService authorization, [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        var actor = TaskActorClaims.Read(user);
+        var actor = await TaskActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(new GetTaskQuery(actor, id), cancellationToken)).ToHttpResult();
     }

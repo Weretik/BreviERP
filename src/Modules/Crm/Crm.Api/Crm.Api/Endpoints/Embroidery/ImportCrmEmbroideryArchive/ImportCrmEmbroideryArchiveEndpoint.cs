@@ -20,11 +20,11 @@ internal static class ImportCrmEmbroideryArchiveEndpoint
             .WithMetadata(new RequestSizeLimitAttribute(20_000_000))
             .Produces<EmbroideryArchiveImportResult>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user,
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] IAuthorizationService authorization,
         [FromBody] IReadOnlyList<EmbroideryArchiveRow> rows,
         [FromServices] ISender sender, bool dryRun = default, CancellationToken cancellationToken = default)
     {
-        var actor = EmbroideryActorClaims.Read(user);
+        var actor = await EmbroideryActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(new ImportEmbroideryArchiveCommand(actor, rows, dryRun),
             cancellationToken)).ToHttpResult();

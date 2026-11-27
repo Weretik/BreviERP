@@ -13,10 +13,11 @@ internal static class SetCrmEmbroideryMockupEndpoint
             .WithSummary("«Макет» — a Media library photo of the design for the workshop; `mediaFileId` null clears it")
             .Produces<EmbroiderySavedCalculationResponse>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, long id, SetEmbroideryMockupInput input,
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user,
+        [FromServices] IAuthorizationService authorization, long id, SetEmbroideryMockupInput input,
         [FromServices] ISender sender, CancellationToken cancellationToken)
     {
-        var actor = EmbroideryActorClaims.Read(user);
+        var actor = await EmbroideryActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(new SetEmbroideryMockupCommand(actor, id, input),
             cancellationToken)).ToHttpResult();

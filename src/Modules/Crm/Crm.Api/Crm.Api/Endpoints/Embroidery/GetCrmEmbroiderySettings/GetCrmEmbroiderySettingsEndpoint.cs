@@ -10,13 +10,13 @@ internal static class GetCrmEmbroiderySettingsEndpoint
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("settings", HandleAsync).WithName("getCrmEmbroiderySettings")
             .WithSummary("The saved settings, or the old calculator's rates with `version` 0 before the first save")
-            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
             .Produces<EmbroiderySettingsResponse>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user,
+        [FromServices] IAuthorizationService authorization, [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        var actor = EmbroideryActorClaims.Read(user);
+        var actor = await EmbroideryActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(new GetEmbroiderySettingsQuery(actor), cancellationToken)).ToHttpResult();
     }

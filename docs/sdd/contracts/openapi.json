@@ -3161,6 +3161,48 @@
         }
       }
     },
+    "/api/admin/access/roles/{role}/title": {
+      "put": {
+        "tags": [
+          "AccessRights"
+        ],
+        "summary": "Rename a role",
+        "description": "Only a role made on «Права доступу»; built-in roles keep their titles (400). A title another role has: 409. The same title again changes nothing.",
+        "operationId": "renameRole",
+        "parameters": [
+          {
+            "name": "role",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessRoleResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/users": {
       "get": {
         "tags": [
@@ -12173,8 +12215,8 @@
         "tags": [
           "ManagerTasks"
         ],
-        "summary": "Director or Admin gives a new task to an active Manager",
-        "description": "Director or Admin gives a new task to an active Manager. `version` must be 0.",
+        "summary": "«Завдання менеджерам» gives a new task to an active Manager",
+        "description": "«Завдання менеджерам» gives a new task to an active Manager. `version` must be 0.",
         "operationId": "createCrmTask",
         "requestBody": {
           "content": {
@@ -12206,7 +12248,7 @@
           "ManagerTasks"
         ],
         "summary": "«Мої завдання» kanban: every open task and those done in `period` (at most 500 cards)",
-        "description": "«Мої завдання» kanban: every open task and those done in `period` (at most 500 cards). Open cards come first, then done ones; each group is newest added first; the Admin groups them by `lane`.",
+        "description": "«Мої завдання» kanban: every open task and those done in `period` (at most 500 cards). Open cards come first, then done ones; each group is newest added first; «Завдання менеджерам» groups them by `lane`.",
         "operationId": "getCrmTaskBoard",
         "parameters": [
           {
@@ -12245,7 +12287,7 @@
           "ManagerTasks"
         ],
         "summary": "Get CRM task overview",
-        "description": "Counts for the metric strip and filter chips (narrowed by `assigneeUserId` for Admin) and the workload of each active Manager (always all of them for Admin, only the actor for a Manager).",
+        "description": "Counts for the metric strip and filter chips (narrowed by `assigneeUserId` for «Завдання менеджерам») and the workload of each active Manager (always all of them for «Завдання менеджерам», only the actor for a Manager).",
         "operationId": "getCrmTaskOverview",
         "parameters": [
           {
@@ -12264,30 +12306,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TaskOverviewResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/crm/tasks/assignees": {
-      "get": {
-        "tags": [
-          "ManagerTasks"
-        ],
-        "summary": "Active users with the Manager role, by name; for the assignee picker and the manager filter",
-        "operationId": "getCrmTaskAssignees",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TaskAssigneeResponse"
-                  }
                 }
               }
             }
@@ -12331,8 +12349,8 @@
         "tags": [
           "ManagerTasks"
         ],
-        "summary": "Director or Admin saves the side panel",
-        "description": "Director or Admin saves the side panel. Steps are replaced (new ids). `version` is the loaded one.",
+        "summary": "«Завдання менеджерам» saves the side panel",
+        "description": "«Завдання менеджерам» saves the side panel. Steps are replaced (new ids). `version` is the loaded one.",
         "operationId": "editCrmTask",
         "parameters": [
           {
@@ -12373,7 +12391,7 @@
         "tags": [
           "ManagerTasks"
         ],
-        "summary": "Director or Admin deletes the task with its steps and history",
+        "summary": "«Завдання менеджерам» deletes the task with its steps and history",
         "operationId": "deleteCrmTask",
         "parameters": [
           {
@@ -12408,8 +12426,8 @@
         "tags": [
           "ManagerTasks"
         ],
-        "summary": "The assignee or Admin moves the task",
-        "description": "The assignee or Admin moves the task. `Done` sets `completedAt`; leaving `Done` clears it. The same status changes nothing.",
+        "summary": "The assignee or «Завдання менеджерам» moves the task",
+        "description": "The assignee or «Завдання менеджерам» moves the task. `Done` sets `completedAt`; leaving `Done` clears it. The same status changes nothing.",
         "operationId": "changeCrmTaskStatus",
         "parameters": [
           {
@@ -12447,55 +12465,12 @@
         }
       }
     },
-    "/api/crm/tasks/{id}/urgent": {
-      "put": {
-        "tags": [
-          "ManagerTasks"
-        ],
-        "summary": "Director or Admin drags a card into or out of «Терміново»",
-        "operationId": "setCrmTaskUrgent",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetTaskUrgentRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TaskDetailResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/crm/tasks/{id}/steps/{stepId}": {
       "put": {
         "tags": [
           "ManagerTasks"
         ],
-        "summary": "The assignee or Admin ticks or unticks one step",
+        "summary": "The assignee or «Завдання менеджерам» ticks or unticks one step",
         "operationId": "markCrmTaskStep",
         "parameters": [
           {
@@ -12524,6 +12499,73 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/MarkTaskStepRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crm/tasks/assignees": {
+      "get": {
+        "tags": [
+          "ManagerTasks"
+        ],
+        "summary": "Active users with the Manager role, by name; for the assignee picker and the manager filter",
+        "operationId": "getCrmTaskAssignees",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskAssigneeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crm/tasks/{id}/urgent": {
+      "put": {
+        "tags": [
+          "ManagerTasks"
+        ],
+        "summary": "«Завдання менеджерам» drags a card into or out of «Терміново»",
+        "operationId": "setCrmTaskUrgent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetTaskUrgentRequest"
               }
             }
           },
@@ -12875,7 +12917,7 @@
           "ProductPhotos"
         ],
         "summary": "Saves the photos of a product",
-        "description": "Admin only (the Director also holds Admin). The product gets exactly these library photos in this order; photos that stay keep their alt text and visibility. mainMediaFileId null keeps the current main photo or makes the first one main.",
+        "description": "Needs «Товари: Редагування» on «Права доступу» (ACC-002 R-03). The product gets exactly these library photos in this order; photos that stay keep their alt text and visibility. mainMediaFileId null keeps the current main photo or makes the first one main.",
         "operationId": "setProductPhotos",
         "parameters": [
           {
@@ -13203,8 +13245,8 @@
         "tags": [
           "PpeSupplierPrices"
         ],
-        "summary": "RequireAdminRole (administrators and the director)",
-        "description": "RequireAdminRole (administrators and the director). Saves the discount and, optionally, the «Постачальники» row.",
+        "summary": "Change a PPE price source",
+        "description": "Needs «Імпорт цін: Редагування». Saves the discount and, optionally, the «Постачальники» row.",
         "operationId": "updatePpePriceSource",
         "parameters": [
           {
@@ -15908,7 +15950,8 @@
           "key",
           "group",
           "title",
-          "actions"
+          "actions",
+          "actionLabels"
         ],
         "type": "object",
         "properties": {
@@ -15924,6 +15967,12 @@
           "actions": {
             "type": "array",
             "items": {
+              "type": "string"
+            }
+          },
+          "actionLabels": {
+            "type": "object",
+            "additionalProperties": {
               "type": "string"
             }
           }
@@ -15985,7 +16034,8 @@
       "AccessRightsResponse": {
         "required": [
           "areas",
-          "roles"
+          "roles",
+          "adminOnly"
         ],
         "type": "object",
         "properties": {
@@ -16000,6 +16050,12 @@
             "items": {
               "$ref": "#/components/schemas/AccessRoleResponse"
             }
+          },
+          "adminOnly": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminOnlyItemResponse"
+            }
           }
         }
       },
@@ -16010,6 +16066,7 @@
           "locked",
           "builtIn",
           "userCount",
+          "userNames",
           "version",
           "updatedByName",
           "updatedAt",
@@ -16032,6 +16089,12 @@
           "userCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "userNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "version": {
             "type": "integer",
@@ -16335,6 +16398,25 @@
           "operationDate": {
             "type": "string",
             "format": "date"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminOnlyItemResponse": {
+        "required": [
+          "group",
+          "title",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
           },
           "reason": {
             "type": "string"
@@ -39825,6 +39907,17 @@
               "string"
             ],
             "format": "date-time"
+          }
+        }
+      },
+      "RenameRoleRequest": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
           }
         }
       },

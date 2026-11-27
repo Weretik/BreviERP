@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -137,6 +138,13 @@ public sealed class ApiAccessTests
     [TestCase("Admin", "GET", "/api/accounting/overview")]
     [TestCase("custom-1a2b3c", "GET", "/api/crm/quotes")]
     [TestCase("Manager", "GET", "/api/admin/access")]
+    // ACC-002: managing tasks and the embroidery cost are their own pages; product photos follow «Товари».
+    [TestCase("Manager", "POST", "/api/crm/tasks")]
+    [TestCase("Manager", "GET", "/api/crm/tasks/assignees")]
+    [TestCase("Manager", "DELETE", "/api/crm/tasks/1")]
+    [TestCase("Manager", "GET", "/api/crm/embroidery/settings")]
+    [TestCase("Seo", "PUT", "/api/v1/products/1/photos")]
+    [TestCase("Accountant", "PUT", "/api/v1/pricing/ppe/supplier-prices/x")]
     public async Task A_role_without_the_right_gets_403(string role, string method, string path)
     {
         await using var host = await ApiTestHost.CreateAsync();
@@ -145,5 +153,31 @@ public sealed class ApiAccessTests
         var response = await host.Client.SendAsync(new HttpRequestMessage(new HttpMethod(method), path));
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+    }
+
+    // ACC-002: these switches used to do nothing because the server still asked for the Admin role.
+    [TestCase("Manager", "DELETE", "/api/crm/embroidery/calculations/1")]
+    [TestCase("Manager", "PUT", "/api/v1/products/1/photos")]
+    [TestCase("Manager", "PUT", "/api/v1/pricing/ppe/supplier-prices/x")]
+    public async Task A_role_with_the_right_on_the_page_is_not_refused_by_role(string role, string method, string path)
+    {
+        var (sender, recorder) = RecordingSender.Create(null);
+        await using var host = await ApiTestHost.CreateAsync(sender);
+        host.Client.DefaultRequestHeaders.Add("X-Fixture-Role", role);
+        var request = new HttpRequestMessage(new HttpMethod(method), path)
+        {
+            Content = method == "DELETE" ? null : JsonContent.Create(new { })
+        };
+
+        try
+        {
+            await host.Client.SendAsync(request);
+        }
+        catch (Exception)
+        {
+            // The recorder answers with no result, so the endpoint fails after authorization; only reaching it matters.
+        }
+
+        Assert.That(recorder.Messages, Is.Not.Empty, "the request was refused before it reached its handler");
     }
 }

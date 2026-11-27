@@ -5,7 +5,7 @@ internal static class TaskMessages
 {
     public const string NotFound = "Завдання не знайдено.";
     public const string Stale = "Завдання змінили в іншому вікні. Оновіть сторінку.";
-    public const string AdminOnly = "Ставити й змінювати завдання може лише директор або адміністратор.";
+    public const string AdminOnly = "Потрібне право «Завдання менеджерам».";
     public const string AssigneeNotFound = "Менеджера не знайдено або він заблокований.";
     public const string CustomerNotFound = "Клієнта не знайдено.";
     public const string StepNotFound = "Крок не знайдено. Оновіть сторінку.";

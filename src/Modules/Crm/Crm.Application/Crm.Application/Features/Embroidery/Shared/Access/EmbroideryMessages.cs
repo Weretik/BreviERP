@@ -3,7 +3,7 @@ namespace Crm.Application.Features.Embroidery.Shared.Access;
 /// <summary>Texts the Admin shows as they are.</summary>
 internal static class EmbroideryMessages
 {
-    public const string Forbidden = "Налаштування вишивки змінює лише директор або адміністратор.";
+    public const string Forbidden = "Потрібне право «Ціна вишивки: собівартість і налаштування».";
     public const string Stale = "Налаштування змінили в іншому вікні. Оновіть сторінку.";
     public const string ActorUnknown = "Не вдалося визначити користувача.";
     public const string StitchRateMissing =
@@ -16,5 +16,4 @@ internal static class EmbroideryMessages
         "Ціни не збігаються зі збереженими у старому калькуляторі. Розрахунок не перенесено.";
     public const string CategoryNotFound = "Оберіть категорію ціни.";
     public const string MockupNotFound = "Фото не знайдено в медіатеці.";
-    public const string DeleteForbidden = "Видаляти збережені розрахунки може лише директор або адміністратор.";
 }

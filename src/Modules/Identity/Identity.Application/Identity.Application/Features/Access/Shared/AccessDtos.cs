@@ -2,12 +2,18 @@ using Identity.Domain.Authorization;
 
 namespace Identity.Application.Features.Access.Shared;
 
-public sealed record AccessAreaDto(string Key, string Group, string Title, IReadOnlyList<AccessAction> Actions);
+/// <param name="Labels">What each action of <paramref name="Actions"/> means on this page, in Ukrainian (ACC-002 R-05).</param>
+public sealed record AccessAreaDto(string Key, string Group, string Title, IReadOnlyList<AccessAction> Actions,
+    IReadOnlyDictionary<AccessAction, string> Labels);
+
+/// <summary>A page or action only Admin may use (ACC-002 R-04).</summary>
+public sealed record AdminOnlyItemDto(string Group, string Title, string Reason);
 
 /// <param name="Name">The role as Identity stores it; a new role gets a generated name.</param>
 /// <param name="Title">What people see, such as «Менеджер» or «Технолог».</param>
 /// <param name="Locked">The director: rights are not edited.</param>
 /// <param name="BuiltIn">A role the code knows: never deleted.</param>
+/// <param name="UserNames">Who holds the role, by name (ACC-002 R-06); the director only under «Директор».</param>
 /// <param name="Version">0 until the role's rights are saved; then the save's version, for 409 on a stale save.</param>
 public sealed record AccessRoleDto(
     string Name,
@@ -15,12 +21,14 @@ public sealed record AccessRoleDto(
     bool Locked,
     bool BuiltIn,
     int UserCount,
+    IReadOnlyList<string> UserNames,
     int Version,
     string? UpdatedByName,
     DateTimeOffset? UpdatedAt,
     IReadOnlyDictionary<string, IReadOnlyList<AccessAction>> Grants);
 
-public sealed record AccessRightsDto(IReadOnlyList<AccessAreaDto> Areas, IReadOnlyList<AccessRoleDto> Roles);
+public sealed record AccessRightsDto(IReadOnlyList<AccessAreaDto> Areas, IReadOnlyList<AccessRoleDto> Roles,
+    IReadOnlyList<AdminOnlyItemDto> AdminOnly);
 
 /// <summary>The signed-in user's rights: the director may do everything; role titles for the shell.</summary>
 public sealed record MyAccessDto(bool AllowAll, IReadOnlyList<RoleTitleDto> Roles,

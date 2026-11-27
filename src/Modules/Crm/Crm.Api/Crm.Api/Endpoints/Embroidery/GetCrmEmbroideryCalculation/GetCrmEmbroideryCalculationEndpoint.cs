@@ -14,10 +14,11 @@ internal static class GetCrmEmbroideryCalculationEndpoint
             .WithDescription("One saved calculation as it was saved. `result.cost` and `rates` are null for a Manager.")
             .Produces<EmbroiderySavedCalculationResponse>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, long id, [FromServices] ISender sender,
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user,
+        [FromServices] IAuthorizationService authorization, long id, [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        var actor = EmbroideryActorClaims.Read(user);
+        var actor = await EmbroideryActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(new GetEmbroideryCalculationQuery(actor, id), cancellationToken)).ToHttpResult();
     }

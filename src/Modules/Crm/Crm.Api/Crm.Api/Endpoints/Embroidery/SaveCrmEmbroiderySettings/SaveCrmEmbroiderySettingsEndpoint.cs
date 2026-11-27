@@ -12,14 +12,14 @@ internal static class SaveCrmEmbroiderySettingsEndpoint
         group.MapPut("settings", HandleAsync).WithName("saveCrmEmbroiderySettings")
             .WithSummary("Saves the whole page")
             .WithDescription("Saves the whole page. `version` is the one read; a stale version is 409.")
-            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
             .Produces<EmbroiderySettingsResponse>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveEmbroiderySettingsInput input,
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user,
+        [FromServices] IAuthorizationService authorization, SaveEmbroiderySettingsInput input,
         [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        var actor = EmbroideryActorClaims.Read(user);
+        var actor = await EmbroideryActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(new SaveEmbroiderySettingsCommand(actor, input), cancellationToken)).ToHttpResult();
     }
