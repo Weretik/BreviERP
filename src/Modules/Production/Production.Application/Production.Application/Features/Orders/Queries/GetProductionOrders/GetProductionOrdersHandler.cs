@@ -41,7 +41,7 @@ public sealed class GetProductionOrdersHandler(IProductionDbContext db, IProduct
                 (x.Items.Min(item => (ProductionStage?)item.CurrentStage) ?? ProductionStage.New).ToString(),
                 x.Shipments.Sum(shipment => shipment.Quantity),
                 x.Items.OrderBy(item => item.Position)
-                    .Select(item => new ProductionOrderSummaryItem(item.ModelName, item.Quantity,
+                    .Select(item => new ProductionOrderSummaryItem(item.ModelCode, item.ModelName, item.Quantity,
                         item.CurrentStage.ToString(), item.FabricName, item.MainColor, new List<string>(),
                         new List<string>()))
                     .ToList()))

@@ -32986,6 +32986,7 @@
       },
       "ProductionOrderSummaryItem": {
         "required": [
+          "modelCode",
           "modelName",
           "quantity",
           "stage",
@@ -32996,6 +32997,12 @@
         ],
         "type": "object",
         "properties": {
+          "modelCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "modelName": {
             "type": "string"
           },
