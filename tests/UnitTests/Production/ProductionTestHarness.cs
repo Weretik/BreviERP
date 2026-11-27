@@ -67,6 +67,15 @@ internal sealed class FakeProductionEmbroideryReader : IProductionEmbroideryRead
             .Where(x => ids.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
 }
 
+/// <summary>Crm clients by public id; a test adds the ones its orders use.</summary>
+internal sealed class FakeProductionCustomerReader : IProductionCustomerReader
+{
+    public Dictionary<Guid, long> Ids { get; } = [];
+
+    public Task<long?> FindInternalIdAsync(Guid publicId, CancellationToken cancellationToken) =>
+        Task.FromResult(Ids.TryGetValue(publicId, out var id) ? id : (long?)null);
+}
+
 internal sealed class FakeProductionFabricReader : IProductionFabricReader
 {
     public List<ProductionFabric> Fabrics { get; } = [];
@@ -178,6 +187,7 @@ internal sealed class ProductionTestHarness : IDisposable
     public FakeProductionQuoteReader Quotes { get; } = new();
     public FakeProductionFabricReader Fabrics { get; } = new();
     public FakeProductionEmbroideryReader Embroideries { get; } = new();
+    public FakeProductionCustomerReader Customers { get; } = new();
     public FakeProductionColorReader ColorList { get; } = new();
     public FakeProductionStaffReader Staff { get; } = new();
     public IProductionStockReader Stock { get; set; } = new EmptyProductionStockReader();

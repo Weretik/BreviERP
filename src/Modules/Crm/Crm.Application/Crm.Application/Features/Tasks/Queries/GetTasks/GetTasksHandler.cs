@@ -1,4 +1,5 @@
 using Crm.Domain.Tasks;
+using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Tasks.Shared;
 using Crm.Application.Features.Tasks.Shared.Mapping;
 using Crm.Application.Features.Tasks.Shared.Persistence;
@@ -15,6 +16,18 @@ public sealed class GetTasksHandler(ITaskStore store, TimeProvider clock)
         var now = clock.GetUtcNow();
         var filter = string.IsNullOrEmpty(query.Filter) ? TaskListFilter.Open : Enum.Parse<TaskListFilter>(query.Filter);
         var tasks = Filter(store.Visible(query.Actor, query.AssigneeUserId), filter, now);
+        if (query.CustomerPublicId is { } customer)
+            tasks = tasks.Where(x => x.CustomerPublicId == customer);
+        if (query.From is { } from)
+        {
+            var start = LeadClock.StartOf(from);
+            tasks = tasks.Where(x => x.CreatedAt >= start);
+        }
+        if (query.To is { } to)
+        {
+            var end = LeadClock.StartOf(to.AddDays(1));
+            tasks = tasks.Where(x => x.CreatedAt < end);
+        }
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
@@ -45,6 +58,7 @@ public sealed class GetTasksHandler(ITaskStore store, TimeProvider clock)
             TaskListFilter.New => tasks.Where(x => x.Status == ManagerTaskStatus.New),
             TaskListFilter.InProgress => tasks.Where(x => x.Status == ManagerTaskStatus.InProgress),
             TaskListFilter.Done => tasks.Where(x => x.Status == ManagerTaskStatus.Done),
+            TaskListFilter.All => tasks,
             _ => tasks.Where(x => x.Status != ManagerTaskStatus.Done),
         };
 }

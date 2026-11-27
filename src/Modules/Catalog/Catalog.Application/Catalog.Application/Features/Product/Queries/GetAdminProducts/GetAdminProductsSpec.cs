@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain.Identifiers.Products;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products;
@@ -17,7 +18,8 @@ public sealed class GetAdminProductsSpec : Specification<ProductEntity, ProductL
         string? sortBy,
         bool descending,
         int? page = null,
-        int? pageSize = null)
+        int? pageSize = null,
+        int? supplierId = null)
     {
         Query.AsNoTracking().AsSplitQuery();
 
@@ -38,6 +40,13 @@ public sealed class GetAdminProductsSpec : Specification<ProductEntity, ProductL
 
         if (type.HasValue)
             Query.Where(x => x.Type == type.Value);
+
+        if (supplierId is { } supplierValue)
+        {
+            var supplier = new SupplierId(supplierValue);
+            Query.Where(x => (x.PpeDetails != null && x.PpeDetails.SupplierId == supplier) ||
+                (x.CatalogProfile != null && x.CatalogProfile.SupplierId == supplier));
+        }
 
         if (categoryIds is { Count: > 0 })
             Query.Where(x => x.Categories.Any(category => categoryIds.Contains(category.Id)));

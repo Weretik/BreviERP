@@ -16,12 +16,13 @@ internal static class GetCrmTasksEndpoint
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         string? search = null, string? filter = null, int? assigneeUserId = null, int page = 1, int pageSize = 25,
+        Guid? customerPublicId = null, DateOnly? from = null, DateOnly? to = null,
         CancellationToken cancellationToken = default)
     {
         var actor = TaskActorClaims.Read(user);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(
-            new GetTasksQuery(actor, search, filter, assigneeUserId, page, pageSize),
+            new GetTasksQuery(actor, search, filter, assigneeUserId, page, pageSize, customerPublicId, from, to),
                 cancellationToken)).ToHttpResult();
     }
 }

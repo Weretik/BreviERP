@@ -44,4 +44,22 @@ public sealed class ProductAdminListReadModelTests
         Assert.That(result.Value, Is.Empty);
         media.VerifyNoOtherCalls();
     }
+
+    [Test]
+    public void Supplier_filter_needs_a_positive_supplier()
+    {
+        var validator = new GetAdminProductsValidator();
+        Assert.Multiple(() =>
+        {
+            Assert.That(validator.Validate(new GetAdminProductsQuery(SupplierId: 0)).IsValid, Is.False);
+            Assert.That(validator.Validate(new GetAdminProductsQuery(SupplierId: 12)).IsValid, Is.True);
+        });
+    }
+
+    [Test]
+    public void Supplier_filter_keeps_only_that_suppliers_products()
+    {
+        var spec = new GetAdminProductsSpec(null, ProductType.Ppe, null, "name", false, supplierId: 12);
+        Assert.That(spec.WhereExpressions.Count(), Is.EqualTo(2), "the type and the supplier");
+    }
 }

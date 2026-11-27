@@ -53,6 +53,22 @@ public sealed class WarehouseMovementJournalTests
     }
 
     [Test]
+    public async Task The_supplier_card_finds_receipts_by_the_supplier_or_its_typed_name()
+    {
+        using var workshop = Workshop();
+        workshop.Reference.Suppliers.Add(new(9, "черкаси вв"));
+        await Seed(workshop);
+        var cherkasy = await Page(workshop, new(Chief, 1, FabricMovementFilter.All, null, null, null, SupplierId: 9));
+        var other = await Page(workshop, new(Chief, 1, FabricMovementFilter.All, null, null, null, SupplierId: 7));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(cherkasy.Rows.Select(x => x.Kind), Is.EqualTo(new[] { "Receipt" }), "the name matches without case");
+            Assert.That(other.Total, Is.Zero);
+        });
+    }
+
+    [Test]
     public async Task The_search_finds_the_fabric_by_any_code_of_its_group_and_by_colour()
     {
         using var workshop = Workshop();
@@ -95,5 +111,5 @@ public sealed class WarehouseMovementJournalTests
 
     private static async Task<FabricMovementPageResponse> Page(WarehouseTestHarness workshop,
         GetFabricMovementsQuery query) =>
-        (await new GetFabricMovementsHandler(workshop.Db).Handle(query, CancellationToken.None)).Value;
+        (await new GetFabricMovementsHandler(workshop.Db, workshop.Reference).Handle(query, CancellationToken.None)).Value;
 }

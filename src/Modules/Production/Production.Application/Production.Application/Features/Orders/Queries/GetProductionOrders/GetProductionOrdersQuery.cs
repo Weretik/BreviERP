@@ -8,7 +8,9 @@ namespace Production.Application.Features.Orders.Queries.GetProductionOrders;
 /// <param name="Status">New, Closed or Cancelled; null for all.</param>
 /// <param name="DueTo">Only orders with an item due on or before this day.</param>
 /// <param name="Stage">Only orders whose least advanced item is at this stage.</param>
-/// <param name="CustomerId">The client card tab «Завдання в цех»: only orders made from this client's КП.</param>
+/// <param name="CustomerId">Internal id of a Crm client: only orders made from this client's КП.</param>
+/// <param name="CustomerPublicId">The client card tab «Завдання в цех» (CARD-001 R-04): the handler turns it into
+/// <paramref name="CustomerId"/>; an unknown client lists nothing.</param>
 /// <param name="QuoteId">The КП editor: only orders made from this КП.</param>
 /// <param name="Filters">«Фільтри» of the list: client, order period, model, fabric, colour, season.</param>
 /// <param name="ManagerUserId">Only orders of this manager (the КП responsible); «Робочий стіл менеджера» (DESK-001).</param>
@@ -17,7 +19,7 @@ namespace Production.Application.Features.Orders.Queries.GetProductionOrders;
 public sealed record GetProductionOrdersQuery(
     string? Search, string? Status, string? Manager, DateOnly? DueTo, int Page = 1, int PageSize = 50,
     string? Stage = null, long? CustomerId = null, long? QuoteId = null, ProductionOrderFilters? Filters = null,
-    string? Sort = null, int? ManagerUserId = null)
+    string? Sort = null, int? ManagerUserId = null, Guid? CustomerPublicId = null)
     : IQuery<Result<ProductionOrderPageResponse>>
 {
     public const int MaxPageSize = 200;

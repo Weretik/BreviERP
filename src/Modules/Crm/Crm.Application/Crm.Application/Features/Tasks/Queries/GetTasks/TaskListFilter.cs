@@ -9,4 +9,7 @@ public enum TaskListFilter
     New,
     InProgress,
     Done,
+
+    /// <summary>Open and done together: the client card tab «Завдання менеджерам» (CARD-001 R-05).</summary>
+    All,
 }

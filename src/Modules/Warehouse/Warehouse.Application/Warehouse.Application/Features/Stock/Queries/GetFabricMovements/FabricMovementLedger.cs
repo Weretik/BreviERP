@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain.Identifiers.Orders;
+using BuildingBlocks.Domain.Identifiers.ReferenceData;
 using System.Linq.Expressions;
 using BuildingBlocks.Application;
 using Warehouse.Application.Abstractions;
@@ -34,8 +35,9 @@ internal static class FabricMovementLedger
             .ToListAsync(cancellationToken);
 
     /// <summary>Every filter but the kind; a fabric means any code of its group, the colour its key.</summary>
+    /// <param name="supplierName">The name of <see cref="GetFabricMovementsQuery.SupplierId"/>, matched without case.</param>
     public static IQueryable<FabricMovement> Filter(IQueryable<FabricMovement> movements, GetFabricMovementsQuery query,
-        IReadOnlyCollection<FabricShelfLine> shelf)
+        IReadOnlyCollection<FabricShelfLine> shelf, string? supplierName = null)
     {
         if (!string.IsNullOrWhiteSpace(query.FabricCode) || !string.IsNullOrWhiteSpace(query.Color))
         {
@@ -49,6 +51,14 @@ internal static class FabricMovementLedger
         }
 
         if (query.ItemId is { } itemId) movements = movements.Where(x => x.ItemId == new ProductionItemId(itemId));
+        if (query.SupplierId is { } supplierId)
+        {
+            var id = new SupplierId(supplierId);
+            var name = supplierName?.Trim().ToLower();
+            movements = name is null
+                ? movements.Where(x => x.SupplierId == id)
+                : movements.Where(x => x.SupplierId == id || (x.SupplierName != null && x.SupplierName.ToLower() == name));
+        }
         if (query.From is { } from) movements = movements.Where(x => x.OperationDate >= from);
         if (query.To is { } to) movements = movements.Where(x => x.OperationDate <= to);
         foreach (var word in SearchWords.Words(query.Search)) movements = movements.Where(Matches(word, shelf));

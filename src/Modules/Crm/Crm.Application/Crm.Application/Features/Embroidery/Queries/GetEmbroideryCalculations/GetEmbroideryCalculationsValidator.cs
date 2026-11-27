@@ -13,6 +13,9 @@ public sealed class GetEmbroideryCalculationsValidator : AbstractValidator<GetEm
     {
         RuleFor(x => x.Actor).NotNull();
         RuleFor(x => x.Search).MaximumLength(EmbroiderySavedCalculation.NameMaxLength);
+        RuleFor(x => x.CustomerPublicId).NotEqual(Guid.Empty).When(x => x.CustomerPublicId is not null);
+        RuleFor(x => x.To).GreaterThanOrEqualTo(x => x.From).When(x => x.From is not null && x.To is not null)
+            .WithMessage("Кінець періоду не може бути раніше за початок.");
         RuleFor(x => x.Page).InclusiveBetween(1, 100_000);
         RuleFor(x => x.PageSize).InclusiveBetween(1, MaxPageSize);
     }

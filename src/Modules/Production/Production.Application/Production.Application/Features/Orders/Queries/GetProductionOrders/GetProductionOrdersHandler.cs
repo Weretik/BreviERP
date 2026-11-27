@@ -12,12 +12,19 @@ using Production.Application.Features.Orders.Shared.Filtering;
 namespace Production.Application.Features.Orders.Queries.GetProductionOrders;
 
 public sealed class GetProductionOrdersHandler(IProductionDbContext db, IProductionModelReader models,
-    TimeProvider clock)
+    IProductionCustomerReader customers, TimeProvider clock)
     : IQueryHandler<GetProductionOrdersQuery, Result<ProductionOrderPageResponse>>
 {
     public async ValueTask<Result<ProductionOrderPageResponse>> Handle(GetProductionOrdersQuery query,
         CancellationToken cancellationToken)
     {
+        if (query.CustomerPublicId is { } publicId)
+        {
+            // Ids start at 1, so an unknown client (0) matches no order.
+            var customerId = await customers.FindInternalIdAsync(publicId, cancellationToken);
+            query = query with { CustomerId = customerId ?? 0 };
+        }
+
         var orders = await ProductionOrderFiltering.FilterAsync(db, models, query, cancellationToken);
 
         var byStatus = await orders.GroupBy(x => x.Status).Select(x => new { x.Key, Count = x.Count() })

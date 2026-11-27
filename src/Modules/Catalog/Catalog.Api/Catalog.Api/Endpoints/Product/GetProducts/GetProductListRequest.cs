@@ -7,4 +7,5 @@ public sealed record GetProductListRequest(
     string? Type = null,
     int? CategoryId = null,
     string SortBy = "name",
-    string SortDirection = "asc");
+    string SortDirection = "asc",
+    int? SupplierId = null);

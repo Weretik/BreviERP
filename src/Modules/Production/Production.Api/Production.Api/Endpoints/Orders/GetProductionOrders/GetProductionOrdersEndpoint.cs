@@ -15,11 +15,11 @@ internal static class GetProductionOrdersEndpoint
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, string? search = null,
         string? status = null, string? manager = null, DateOnly? dueTo = null, string? stage = null, int page = 1,
-        int pageSize = 50, long? customerId = null, long? quoteId = null, string? client = null, DateOnly? from = null,
+        int pageSize = 50, Guid? customerPublicId = null, long? quoteId = null, string? client = null, DateOnly? from = null,
         DateOnly? to = null, string? model = null, string? fabric = null, string? color = null, string? season = null,
         string? sort = null, int? managerUserId = null, CancellationToken cancellationToken = default) =>
         (await sender.Send(
-            new GetProductionOrdersQuery(search, status, manager, dueTo, page, pageSize, stage, customerId, quoteId,
-                new ProductionOrderFilters(client, from, to, model, fabric, color, season), sort, managerUserId),
+            new GetProductionOrdersQuery(search, status, manager, dueTo, page, pageSize, stage, null, quoteId,
+                new ProductionOrderFilters(client, from, to, model, fabric, color, season), sort, managerUserId, customerPublicId),
             cancellationToken)).ToHttpResult();
 }

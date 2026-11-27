@@ -259,7 +259,7 @@ public sealed class WarehouseStockHandlerTests
 
     internal static async Task<FabricMovementPageResponse> Movements(WarehouseTestHarness workshop,
         WarehouseActor actor, FabricMovementFilter kind, int page = 1, string? code = null, string? color = null) =>
-        (await new GetFabricMovementsHandler(workshop.Db)
+        (await new GetFabricMovementsHandler(workshop.Db, workshop.Reference)
             .Handle(new(actor, page, kind, code, color, null), CancellationToken.None)).Value;
 
     internal static Task<Result<FabricStockOperationResponse>> Reverse(WarehouseTestHarness workshop,

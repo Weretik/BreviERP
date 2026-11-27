@@ -84,7 +84,7 @@ public sealed class FabricMovementLedgerQueryTests
     private async Task<FabricMovementPageResponse> PageAsync(FabricMovementFilter kind, string? search)
     {
         await using var db = Context();
-        return (await new GetFabricMovementsHandler(db)
+        return (await new GetFabricMovementsHandler(db, new NoSuppliers())
             .Handle(new(Chief, 1, kind, null, null, null, search), CancellationToken.None)).Value;
     }
 
@@ -98,5 +98,17 @@ public sealed class FabricMovementLedgerQueryTests
         await connection.OpenAsync();
         await using var command = new NpgsqlCommand(sql, connection);
         await command.ExecuteNonQueryAsync();
+    }
+
+    private sealed class NoSuppliers : Warehouse.Application.Abstractions.IWarehouseReferenceReader
+    {
+        public Task<IReadOnlyList<Warehouse.Application.Abstractions.WarehouseFabric>> FabricsAsync(
+            CancellationToken cancellationToken) => Task.FromResult<IReadOnlyList<Warehouse.Application.Abstractions.WarehouseFabric>>([]);
+
+        public Task<IReadOnlyList<Warehouse.Application.Abstractions.WarehouseSupplier>> SuppliersAsync(
+            CancellationToken cancellationToken) => Task.FromResult<IReadOnlyList<Warehouse.Application.Abstractions.WarehouseSupplier>>([]);
+
+        public Task<IReadOnlyList<string>> ColorsAsync(CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<string>>([]);
     }
 }

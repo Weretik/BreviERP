@@ -13,8 +13,8 @@ internal static class GetFabricMovementsEndpoint
         group.MapGet("movements", HandleAsync).WithName("getFabricMovements")
             .WithSummary("«Рух тканини»: 50 per page, newest operation date first (then record time and id), with kind counts").Produces<FabricMovementPageResponse>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender, int page = 1, QueryEnum<FabricMovementFilter>? kind = null, string? fabricCode = null, string? color = null, int? itemId = null, string? search = null, DateOnly? from = null, DateOnly? to = null, CancellationToken cancellationToken = default) =>
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender, int page = 1, QueryEnum<FabricMovementFilter>? kind = null, string? fabricCode = null, string? color = null, int? itemId = null, string? search = null, DateOnly? from = null, DateOnly? to = null, int? supplierId = null, CancellationToken cancellationToken = default) =>
         user.WarehouseActor() is { } actor
-            ? (await sender.Send(new GetFabricMovementsQuery(actor, page, kind?.Value ?? FabricMovementFilter.All, fabricCode, color, itemId, search, from, to), cancellationToken)).ToHttpResult()
+            ? (await sender.Send(new GetFabricMovementsQuery(actor, page, kind?.Value ?? FabricMovementFilter.All, fabricCode, color, itemId, search, from, to, supplierId), cancellationToken)).ToHttpResult()
             : Results.Forbid();
 }

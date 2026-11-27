@@ -15,12 +15,12 @@ internal static class GetCrmEmbroideryCalculationsEndpoint
             .Produces<EmbroiderySavedPageResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
-        string? search = null, int page = 1,
-        int pageSize = 25, CancellationToken cancellationToken = default)
+        string? search = null, int page = 1, int pageSize = 25, Guid? customerPublicId = null, DateOnly? from = null,
+        DateOnly? to = null, CancellationToken cancellationToken = default)
     {
         var actor = EmbroideryActorClaims.Read(user);
         if (actor is null) return Results.Forbid();
-        return (await sender.Send(new GetEmbroideryCalculationsQuery(actor, search, page, pageSize),
+        return (await sender.Send(new GetEmbroideryCalculationsQuery(actor, search, page, pageSize, customerPublicId, from, to),
             cancellationToken)).ToHttpResult();
     }
 }

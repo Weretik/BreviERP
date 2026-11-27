@@ -7,7 +7,7 @@ using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
 
 namespace Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
 
-public sealed class GetFabricMovementsHandler(IWarehouseDbContext db)
+public sealed class GetFabricMovementsHandler(IWarehouseDbContext db, IWarehouseReferenceReader references)
     : IQueryHandler<GetFabricMovementsQuery, Result<FabricMovementPageResponse>>
 {
     public const int PageSize = 50;
@@ -16,7 +16,8 @@ public sealed class GetFabricMovementsHandler(IWarehouseDbContext db)
         CancellationToken cancellationToken)
     {
         var shelf = await FabricMovementLedger.ShelfAsync(db, cancellationToken);
-        var matching = FabricMovementLedger.Filter(db.FabricMovements.AsNoTracking(), query, shelf);
+        var supplier = await SupplierNameAsync(query.SupplierId, cancellationToken);
+        var matching = FabricMovementLedger.Filter(db.FabricMovements.AsNoTracking(), query, shelf, supplier);
         var groups = await FabricMovementLedger.GroupsAsync(matching, cancellationToken);
         var total = FabricMovementLedger.Count(groups, query.Kind);
         var rows = await matching.Where(FabricMovementLedger.Of(query.Kind)).Include(x => x.Stock)
@@ -33,6 +34,15 @@ public sealed class GetFabricMovementsHandler(IWarehouseDbContext db)
         return Result.Success(new FabricMovementPageResponse(page, query.Page, total > query.Page * PageSize,
             StockList.Permissions(query.Actor), total, FabricMovementLedger.Counts(groups)));
     }
+
+    /// <summary>
+    /// The supplier's name in «Постачальники»: a receipt typed by hand keeps only the name, so the supplier card finds
+    /// those too (CARD-001 R-08).
+    /// </summary>
+    private async Task<string?> SupplierNameAsync(int? supplierId, CancellationToken cancellationToken) =>
+        supplierId is { } id
+            ? (await references.SuppliersAsync(cancellationToken)).FirstOrDefault(x => x.Id == id)?.Name
+            : null;
 
     /// <summary>
     /// «На 1 виріб» (TZ §6.3): the products cut for the issue each movement belongs to, by its issue line; issues made

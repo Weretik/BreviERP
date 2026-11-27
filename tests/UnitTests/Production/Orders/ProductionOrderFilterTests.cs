@@ -25,7 +25,7 @@ public sealed class ProductionOrderFilterTests
     public async Task List_filters_by_client_period_model_fabric_colour_and_season()
     {
         using var workshop = await Seeded();
-        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Customers, workshop.Time);
 
         async Task<int[]> Numbers(ProductionOrderFilters filters) =>
             (await handler.Handle(new(null, null, null, null, Filters: filters), CancellationToken.None)).Value
@@ -57,7 +57,7 @@ public sealed class ProductionOrderFilterTests
     public async Task List_keeps_only_the_orders_of_one_manager_for_the_manager_desk()
     {
         using var workshop = await Seeded();
-        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Customers, workshop.Time);
 
         async Task<int> Count(int managerUserId) =>
             (await handler.Handle(new(null, "New", null, null, ManagerUserId: managerUserId), CancellationToken.None))
@@ -105,7 +105,7 @@ public sealed class ProductionOrderFilterTests
             workshop.Time.GetUtcNow());
         order.Ship(item.Id, 1, new DateOnly(2026, 11, 3), null, "Начальник", workshop.Time.GetUtcNow());
         await workshop.Db.SaveChangesAsync();
-        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Customers, workshop.Time);
 
         var byDue = (await handler.Handle(new(null, null, null, null, Sort: "due"), CancellationToken.None)).Value;
         var cutting = (await handler.Handle(new(null, null, null, null, Stage: "Cutting"), CancellationToken.None))

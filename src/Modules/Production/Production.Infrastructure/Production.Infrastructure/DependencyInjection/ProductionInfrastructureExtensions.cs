@@ -78,6 +78,7 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<IProductionModelReader, ProductionModelReader>();
         services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
         services.AddScoped<IProductionEmbroideryReader, ProductionEmbroideryReader>();
+        services.AddScoped<IProductionCustomerReader, ProductionCustomerReader>();
 
         // Ports that Crm declares in its Contracts and Production implements (ADR-0019).
         services.AddScoped<IQuoteOrderLinks, QuoteOrderLinks>();
