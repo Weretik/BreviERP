@@ -31,6 +31,7 @@ public sealed class GetProductionOrdersHandler(IProductionDbContext db, IProduct
         orders = ProductionOrderFiltering.ByStatus(orders, query.Status);
 
         var total = await orders.CountAsync(cancellationToken);
+        var totalQuantity = await orders.SumAsync(x => x.Items.Sum(item => item.Quantity), cancellationToken);
         var rows = await Sorted(orders, query.Sort)
             .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
             .Select(x => new ProductionOrderSummaryResponse(x.Id.Value, x.Number, x.Status.ToString(), x.ClientName,
@@ -50,7 +51,7 @@ public sealed class GetProductionOrdersHandler(IProductionDbContext db, IProduct
         var managers = await db.Orders.AsNoTracking().Where(x => x.DeletedAt == null)
             .Select(x => x.ManagerName).Distinct().OrderBy(x => x).ToListAsync(cancellationToken);
         return Result.Success(new ProductionOrderPageResponse(rows, query.Page, query.PageSize, total, counts, managers,
-            stages, attention));
+            stages, attention, totalQuantity));
     }
 
     /// <summary>

@@ -32768,7 +32768,8 @@
           "counts",
           "managers",
           "stages",
-          "attention"
+          "attention",
+          "totalQuantity"
         ],
         "type": "object",
         "properties": {
@@ -32807,6 +32808,10 @@
           },
           "attention": {
             "$ref": "#/components/schemas/ProductionOrderAttention"
+          },
+          "totalQuantity": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

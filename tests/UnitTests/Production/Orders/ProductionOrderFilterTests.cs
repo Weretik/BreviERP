@@ -118,6 +118,7 @@ public sealed class ProductionOrderFilterTests
             Assert.That(byDue.Items.Select(x => x.Number), Is.EqualTo(new[] { 2, 1, 3 }));
             var row = byDue.Items[0];
             Assert.That(row.ShippedQuantity, Is.EqualTo(1));
+            Assert.That(byDue.TotalQuantity, Is.GreaterThanOrEqualTo(row.Items.Sum(x => x.Quantity)));
             Assert.That(row.Items.Select(x => (x.ModelName, x.Quantity, x.Stage)), Is.EqualTo(new[]
             {
                 ("Костюм «Літо» куртка + брюки", 4, "Cutting"),
