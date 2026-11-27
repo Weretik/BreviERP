@@ -85,3 +85,5 @@ Make commits, push, create a branch or PR, or take other actions that change rem
 ## Branch names
 
 Every feature or fix is a new branch from `master` named `<type>/<short-kebab-description>`: types `feat`, `fix`, `hotfix`, `refactor`, `perf`, `docs`, `test`, `chore`; English, 3–6 words; for example `feat/site-order-1c-link`; the same name in every repository of one feature; no `claude`, hashes or dates. The `Branch name` workflow checks it on every pull request; details in [delivery rules](docs/sdd/standards/delivery-rules.md#branch-names).
+
+**Authorship:** Commits, merge and squash commits, and pull request descriptions carry no AI attribution: no `Co-Authored-By`, no `Claude-Session`, and no "Generated with Claude Code" line. The author and committer is the repository owner only (Weretik).
