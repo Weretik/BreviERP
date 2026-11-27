@@ -1,0 +1,32 @@
+name: Branch name
+
+# Runs on every pull request (no path filter), because the other workflows only check what a change affects.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the branch name
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          case "$BRANCH" in
+            dependabot/*|renovate/*) echo "Bot branch '$BRANCH' is allowed."; exit 0 ;;
+          esac
+          pattern='^(feat|fix|hotfix|refactor|perf|docs|test|chore)/[a-z0-9]+(-[a-z0-9]+){0,7}$'
+          if printf '%s' "$BRANCH" | grep -Eq "$pattern"; then
+            echo "Branch name '$BRANCH' is valid."
+            exit 0
+          fi
+          echo "::error title=Invalid branch name::'$BRANCH' does not match $pattern"
+          echo "Use <type>/<short-description-in-kebab-case>, in English, 3-6 words, lowercase letters and digits only."
+          echo "Types: feat, fix, hotfix, refactor, perf, docs, test, chore."
+          echo "Examples: feat/order-history-export, fix/login-redirect-loop, chore/update-ci-node."
+          echo "No word 'claude', no random suffixes, hashes or dates. Rename the branch and open the pull request again."
+          exit 1
