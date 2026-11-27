@@ -81,3 +81,7 @@ Complete all ready tasks within the agreed feature, phase, scenario, or task sco
 For `Host.Seed`, migrations, and other actions that change database state, check the [project procedure](docs/sdd/operations/data/migrations-and-seeding.md) and the permitted environment.
 
 Make commits, push, create a branch or PR, or take other actions that change remote state only at the user's direct request. Preserve unrelated working-tree changes. All links here point only to files in this repository; skills are available globally by name, and this repository has no local copies.
+
+## Branch names
+
+Every feature or fix is a new branch from `master` named `<type>/<short-kebab-description>`: types `feat`, `fix`, `hotfix`, `refactor`, `perf`, `docs`, `test`, `chore`; English, 3–6 words; for example `feat/site-order-1c-link`; the same name in every repository of one feature; no `claude`, hashes or dates. The `Branch name` workflow checks it on every pull request; details in [delivery rules](docs/sdd/standards/delivery-rules.md#branch-names).
