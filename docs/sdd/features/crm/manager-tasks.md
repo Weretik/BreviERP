@@ -2,6 +2,8 @@
 
 **Implemented:** backend of [TSK-001](../../specs/crm/004-manager-tasks/README.md) (2026-11-04). Director and Admin give tasks to managers, edit, reassign, mark urgent and delete them, and see every manager's tasks and workload (open, overdue, urgent, in progress, done in 7 days, % on time in 30 days). A Manager sees only own tasks, changes their status (`New`, `InProgress`, `Done`) and ticks steps. Lanes for the kanban are computed: overdue, urgent, active, done. The board shows every open task and the tasks done in a chosen period (default this Kyiv week), newest added first. Every change checks the loaded version and is written to the task history.
 
+Client card ([CARD-001](../../specs/crm/008-counterparty-cards/README.md)): `GET /api/crm/tasks?customerPublicId=&from=&to=&filter=All` lists open and done tasks of one client created in a Kyiv-day period.
+
 ## Code structure
 
 ```text

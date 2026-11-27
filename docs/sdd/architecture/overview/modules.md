@@ -58,7 +58,7 @@ Layers: Crm.Api, Crm.Application, Crm.Contracts, Crm.Domain, Crm.Infrastructure.
 
 Aggregates (root → children): `Customer` → `CustomerContact`, `CustomerExternalIdentity`; `EmbroiderySavedCalculation`; `EmbroiderySettings`; `Lead` → `LeadCall`; `LeadCallResult`; `LeadCategory`; `LeadSyncState`; `ManagerTask` → `ManagerTaskEvent`, `ManagerTaskStep`; `Quote` → `QuoteEvent`, `QuoteItem`; `QuoteIntroTemplate`; `QuoteSending`; `QuoteSettings`; `SiteRequest`; `StaffMailbox`.
 
-Uses the `Contracts` of: ActivityLog, Catalog, Identity, Media, Reference, Reminders. `Crm.Contracts` offers: `ICustomerDirectory`, `IQuoteReader`, `IEmbroideryCalculationReader`; it declares `IQuoteOrderLinks`, which Production implements. Implements Media's `IMediaFileUsageSource`.
+Uses the `Contracts` of: ActivityLog, Catalog, Identity, Media, Reference, Reminders. `Crm.Contracts` offers: `ICustomerDirectory` (search, by KeepinCRM id, by ЄДРПОУ, internal id by public id), `IQuoteReader`, `IEmbroideryCalculationReader`; it declares `IQuoteOrderLinks`, which Production implements. Implements Media's `IMediaFileUsageSource`.
 
 The client/contact slice implements scoped customer APIs, exact source identity, revision/idempotency and Admin merge in the existing four layers. See the [feature map](../../features/crm/clients-and-quotes.md). Crm is the «Менеджер сервісу» block: clients from KeepinCRM and КП ([QTE-001](../../specs/crm/003-quotes/README.md)); leads, deals and tasks will be added here.
 

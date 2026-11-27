@@ -2,6 +2,8 @@
 
 **Implemented:** stage 1 of [EMB-001](../../specs/crm/005-embroidery-price/README.md) (2026-11-04). «Ціна вишивки» computes the cost and two price categories («Категорія 1», «Категорія 2»; «Опт» removed and the old «Стандарт», «Терміново» renamed by the client corrections of 2026-11-08) of an embroidery on a garment or of chevrons, with the repeat price and the cut layout of stabilizer and fabric. Managers get prices only; Director and Admin also get the cost and edit «Налаштування». The embroiderer's rate comes from «Параметри ціноутворення». Stage 2 adds «Збережені»: a saved calculation keeps its form, frozen rates and result, with an optional client, search by name, client or «ВШ-0042»; only Director and Admin delete. Saving keeps one chosen category and its price (`Category`; an older calculation stands for «Стандарт», shown as «Категорія 1»). «Додати в КП» puts a saved calculation into a КП as one Embroidery row with that price in all three tiers. «Імпорт архіву» (Director and Admin) moves the old calculator's saved calculations with their dates, authors and old rates, checking that each gives its old prices. Stage 4: «Макет» — a photo of the design from «Медіа» on a saved calculation, which the workshop sees in the order; the photo cannot be deleted while used.
 
+Client card ([CARD-001](../../specs/crm/008-counterparty-cards/README.md)): the saved calculations list takes `customerPublicId`, `from` and `to` (creation date, Kyiv days).
+
 ## Code structure
 
 ```text

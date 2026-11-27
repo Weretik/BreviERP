@@ -899,6 +899,14 @@
               "type": "string",
               "format": "date"
             }
+          },
+          {
+            "name": "supplierId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -5625,11 +5633,11 @@
             }
           },
           {
-            "name": "customerId",
+            "name": "customerPublicId",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
             }
           },
           {
@@ -9985,6 +9993,30 @@
               "format": "int32",
               "default": 25
             }
+          },
+          {
+            "name": "customerPublicId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
           }
         ],
         "responses": {
@@ -11412,11 +11444,27 @@
             }
           },
           {
-            "name": "customerId",
+            "name": "customerPublicId",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
             }
           }
         ],
@@ -12153,6 +12201,30 @@
               "type": "integer",
               "format": "int32",
               "default": 25
+            }
+          },
+          {
+            "name": "customerPublicId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
             }
           }
         ],
@@ -13393,6 +13465,14 @@
             "schema": {
               "type": "string",
               "default": "asc"
+            }
+          },
+          {
+            "name": "supplierId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
@@ -38906,7 +38986,7 @@
           "kind",
           "status",
           "internalName",
-          "customerId",
+          "customerPublicId",
           "recipientName",
           "companyName",
           "clientComment",
@@ -38938,12 +39018,12 @@
           "internalName": {
             "type": "string"
           },
-          "customerId": {
+          "customerPublicId": {
             "type": [
               "null",
-              "integer"
+              "string"
             ],
-            "format": "int64"
+            "format": "uuid"
           },
           "recipientName": {
             "type": [
@@ -40578,7 +40658,7 @@
         "required": [
           "version",
           "internalName",
-          "customerId",
+          "customerPublicId",
           "recipientName",
           "companyName",
           "clientComment",
@@ -40594,12 +40674,12 @@
           "internalName": {
             "type": "string"
           },
-          "customerId": {
+          "customerPublicId": {
             "type": [
               "null",
-              "integer"
+              "string"
             ],
-            "format": "int64"
+            "format": "uuid"
           },
           "recipientName": {
             "type": [
@@ -40644,7 +40724,7 @@
         "required": [
           "version",
           "internalName",
-          "customerId",
+          "customerPublicId",
           "recipientEmail",
           "recipientName",
           "companyName",
@@ -40662,12 +40742,12 @@
           "internalName": {
             "type": "string"
           },
-          "customerId": {
+          "customerPublicId": {
             "type": [
               "null",
-              "integer"
+              "string"
             ],
-            "format": "int64"
+            "format": "uuid"
           },
           "recipientEmail": {
             "type": [

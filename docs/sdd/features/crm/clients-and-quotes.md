@@ -82,7 +82,9 @@ The transaction coordinator retains commit/rollback ownership; the journal uses 
 - «Архів» removed (R-23): КП archived before are not listed; the Director sees their count (`GET /api/crm/quotes/legacy-archive`) and deletes them (`DELETE …/legacy-archive`); a КП kept by a production order returns to the list. Code: `Quotes/LegacyArchive/`.
 - «Видалити КП» (R-33): Director only, any status; a КП with a production order is 409. Code: `Quotes/DeleteQuote/`, `Quotes/ProductionLinks/`, host `Crm/QuoteProductionOrders.cs`.
 - Own item photo (R-34): `POST /api/crm/quote-lookups/photos` stores the photo in the media folder «Фото КП» and returns its address. Code: `Quotes/Photos/`, adapter `Crm.Infrastructure/Adapters/Media/QuotePhotoStorage.cs`; test `QuoteLifecycleTests`.
-- Client card tab «КП»: `getCrmQuotes?customerId=` lists that client's КП within the actor's access (a Manager sees only own).
+- A КП stores the client picked in «Кому» as `QuoteCustomer` (internal id and public id together); the API takes and returns `customerPublicId` ([CARD-001](../../specs/crm/008-counterparty-cards/README.md)).
+- Client card tab «КП»: `getCrmQuotes?customerPublicId=&from=&to=` lists that client's КП created in the period, within the actor's access (a Manager sees only own). Tasks (`getCrmTasks?filter=All&customerPublicId=`) and saved «Ціна вишивки» calculations (`getCrmEmbroideryCalculations?customerPublicId=`) take the same client and period.
+- `ICustomerDirectory.FindInternalIdAsync` (Crm.Contracts) gives another module the internal id of a client by its public id (Production uses it for the card's «Завдання в цех»).
 - «Копіювати» (R-24): `POST /api/crm/quotes/{id}/copy` makes a new draft with the next number and the same items and saved prices (`Quote.CopyAs`); the actor becomes author and responsible.
 - Transfer of old Calculator КП (R-25): `POST /api/crm/quote-import` (Admin) with `dryRun`; keeps numbers, people, dates, status, saved prices and history, links items to the Catalog by code, skips КП transferred before. Runbook: [old КП transfer](../../operations/data/migrations-and-seeding.md#old-кп-transfer).
 
