@@ -46,3 +46,14 @@ When changing an existing feature, open its card and the code and tests it lists
 Every scenario in scope is implemented or explicitly deferred, all required technical tasks are complete, and automated or documented manual evidence passed. Contracts and implementation are aligned. Focused tests for the changed feature and related components are run, or the reason they could not be run is recorded; general tests and a full suite run only at the user's explicit request under the [testing rules](testing-rules.md). The delivery report lists changed files, verification evidence, unrun checks, and residual risks.
 
 Before marking a task complete, perform a self-check: compare the scope with the specification, file responsibilities with `backend-rules.md`, style with adjacent code, and the exact verification commands. Do not report a phase or task as complete while dependent work remains unfinished.
+
+## Branch names
+
+Every feature or fix is a new branch from the default branch (`master`), named in the Conventional Branch format `<type>/<short-description-in-kebab-case>`.
+
+- **Types:** `feat` (new feature), `fix` (bug), `hotfix` (urgent production fix), `refactor`, `perf`, `docs`, `test`, `chore` (infrastructure, dependencies, CI).
+- **Description:** English, lowercase letters, digits and hyphens, 3–6 words. Examples: `feat/site-order-1c-link`, `fix/model-category-save-button`, `chore/ci-contract-drift`.
+- **Forbidden:** the word `claude`, random suffixes, hashes and dates.
+- **Several repositories:** a feature that touches more than one repository uses the same branch name in all of them.
+- **Bots:** `dependabot/*` and `renovate/*` are allowed as they are. The automatic `chore/sync-backend-contract` branch is valid (three words).
+- **Check:** the `Branch name` workflow (`.github/workflows/branch-name.yml`) runs on every pull request, with no path filter, and fails with an explanation when the name breaks these rules. To make it block merging, mark the `branch name` check as required for `master` in GitHub Settings → Branches (or Rulesets).

@@ -82,6 +82,6 @@ For `Host.Seed`, migrations, and other actions that change database state, check
 
 Make commits, push, create a branch or PR, or take other actions that change remote state only at the user's direct request. Preserve unrelated working-tree changes. All links here point only to files in this repository; skills are available globally by name, and this repository has no local copies.
 
-## Git branches
+## Branch names
 
-Every feature or fix is a new branch from the default branch (`master`), named in the Conventional Branch format `<type>/<short-description-in-kebab-case>`: English, 3–6 words, lowercase letters and digits. Types: `feat`, `fix`, `hotfix` (urgent production fix), `refactor`, `perf`, `docs`, `test`, `chore` (infrastructure, dependencies, CI). Examples: `feat/order-history-export`, `fix/login-redirect-loop`, `chore/update-ci-node`. When a feature touches several repositories, the branch name is the same in all of them. No word `claude`, no random tails, hashes or dates. The `Branch name` workflow checks `^(feat|fix|hotfix|refactor|perf|docs|test|chore)/[a-z0-9]+(-[a-z0-9]+){0,7}$` on every pull request and allows `dependabot/*` and `renovate/*`.
+Every feature or fix is a new branch from `master` named `<type>/<short-kebab-description>`: types `feat`, `fix`, `hotfix`, `refactor`, `perf`, `docs`, `test`, `chore`; English, 3–6 words; for example `feat/site-order-1c-link`; the same name in every repository of one feature; no `claude`, hashes or dates. The `Branch name` workflow checks it on every pull request; details in [delivery rules](docs/sdd/standards/delivery-rules.md#branch-names).
