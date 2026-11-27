@@ -57,3 +57,4 @@ Every feature or fix is a new branch from the default branch (`master`), named i
 - **Several repositories:** a feature that touches more than one repository uses the same branch name in all of them.
 - **Bots:** `dependabot/*` and `renovate/*` are allowed as they are. The automatic `chore/sync-backend-contract` branch is valid (three words).
 - **Check:** the `Branch name` workflow (`.github/workflows/branch-name.yml`) runs on every pull request, with no path filter, and fails with an explanation when the name breaks these rules. To make it block merging, mark the `branch name` check as required for `master` in GitHub Settings → Branches (or Rulesets).
+- **No AI attribution:** commits, merge and squash commits, and pull request descriptions carry no `Co-Authored-By`, no `Claude-Session`, and no "Generated with Claude Code" line; the author and committer is the repository owner only (Weretik).
