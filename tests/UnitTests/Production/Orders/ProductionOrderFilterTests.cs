@@ -118,10 +118,13 @@ public sealed class ProductionOrderFilterTests
             Assert.That(byDue.Items.Select(x => x.Number), Is.EqualTo(new[] { 2, 1, 3 }));
             var row = byDue.Items[0];
             Assert.That(row.ShippedQuantity, Is.EqualTo(1));
-            Assert.That(row.Items, Is.EqualTo(new[]
+            Assert.That(row.Items.Select(x => (x.ModelName, x.Quantity, x.Stage)), Is.EqualTo(new[]
             {
-                new ProductionOrderSummaryItem("Костюм «Літо» куртка + брюки", 4, "Cutting"),
+                ("Костюм «Літо» куртка + брюки", 4, "Cutting"),
             }));
+            Assert.That(row.Items[0].MainColor, Is.Not.Empty);
+            Assert.That(row.Items[0].AdditionalColors, Is.Not.Null);
+            Assert.That(row.Items[0].Applications, Is.Not.Null);
             Assert.That(cutting.Items.Select(x => x.Number), Is.EqualTo(new[] { 2 }));
             Assert.That(cutting.Stages.Select(x => (x.Stage, x.Count, x.Overdue)).Where(x => x.Count > 0),
                 Is.EqualTo(new[] { ("New", 1, 0), ("Cutting", 1, 1) }), "the stage filter does not narrow the conveyor; cancelled orders are left out");

@@ -56,6 +56,26 @@ public sealed class ProductionTrackingHandlerTests
     }
 
     [Test]
+    public async Task Complete_ticks_every_stage_even_those_nobody_ticked()
+    {
+        using var workshop = ProductionOrderHandlerTests.Workshop();
+        var order = await Order(workshop);
+        var itemId = order.Items[0].Id;
+
+        var done = await Stages(workshop, Chief, order, itemId, "Cutting", "Complete");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(done.Value.Items[0].Stages, Is.EqualTo(new[]
+            {
+                "New", "FabricOrdered", "FabricAvailable", "Cutting", "Application", "Sewing", "Ready", "Shipped",
+                "Complete"
+            }));
+            Assert.That(done.Value.Items[0].CurrentStage, Is.EqualTo("Complete"));
+        });
+    }
+
+    [Test]
     public async Task Shipments_never_exceed_the_quantity_and_a_full_one_ticks_shipped()
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();

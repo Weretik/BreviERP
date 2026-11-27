@@ -32988,7 +32988,11 @@
         "required": [
           "modelName",
           "quantity",
-          "stage"
+          "stage",
+          "fabricName",
+          "mainColor",
+          "additionalColors",
+          "applications"
         ],
         "type": "object",
         "properties": {
@@ -33001,6 +33005,27 @@
           },
           "stage": {
             "type": "string"
+          },
+          "fabricName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mainColor": {
+            "type": "string"
+          },
+          "additionalColors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "applications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

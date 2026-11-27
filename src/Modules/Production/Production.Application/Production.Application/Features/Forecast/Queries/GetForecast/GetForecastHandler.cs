@@ -31,7 +31,9 @@ public sealed class GetForecastHandler(ForecastQueueReader reader, WorkCards car
             ? SewingForecast.Calculate(loads, settings, start).ToDictionary(x => x.OrderId)
             : null;
 
-        var rows = orders.Select(order =>
+        // Only what is still being sewn: a fully sewn order leaves the forecast and takes no time in it.
+        var rows = orders.Where(order => loads.First(x => x.OrderId == order.Id).Items.Sum(x => x.Remaining) > 0)
+            .Select(order =>
         {
             var remaining = loads.First(x => x.OrderId == order.Id).Items.Sum(x => x.Remaining);
             var line = lines?[order.Id];
