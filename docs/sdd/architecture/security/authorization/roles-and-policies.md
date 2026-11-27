@@ -32,7 +32,7 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 
 | Policy | Allowed roles |
 | --- | --- |
-| `RequireAdminRole` / `CanManageUsers` | Admin: «Користувачі», «Права доступу», «Налаштування ШІ» ([AI-001](../../../specs/ai/001-ai-settings/README.md)), imports |
+| `RequireAdminRole` / `CanManageUsers` | Admin: «Користувачі», «Права доступу», «Налаштування ШІ» ([AI-001](../../../specs/ai/001-ai-settings/README.md)), one-time imports; every such item is listed in `AccessCatalog.AdminOnly`, which «Права доступу» shows as «Тільки адміністратор» |
 | `RequireManagerRole` / `CanManageOrders` | Manager, Admin (registered, not used by Brevi pages) |
 | `CatalogRead` | User, Accountant, Manager, Seo, Admin and every role made on «Права доступу»: shared catalogue reads |
 | `OwnProfile` | Accountant, Manager, WorkshopChief, Seo, Admin and every role made on «Права доступу» (`/api/profile`) |
@@ -42,15 +42,17 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 
 ### «Права доступу» pages
 
-Every work page of the admin is guarded by `access:<page>`; the action comes from the HTTP method (GET view, POST create, PUT/PATCH edit, DELETE delete), a page without that action asks for edit, and `access:<page>:<action>` or `[AccessAction]` (Minimal API: `.RequireAccessAction(...)`) names it when the method says otherwise. Pages and defaults are in `Identity.Domain/Authorization/AccessCatalog.cs`, in the groups and order of the admin menu (`apps/admin-react/src/app/router/legacy-menu.ts` in brevi-web); until a role is saved its defaults are the rules below. Each page offers only the actions it really has: «Створення» and «Видалення» appear where the page creates or deletes something (2026-11-12 audit), and a POST that changes, voids, closes or reopens something is marked `[AccessAction(Edit)]`.
+Every work page of the admin is guarded by `access:<page>`; the action comes from the HTTP method (GET view, POST create, PUT/PATCH edit, DELETE delete), a page without that action asks for edit, and `access:<page>:<action>` or `[AccessAction]` (Minimal API: `.RequireAccessAction(...)`) names it when the method says otherwise. Pages and defaults are in `Identity.Domain/Authorization/AccessCatalog.cs`, in the groups and order of the admin menu (`apps/admin-react/src/app/router/legacy-menu.ts` in brevi-web), each action with a Ukrainian label of what it does on that page (`AccessArea.Labels`, sent as `actionLabels`); until a role is saved its defaults are the rules below. Each page offers only the actions it really has: «Створення» and «Видалення» appear where the page creates or deletes something (2026-11-12 audit), and a POST that changes, voids, closes or reopens something is marked `[AccessAction(Edit)]`.
 
 | Page | Endpoints | Default rights |
 | --- | --- | --- |
 | `desk-main`, `desk-sales`, `desk-workshop`, `desk-seo`, `desk-accounting` | none: which «Робочий стіл» desks the admin home shows ([DESK-001](../../../specs/identity/003-role-desks/README.md)); each block also needs its own page | main: Admin; sales: Admin, Manager; workshop: Admin, WorkshopChief; SEO: Admin, Seo; accounting: Accountant |
 | `quotes` | `/api/crm/quotes`, quote introductions and templates; lookups and mailboxes need view; delete and the old-archive purge need `access:quotes:delete` | Admin, Manager: view, create, edit; delete only the director |
 | `quote-settings` (group «Адміністрування») | `/api/crm/quote-settings` | Admin |
-| `embroidery` | `/api/crm/embroidery` (settings stay Admin); «Розрахувати» needs view, a saved calculation create, its delete delete | Admin, Manager: all |
-| `tasks` | `/api/crm/tasks` (task admin stays Admin); create, edit, delete | Admin, Manager: all |
+| `embroidery` | `/api/crm/embroidery`; «Розрахувати» needs view, a saved calculation create, its delete delete; the old-archive import stays Admin | Admin, Manager: all |
+| `embroidery-settings` (right after `embroidery`) | `/api/crm/embroidery/settings`; view also shows the cost in the calculator ([ACC-002](../../../specs/identity/002-access-rights/README.md) R-02) | Admin: view, edit; a role saved before ACC-002 that is Admin gets it too |
+| `tasks` («Мої завдання») | `/api/crm/tasks` reads, status change and steps: view sees own tasks, edit changes status and marks steps | Admin, Manager: view, edit |
+| `manager-tasks` (group «Адміністрування», «Завдання менеджерам») | `/api/crm/tasks` create, edit, urgent, delete and assignees; view means the task list shows every manager's tasks (R-01) | Admin: all; a saved Admin role gets it too |
 | `leads` | `/api/crm/leads` ([LEAD-001](../../../specs/crm/006-leads/README.md)) | Admin, Manager |
 | `lead-stats` (group «Адміністрування», «Статистика лідів») | `/api/crm/lead-stats`; edit = «Довідники», create = «Синхронізувати зараз» | Admin |
 | `production-orders`, `fabric-stock`, `forecast`, `workshop-archive` (`fabric-stock`: create = openings, receipts, issues, adjustments; delete = a stock line; reverse, void, restore are edit; `production-orders`: close, cancel, reopen, files and Telegram are edit) | `/api/production/orders`, dashboard, `/api/warehouse/fabric-stock` (group «Склад тканин», [WH-001](../../../specs/warehouse/001-warehouse-module/README.md)), the item tab `/api/warehouse/orders/…/fabric` (`production-orders`), forecast, archive | Admin, Manager, WorkshopChief (rules inside by role, [PRD-002](../../../specs/production/002-production-orders/README.md)–[PRD-008](../../../specs/production/008-workshop-archive/README.md)) |
@@ -63,7 +65,7 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `activity-log` (group «Адміністрування», «Журнал дій») | `/api/activity-log/**` ([ACT-001](../../../specs/activity-log/001-staff-activity-log/README.md)); view only | Admin |
 | `background-tasks` (group «Адміністрування», «Фонові задачі») | `/api/scheduling/tasks/**`; create = «Запустити зараз», edit = schedule and on/off | Admin: all |
 | `reminders` | `/api/reminders/**` except the Telegram webhook; create = task, non-working day; delete = archive a task, remove a day; preview is view; close, reopen, chat test are edit | Admin: all |
-| `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes (`materials` covers fabrics, accessories and colours «Кольори»); reads stay `CatalogRead` | Admin, Manager; Accountant view |
+| `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes (`materials` covers fabrics, accessories and colours «Кольори»; `products` also product photos; `price-import` also PPE price sources, whose list shows «Змінити» by `access:price-import:edit`); reads stay `CatalogRead` | Admin, Manager; Accountant view |
 | `counterparties` | suppliers, clients and their contacts | Admin, Manager |
 | `media` | `/api/media/**` | Admin, Manager; Seo view and upload |
 | `content-*` | `/api/content/**` («Контент») | Admin; Manager view; Seo view, create and edit (settings, site pages, «Контакти та компанія»: view and edit; «SEO-огляд»: view) |
@@ -113,14 +115,14 @@ Every staff page of the admin and every API it calls must be configurable on «�
 1. **Choose the page.** If the feature is a new screen or menu item, add an `AccessArea` to `Identity.Domain/Authorization/AccessCatalog.cs` with:
    - a constant key (kebab-case, stable: it is stored in `identity.role_access`);
    - its group (the admin menu group, in Ukrainian) and a Ukrainian title, in menu order. When a menu item moves to another group, move its `AccessArea` in the same change;
-   - only the actions the page really has (`View`, `Create`, `Edit`, `Delete`). When an existing page gains `Create` or `Delete`, add an Identity data migration that gives them to every saved role with `Edit` on it (like `ExpandAccessActions`), because until then edit covered them;
+   - only the actions the page really has (`View`, `Create`, `Edit`, `Delete`), each with a Ukrainian label of what it does here when the general word («Бачить», «Створювати», «Редагувати», «Видаляти») hides it (`AccessRedesignTests` checks every action has one); When an existing page gains `Create` or `Delete`, add an Identity data migration that gives them to every saved role with `Edit` on it (like `ExpandAccessActions`), because until then edit covered them;
    - defaults for the built-in roles. The defaults decide what people see right after deploy, before anyone saves the page, so give exactly the roles the SDD names.
 
    If the feature only adds a part of an existing page (a tab, a panel, a button), reuse that page's key and pick the action instead. Add a new key only when the director would want to grant it separately.
 2. **Guard every endpoint** with `[Authorize(Policy = "access:<page>")]`. Put the constant in the module's `Api/Access/*Access.cs`, like `CrmAccess` or `ProductionAccess`.
    - The HTTP method gives the action: GET view, POST create, PUT/PATCH edit, DELETE delete.
    - When the method doesn't match the meaning, name the action: `access:<page>:delete` for a delete done by POST, or `[AccessAction(AccessActionAttribute.Edit)]` on a controller action or `.RequireAccessAction(AccessActionAttribute.Edit)` on a Minimal API endpoint for a POST that only edits (send, reprice).
-   - Never `[Authorize(Roles = …)]` on a work page. Users, «Права доступу» and system settings stay `CanManageUsers`, and shared catalogue reads stay `CatalogRead`.
+   - Never `[Authorize(Roles = …)]` on a work page, and never `IsInRole("Admin")` for a rule inside it: ask `IAuthorizationService` for the page action instead (`TaskActorClaims`, `EmbroideryActorClaims`). An action only the administrator may do goes into `AccessCatalog.AdminOnly` with its reason. Users, «Права доступу» and system settings stay `CanManageUsers`, and shared catalogue reads stay `CatalogRead`.
 3. **Keep business rules inside Application.** Rules such as "a manager sees only their own КП" stay in the handler. The page right only decides whether the person may open the page or do the action. Write down in the SDD how a role made on «Права доступу» is treated by those rules: today it is treated like a manager.
 4. **Tests:**
    - Update the module's policy assertions in its contract tests.

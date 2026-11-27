@@ -15,11 +15,12 @@ internal static class CalculateCrmEmbroideryEndpoint
             .RequireAccessAction(AccessActionAttribute.View)
             .Produces<EmbroideryCalculationResponse>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, CalculateEmbroideryInput input,
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user,
+        [FromServices] IAuthorizationService authorization, CalculateEmbroideryInput input,
         [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        var actor = EmbroideryActorClaims.Read(user);
+        var actor = await EmbroideryActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(new CalculateEmbroideryQuery(actor, input), cancellationToken)).ToHttpResult();
     }

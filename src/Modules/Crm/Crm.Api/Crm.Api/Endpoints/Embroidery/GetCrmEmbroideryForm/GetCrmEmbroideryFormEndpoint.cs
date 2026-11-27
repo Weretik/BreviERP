@@ -13,10 +13,11 @@ internal static class GetCrmEmbroideryFormEndpoint
             .WithDescription("Hoops, extra costs and the two price category names for the form. No rates are returned.")
             .Produces<EmbroideryFormResponse>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user,
+        [FromServices] IAuthorizationService authorization, [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        var actor = EmbroideryActorClaims.Read(user);
+        var actor = await EmbroideryActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(new GetEmbroideryFormQuery(actor), cancellationToken)).ToHttpResult();
     }

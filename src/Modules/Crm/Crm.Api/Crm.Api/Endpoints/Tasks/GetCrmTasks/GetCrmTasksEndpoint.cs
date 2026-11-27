@@ -14,12 +14,13 @@ internal static class GetCrmTasksEndpoint
             .WithDescription("A page of tasks. Not done: overdue first, then urgent, then by due time. `Done`: newest completion first. Search matches the number («ЗД-0142», «142»), title, client and manager name.")
             .Produces<TaskPageResponse>();
 
-    private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
+    private static async Task<IResult> HandleAsync(ClaimsPrincipal user,
+        [FromServices] IAuthorizationService authorization, [FromServices] ISender sender,
         string? search = null, string? filter = null, int? assigneeUserId = null, int page = 1, int pageSize = 25,
         Guid? customerPublicId = null, DateOnly? from = null, DateOnly? to = null,
         CancellationToken cancellationToken = default)
     {
-        var actor = TaskActorClaims.Read(user);
+        var actor = await TaskActorClaims.ReadAsync(user, authorization);
         if (actor is null) return Results.Forbid();
         return (await sender.Send(
             new GetTasksQuery(actor, search, filter, assigneeUserId, page, pageSize, customerPublicId, from, to),

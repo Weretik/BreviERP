@@ -23,14 +23,15 @@ using Catalog.Application.Features.Pricing.Queries.GetPpePriceSources;
 
 namespace IntegrationTests.Catalog.Pricing.Ppe.SupplierPrices;
 
-/// <summary>«Імпорт цін» HTTP access: read for staff, discounts for admins, imports and «Оновити зараз» for managers (CAT-017).</summary>
+/// <summary>«Імпорт цін» HTTP access: read for staff, discounts for «Імпорт цін: Редагувати», imports and «Оновити зараз» for managers (CAT-017).</summary>
 [NonParallelizable]
 public sealed class PpeSupplierPricesApiTests
 {
     private const string Path = "/api/v1/pricing/ppe/supplier-prices";
 
     [Test]
-    public async Task Only_admins_change_discounts_and_the_actor_comes_from_the_session()
+    // ACC-002: discounts need «Імпорт цін: Редагувати» (Admin and Manager by default), not the Admin role.
+    public async Task Only_the_edit_right_changes_discounts_and_the_actor_comes_from_the_session()
     {
         await using var host = await TestHost.CreateAsync();
         host.Sender.Setup(x => x.Send(It.IsAny<UpdatePpePriceSourceCommand>(), It.IsAny<CancellationToken>()))
@@ -39,19 +40,19 @@ public sealed class PpeSupplierPricesApiTests
             .Returns(new ValueTask<Result<IReadOnlyList<PpePriceSourceView>>>(Result.Success<IReadOnlyList<PpePriceSourceView>>([])));
 
         Assert.That((await host.Client.GetAsync(Path)).StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-        host.As("Manager", "manager-id", "manager@brevi");
-        var managerView = await host.Client.GetFromJsonAsync<System.Text.Json.JsonElement>(Path);
-        Assert.That(managerView.GetProperty("canChangeDiscounts").GetBoolean(), Is.False);
+        host.As("User", "viewer-id", "viewer@brevi");
+        var viewerView = await host.Client.GetFromJsonAsync<System.Text.Json.JsonElement>(Path);
+        Assert.That(viewerView.GetProperty("canChangeDiscounts").GetBoolean(), Is.False);
         Assert.That((await host.Client.PutAsJsonAsync(Path + "/av-center", new { discountPercent = 15 })).StatusCode,
             Is.EqualTo(HttpStatusCode.Forbidden));
 
-        host.As("Admin", "admin-id", "admin@brevi");
-        var adminView = await host.Client.GetFromJsonAsync<System.Text.Json.JsonElement>(Path);
-        Assert.That(adminView.GetProperty("canChangeDiscounts").GetBoolean(), Is.True);
+        host.As("Manager", "manager-id", "manager@brevi");
+        var managerView = await host.Client.GetFromJsonAsync<System.Text.Json.JsonElement>(Path);
+        Assert.That(managerView.GetProperty("canChangeDiscounts").GetBoolean(), Is.True);
         var response = await host.Client.PutAsJsonAsync(Path + "/av-center", new { discountPercent = 15, supplierId = 4 });
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
         host.Sender.Verify(x => x.Send(It.Is<UpdatePpePriceSourceCommand>(c =>
-            c.Key == "av-center" && c.DiscountPercent == 15 && c.SupplierId == 4 && c.Actor == "admin@brevi"),
+            c.Key == "av-center" && c.DiscountPercent == 15 && c.SupplierId == 4 && c.Actor == "manager@brevi"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 

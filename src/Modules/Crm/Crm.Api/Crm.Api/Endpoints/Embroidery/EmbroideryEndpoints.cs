@@ -13,8 +13,8 @@ using Crm.Api.Endpoints.Embroidery.SetCrmEmbroideryMockup;
 namespace Crm.Api.Endpoints.Embroidery;
 
 /// <summary>
-/// «Ціна вишивки» (EMB-001): Manager, Director and Admin calculate; only Director and Admin (the Director also holds
-/// Admin) see the cost and change «Налаштування».
+/// «Ціна вишивки» (EMB-001): whoever has the page calculates, saves and deletes by its rights; the cost and «Налаштування»
+/// are the page «Ціна вишивки: собівартість і налаштування» (ACC-002 R-02). The archive import stays Admin (R-04).
 /// </summary>
 internal static class EmbroideryEndpoints
 {
@@ -30,8 +30,11 @@ internal static class EmbroideryEndpoints
         SetCrmEmbroideryMockupEndpoint.Map(group);
         ImportCrmEmbroideryArchiveEndpoint.Map(group);
         DeleteCrmEmbroideryCalculationEndpoint.Map(group);
-        GetCrmEmbroiderySettingsEndpoint.Map(group);
-        SaveCrmEmbroiderySettingsEndpoint.Map(group);
+
+        var settings = app.MapGroup("api/crm/embroidery").RequireAuthorization(CrmAccess.EmbroiderySettings)
+            .WithTags("Embroidery");
+        GetCrmEmbroiderySettingsEndpoint.Map(settings);
+        SaveCrmEmbroiderySettingsEndpoint.Map(settings);
         return app;
     }
 }

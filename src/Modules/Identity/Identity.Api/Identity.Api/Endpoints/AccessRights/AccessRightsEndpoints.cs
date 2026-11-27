@@ -1,6 +1,7 @@
 using Identity.Application.Security.Policies;
 using Identity.Api.Endpoints.AccessRights.CreateRole;
 using Identity.Api.Endpoints.AccessRights.DeleteRole;
+using Identity.Api.Endpoints.AccessRights.RenameRole;
 using Identity.Api.Endpoints.AccessRights.GetAccessRights;
 using Identity.Api.Endpoints.AccessRights.SaveRoleAccess;
 
@@ -17,6 +18,7 @@ internal static class AccessRightsEndpoints
         GetAccessRightsEndpoint.Map(group);
         SaveRoleAccessEndpoint.Map(group);
         CreateRoleEndpoint.Map(group);
+        RenameRoleEndpoint.Map(group);
         DeleteRoleEndpoint.Map(group);
         return app;
     }

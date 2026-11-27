@@ -10,8 +10,7 @@ public sealed class DeleteEmbroideryCalculationHandler(IEmbroideryStore store)
     public async ValueTask<Result> Handle(DeleteEmbroideryCalculationCommand command,
         CancellationToken cancellationToken)
     {
-        if (!command.Actor.SeesCost) return Result.Forbidden(EmbroideryMessages.DeleteForbidden);
-
+        // «Ціна вишивки: Видалення» is checked by the endpoint (ACC-002 R-02); seeing the cost is not needed to delete.
         var saved = await store.EmbroideryCalculations.SingleOrDefaultAsync(x => x.Id == new EmbroiderySavedCalculationId(command.Id),
             cancellationToken);
         if (saved is null) return Result.NotFound(EmbroideryMessages.CalculationNotFound);

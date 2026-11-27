@@ -5,9 +5,12 @@ namespace Crm.Api.Access;
 
 internal static class TaskActorClaims
 {
-    /// <summary>Director also holds Admin, so «manages tasks» is the Admin role (TSK-001 R-01).</summary>
-    public static TaskActor? Read(ClaimsPrincipal user) =>
+    /// <summary>
+    /// «Manages tasks» (sees every manager's tasks, TSK-001 R-01) is «Завдання менеджерам: Перегляд» on «Права доступу»
+    /// (ACC-002 R-01); the director always has it.
+    /// </summary>
+    public static async Task<TaskActor?> ReadAsync(ClaimsPrincipal user, IAuthorizationService authorization) =>
         int.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var id) && id > 0
-            ? new TaskActor(id, user.IsInRole("Admin"))
+            ? new TaskActor(id, (await authorization.AuthorizeAsync(user, CrmAccess.ManagerTasksView)).Succeeded)
             : null;
 }
