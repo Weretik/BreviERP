@@ -206,7 +206,7 @@ public sealed class ProductionWorkHandlerTests
             new(PayrollParameterCodes.ShiftMinutes, "Хвилин", 480m, "хв", null),
             new(PayrollParameterCodes.MinuteCost, "Вартість", 1m, "грн", null)
         ]);
-        await Record(workshop, Chief, sewn.Id, sewn.Items[0].Id, new(employeeId, "Sewing", 2, Day, false, null, null));
+        await Record(workshop, Chief, sewn.Id, sewn.Items[0].Id, new(employeeId, "Sewing", 3, Day, false, null, null));
 
         var forecast = await Forecast(workshop, Chief);
 
